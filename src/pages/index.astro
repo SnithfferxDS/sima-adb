@@ -1,16 +1,87 @@
 ---
-
+import BaseLayout from "../layouts/guest.layout.astro";
+import { APP_NAME, APP_VERSION, APP_DESCRIPTION } from "../configs/constants";
+import { db, eq } from "astro:db";
+import ProductCard from "../components/ProductCard.astro";
+import { Product, ProductRelations, Image } from "astro:db";
+const products = await db
+	.select({
+		id: Product.id,
+		name: Product.name,
+		short_desc: Product.short_description,
+		image_url: Image.url,
+	})
+	.from(Product)
+	.leftJoin(ProductRelations, eq(ProductRelations.product_id, Product.id))
+	.leftJoin(Image, eq(Image.id, ProductRelations.image_id))
+	.orderBy(Product.created_at)
+	.limit(8);
 ---
 
-<html lang="en">
-	<head>
-		<meta charset="utf-8" />
-		<link rel="icon" type="image/svg+xml" href="/favicon.svg" />
-		<meta name="viewport" content="width=device-width" />
-		<meta name="generator" content={Astro.generator} />
-		<title>Astro</title>
-	</head>
-	<body>
-		<h1>Astro</h1>
-	</body>
-</html>
+<BaseLayout title="Home">
+	<main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
+		<div class="px-4 py-6 sm:px-0">
+			<div class="text-center">
+				<h1
+					class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl"
+				>
+					<span class="block">Welcome to</span>
+					<span class="block text-purple-600">{APP_NAME}</span>
+					<span class="font-semibold text-gray-700 dark:text-gray-500"
+						>v{APP_VERSION}</span
+					>
+				</h1>
+				<p
+					class="mt-3 max-w-md mx-auto text-base text-primary-500 dark:text-primary-700 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl"
+				>
+					{APP_DESCRIPTION}
+				</p>
+				<div
+					class="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8"
+				>
+					<div class="rounded-md shadow">
+						<a
+							href="/products"
+							class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10"
+						>
+							Ver productos
+						</a>
+					</div>
+					<div class="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
+						<a
+							href="/auth/signup"
+							class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10"
+						>
+							Iniciar
+						</a>
+					</div>
+				</div>
+			</div>
+			<div class="container mx-auto px-4 py-8">
+				<h1
+					class="text-3xl font-bold text-gray-900 dark:text-white mb-8"
+				>
+					Ultimos Productos
+				</h1>
+
+				<div
+					class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6"
+				>
+					{
+						products.map((product) => (
+							<ProductCard
+								id={product.id}
+								name={product.name}
+								short_description={
+									product.short_desc ?? undefined
+								}
+								image_url={product.image_url ?? undefined}
+								price={0.0}
+							/>
+						))
+					}
+				</div>
+			</div>
+		</div>
+	</main>
+</BaseLayout>
