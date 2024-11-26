@@ -1,0 +1,156 @@
+---
+interface Props {
+	id?: string;
+}
+
+const { id = "variants" } = Astro.props;
+---
+
+<div class="grid grid-cols-12 gap-4">
+	<div class="col-span-12">
+		<span
+			class="block mb-2 text-sm font-medium text-gray-800 dark:text-gray-50"
+			>Variantes Producto</span
+		>
+		<div class="grid sm:grid-cols-4 gap-4 mb-4">
+			<div
+				id="variants-preview"
+				class="grid grid-cols-1 sm:grid-cols-3 md:grid-cols-4 gap-4"
+			>
+			</div>
+		</div>
+		<div class="flex justify-center items-center w-full">
+			<label
+				for={id}
+				class="flex flex-col justify-center items-center w-full h-60 rounded-md border-2 border-dashed cursor-pointer bg-gray-100 border-gray-200 hover:border-gray-100 hover:bg-gray-200 dark:bg-gray-800 dark:border-gray-700 dark:hover:border-gray-600 dark:hover:bg-gray-700"
+			>
+				<div
+					class="flex flex-col justify-center items-center pt-5 pb-6"
+				>
+					<svg
+						class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
+						aria-hidden="true"
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 20 16"
+					>
+						<path
+							stroke="currentColor"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+						></path>
+					</svg>
+					<p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+						<span class="font-semibold">Clic para subir</span> o arrastre
+						y suelte el archivo
+					</p>
+					<p class="text-xs text-gray-500 dark:text-gray-400">
+						PNG, JPG or GIF (MAX. 800x400px)
+					</p>
+				</div>
+				<input
+					id={id}
+					type="file"
+					class="hidden"
+					multiple
+					accept="image/*"
+				/>
+			</label>
+		</div>
+	</div>
+</div>
+
+<script define:vars={{ id }}>
+	const input = document.getElementById(id);
+	const previewContainer = document.getElementById("variants-preview");
+
+	if (input && previewContainer) {
+		const createPreviewCard = (file, imageUrl) => {
+			const card = document.createElement("div");
+			card.className =
+				"relative p-2 bg-gray-50/50 dark:bg-gray-800/50 rounded-md w-36 h-36 aspect-square";
+
+			const img = document.createElement("img");
+			img.src = imageUrl;
+			img.alt = file.name;
+			img.className = "w-full h-full object-cover rounded-md";
+
+			const deleteBtn = document.createElement("button");
+			deleteBtn.type = "button";
+			deleteBtn.className =
+				"absolute bottom-1 left-1 text-red-500 dark:text-red-600 hover:text-red-700 dark:hover:text-red-400";
+			deleteBtn.innerHTML = `
+        <svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
+          <path fill-rule="evenodd" d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z" clip-rule="evenodd"></path>
+        </svg>
+      `;
+
+			deleteBtn.addEventListener("click", () => {
+				card.remove();
+			});
+
+			card.appendChild(img);
+			card.appendChild(deleteBtn);
+			return card;
+		};
+
+		input.addEventListener("change", (e) => {
+			const files = e.target.files;
+			if (files) {
+				Array.from(files).forEach((file) => {
+					const reader = new FileReader();
+					reader.onloadend = () => {
+						const preview = createPreviewCard(file, reader.result);
+						previewContainer.appendChild(preview);
+					};
+					reader.readAsDataURL(file);
+				});
+			}
+		});
+
+		// Handle drag and drop
+		const dropZone = input.parentElement;
+		if (dropZone) {
+			["dragenter", "dragover", "dragleave", "drop"].forEach(
+				(eventName) => {
+					dropZone.addEventListener(eventName, (e) => {
+						e.preventDefault();
+						e.stopPropagation();
+					});
+				},
+			);
+
+			["dragenter", "dragover"].forEach((eventName) => {
+				dropZone.addEventListener(eventName, () => {
+					dropZone.classList.add("border-primary-500");
+				});
+			});
+
+			["dragleave", "drop"].forEach((eventName) => {
+				dropZone.addEventListener(eventName, () => {
+					dropZone.classList.remove("border-primary-500");
+				});
+			});
+
+			dropZone.addEventListener("drop", (e) => {
+				const dt = e.dataTransfer;
+				const files = dt?.files;
+				if (files) {
+					Array.from(files).forEach((file) => {
+						const reader = new FileReader();
+						reader.onloadend = () => {
+							const preview = createPreviewCard(
+								file,
+								reader.result,
+							);
+							previewContainer.appendChild(preview);
+						};
+						reader.readAsDataURL(file);
+					});
+				}
+			});
+		}
+	}
+</script>
