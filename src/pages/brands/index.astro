@@ -1,0 +1,83 @@
+---
+import Layout from "../../layouts/app.layout.astro";
+import AstroTable from "../../components/table.astro";
+import { db, Brand } from "astro:db";
+
+const brands = await db.select().from(Brand).all();
+---
+
+<Layout title="Brands">
+	<div class="sm:flex sm:items-center pt-6">
+		<div class="flex sm:flex-auto justify-between items-center mb-6">
+			<h1 class="text-2xl font-semibold text-slate-900 dark:text-white">
+				Marcas
+			</h1>
+			<a
+				href="/brands/create"
+				class="inline-flex items-center justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 bg-purple-700 text-gray-50 hover:bg-purple-600 focus:ring-purple-500"
+			>
+				Agregar Marca
+			</a>
+		</div>
+	</div>
+
+	<div class="mt-8 flex flex-col">
+		<div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
+			<div
+				class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8"
+			>
+				<div
+					class="flex
+					justify-between
+					items-center
+					mb-6
+					p-6
+					overflow-hidden
+					ring-1
+					ring-opacity-5
+					shadow-purple-600/25
+					bg-secondary-800/50
+					text-white
+					dark:bg-gray-800/25
+					ring-black
+					rounded-md"
+				>
+					<AstroTable
+						resource="brands"
+						data={brands}
+						columns={[
+							{ name: "id", label: "ID", sortable: true },
+							{ name: "name", label: "Nombre", sortable: true },
+							{
+								name: "description",
+								label: "Descripción",
+								sortable: true,
+							},
+							{ name: "active", label: "Activo", sortable: true },
+						]}
+					/>
+				</div>
+			</div>
+		</div>
+	</div>
+</Layout>
+<script>
+	const deleteButtons = document.querySelectorAll(".delete-btn");
+	deleteButtons.forEach((button) => {
+		button.addEventListener("click", async () => {
+			if (confirm("Are you sure you want to delete this brand?")) {
+				const id = button.getAttribute("data-id");
+				try {
+					const response = await fetch(`/api/brands/${id}`, {
+						method: "DELETE",
+					});
+					if (response.ok) {
+						window.location.reload();
+					}
+				} catch (error) {
+					console.error("Error:", error);
+				}
+			}
+		});
+	});
+</script>

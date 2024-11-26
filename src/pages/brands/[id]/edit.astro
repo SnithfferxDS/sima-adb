@@ -1,0 +1,148 @@
+---
+import Layout from "../../../layouts/app.layout.astro";
+import { db, Brand, eq } from "astro:db";
+
+const { id } = Astro.params;
+const brandId = parseInt(id!);
+
+const brand = await db.select().from(Brand).where(eq(Brand.id, brandId)).get();
+
+if (!brand) {
+	return Astro.redirect("/brands");
+}
+---
+
+<Layout title="Edit Brand">
+	<div class="p-6 mx-auto">
+		<h1 class="text-2xl font-bold mb-6">Edit Brand</h1>
+
+		<form
+			id="editForm"
+			class="max-w-lg bg-gray-50/50 dark:bg-gray-700/50 rounded-lg shadow p-6"
+		>
+			<input type="hidden" name="id" value={brand.id} />
+
+			<div class="mb-4">
+				<label
+					for="name"
+					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					>Name</label
+				>
+				<input
+					type="text"
+					name="name"
+					id="name"
+					value={brand.name}
+					required
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					placeholder="Brand Name"
+				/>
+			</div>
+
+			<div class="mb-4">
+				<label
+					for="description"
+					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					>Description</label
+				>
+				<textarea
+					id="description"
+					name="description"
+					rows="3"
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					placeholder="Brand Description"
+					>{brand.description}</textarea
+				>
+			</div>
+
+			<div class="mb-4">
+				<label
+					for="logo"
+					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					>Logo URL</label
+				>
+				<input
+					type="url"
+					name="logo"
+					id="logo"
+					value={brand.logo}
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					placeholder="https://example.com/logo.png"
+				/>
+			</div>
+
+			<div class="mb-4">
+				<label class="relative inline-flex items-center cursor-pointer">
+					<input
+						type="checkbox"
+						id="active"
+						name="active"
+						class="sr-only peer"
+						checked={brand.active}
+					/>
+					<div
+						class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"
+					>
+					</div>
+					<span
+						class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+						>Active</span
+					>
+				</label>
+			</div>
+
+			<div class="flex justify-end space-x-4">
+				<a
+					href="/brands"
+					class="px-4 py-2 text-gray-200 bg-danger-400 rounded-md hover:bg-danger-500"
+				>
+					Cancel
+				</a>
+				<button
+					type="submit"
+					class="px-4 py-2 text-white bg-primary-500 rounded-md hover:bg-primary-600"
+				>
+					Save Changes
+				</button>
+			</div>
+		</form>
+	</div>
+</Layout>
+
+<script>
+	import { showSuccess, showError } from "../../../lib/utils/notifications";
+
+	const form = document.getElementById("editForm");
+	form?.addEventListener("submit", async (e) => {
+		e.preventDefault();
+		const formData = new FormData(form as HTMLFormElement);
+
+		const data = {
+			name: formData.get("name"),
+			description: formData.get("description"),
+			logo: formData.get("logo"),
+			active: formData.get("active") === "on",
+		};
+
+		try {
+			const response = await fetch(`/api/brands/${formData.get("id")}`, {
+				method: "PUT",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(data),
+			});
+
+			if (response.ok) {
+				showSuccess("Brand updated successfully");
+				window.location.href = "/brands";
+			} else {
+				const error = await response.json();
+				showError(error.message || "Failed to update brand");
+			}
+		} catch (error) {
+			console.error("Error:", error);
+			showError("An unexpected error occurred");
+		}
+	});
+</script>
