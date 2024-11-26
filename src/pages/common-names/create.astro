@@ -1,0 +1,107 @@
+---
+import BaseLayout from "../../layouts/app.layout.astro";
+---
+
+<BaseLayout title="Create Common Name">
+	<div class="p-6 mx-auto">
+		<h1 class="text-2xl font-bold mb-6">Crear Nombre Común</h1>
+
+		<form
+			id="createForm"
+			class="max-w-lg bg-gray-50/50 dark:bg-gray-700/50 rounded-lg shadow p-6"
+		>
+			<div class="mb-4">
+				<label
+					for="name"
+					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					>Nombre</label
+				>
+				<input
+					type="text"
+					name="name"
+					id="name"
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					placeholder="Nombre del Producto"
+					required=""
+				/>
+			</div>
+			<div class="grid md:grid-cols-3 md:gap-6">
+				<div class="relative z-0 w-full mb-5 group">
+					<label
+						for="possition"
+						class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+						>Posición (Opcional)</label
+					>
+					<input
+						type="number"
+						name="possition"
+						id="possition"
+						class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm text-center rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						step="1"
+						value="1"
+					/>
+				</div>
+				<div class="relative z-0 w-full mb-5 group">
+					<label
+						for="active"
+						class="block mb-4 text-sm font-medium text-gray-900 dark:text-white"
+						>Activo (Opcional)</label
+					>
+					<div class="flex items-center h-5">
+						<input
+							id="active"
+							name="active"
+							type="checkbox"
+							value=""
+							class="w-6 h-6 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-500 dark:border-gray-400 dark:focus:ring-blue-600 dark:ring-offset-gray-600 dark:focus:ring-offset-gray-600"
+							checked
+						/>
+					</div>
+				</div>
+			</div>
+
+			<div class="flex justify-end space-x-4">
+				<a
+					href="/common-names"
+					class="px-4 py-2 text-gray-200 bg-danger-400 rounded-md hover:bg-danger-500"
+				>
+					Cancel
+				</a>
+				<button
+					type="submit"
+					class="px-4 py-2 text-white bg-primary-500 rounded-md hover:bg-primary-600"
+				>
+					Create
+				</button>
+			</div>
+		</form>
+	</div>
+</BaseLayout>
+
+<script>
+	const form = document.getElementById("createForm");
+	form?.addEventListener("submit", async (e) => {
+		e.preventDefault();
+		const formData = new FormData(form as HTMLFormElement);
+		try {
+			console.log(formData.get("active"));
+			const response = await fetch("/api/common-names", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify({
+					name: formData.get("name"),
+					possition: formData.get("possition"),
+					active: formData.get("active"),
+				}),
+			});
+
+			if (response.ok) {
+				window.location.href = "/common-names";
+			}
+		} catch (error) {
+			console.error("Error:", error);
+		}
+	});
+</script>
