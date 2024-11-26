@@ -1,0 +1,52 @@
+---
+import {
+	APP_NAME,
+	APP_DESCRIPTION,
+	APP_VERSION,
+	BASE_URL,
+} from "../configs/constants.ts";
+//import { ViewTransitions } from "astro:transitions";
+
+export interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<head>
+	<meta charset="UTF-8" />
+	<meta name="viewport" content="width=device-width" />
+	<link rel="icon" type="image/svg+xml" href="/assets/img/logos/logo.png" />
+	<meta name="generator" content={Astro.generator} />
+	<meta name="description" content={APP_DESCRIPTION} />
+	<meta
+		name="keywords"
+		content="astro, astro db, astro db api, astro db rest api, astro db rest, astro db api rest, astro db api rest api"
+	/>
+	<meta name="author" content={APP_NAME} />
+	<meta name="application-name" content={APP_NAME} />
+	<meta name="apple-mobile-web-app-capable" content="yes" />
+	<meta name="apple-mobile-web-app-status-bar-style" content="default" />
+	<meta name="apple-mobile-web-app-title" content={APP_NAME} />
+	<meta name="format-detection" content="telephone=no" />
+	<meta name="mobile-web-app-capable" content="yes" />
+	<meta name="msapplication-config" content="/favicon/browserconfig.xml" />
+	<meta name="msapplication-TileColor" content="#2b5797" />
+	<meta name="msapplication-tap-highlight" content="no" />
+	<meta name="theme-color" content="#ffffff" />
+
+	<link rel="manifest" href="/manifest.webmanifest" />
+
+	<meta property="og:title" content={APP_NAME} />
+	<meta property="og:type" content="website" />
+	<meta property="og:url" content={BASE_URL} />
+	<meta property="og:image" content={BASE_URL + "/logo.png"} />
+	<meta property="og:description" content={APP_DESCRIPTION} />
+	<meta property="og:site_name" content={APP_NAME} />
+
+	<meta name="twitter:card" content="summary_large_image" />
+	<meta name="twitter:site" content={APP_NAME} />
+	<title>{title} | {APP_NAME} v{APP_VERSION}</title>
+	{/* <ViewTransitions /> */}
+</head>
