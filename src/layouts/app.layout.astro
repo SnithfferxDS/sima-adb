@@ -1,0 +1,51 @@
+---
+import MainLayout from "./main.layout.astro";
+import Navbar from "../templates/navbar.app.template.astro";
+import Footer from "../templates/footer.app.template.astro";
+import Sidebar from "../templates/sidebar.astro";
+interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<MainLayout title={title}>
+	<Sidebar />
+	<Navbar />
+	<div
+		class="flex
+        pt-16
+        overflow-hidden
+		text-gray-800
+        dark:text-white
+        bg-gradient-to-b from-secondary-700 to-primary-700
+        dark:from-secondary-400 dark:to-primary-400"
+	>
+		<div
+			id="main-content"
+			class="relative
+            w-full
+            h-full
+            overflow-y-auto
+            min-h-screen
+            max-w-screen-2xl
+            mx-auto
+            rounded-md
+            m-3
+            shadow-md
+            lg:ml-64"
+		>
+			<!-- BREADCRUMBS -->
+			<div class="px-4 py-2 rounded-md">
+				<slot />
+			</div>
+			<Footer />
+		</div>
+	</div></MainLayout
+>
+
+<link
+	href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined"
+	rel="stylesheet"
+/>
