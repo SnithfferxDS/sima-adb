@@ -1,0 +1,64 @@
+---
+const tickets = [
+	{
+		email: "jessica.smith123@example.com",
+		issue: "Login Issue",
+		status: "open",
+	},
+	{
+		email: "david.jones456@gmail.com",
+		issue: "Billing Inquiry",
+		status: "pending",
+	},
+	{
+		email: "emily.wilson789@fictitious.net",
+		issue: "Product Malfunction",
+		status: "closed",
+	},
+];
+---
+
+<div>
+	<div class="mb-4 flex items-center justify-between">
+		<h3 class="text-lg font-semibold">Support Tickets</h3>
+		<select class="rounded border border-gray-300 px-2 py-1">
+			<option>This week</option>
+		</select>
+	</div>
+	<div class="mb-4 space-x-2">
+		<button class="rounded-full bg-gray-200 px-3 py-1 text-sm">All</button>
+		<button class="rounded-full bg-blue-100 px-3 py-1 text-sm text-blue-600"
+			>Open</button
+		>
+		<button
+			class="rounded-full bg-yellow-100 px-3 py-1 text-sm text-yellow-600"
+			>Pending</button
+		>
+		<button class="rounded-full bg-gray-100 px-3 py-1 text-sm text-gray-600"
+			>Closed</button
+		>
+	</div>
+	<div class="space-y-4">
+		{
+			tickets.map((ticket) => (
+				<div class="flex items-center justify-between rounded-lg border border-gray-200 p-4">
+					<div>
+						<p class="text-sm text-gray-600">{ticket.email}</p>
+						<p class="font-medium">{ticket.issue}</p>
+					</div>
+					<span
+						class={`rounded-full px-3 py-1 text-sm ${
+							ticket.status === "open"
+								? "bg-blue-100 text-blue-600"
+								: ticket.status === "pending"
+									? "bg-yellow-100 text-yellow-600"
+									: "bg-gray-100 text-gray-600"
+						}`}
+					>
+						{ticket.status}
+					</span>
+				</div>
+			))
+		}
+	</div>
+</div>
