@@ -1,0 +1,153 @@
+---
+import BaseLayout from "../../layouts/app.layout.astro";
+import { db, Category } from "astro:db";
+
+const categories = await db.select().from(Category).all();
+---
+
+<BaseLayout title="Create Category">
+	<div class="p-6 mx-auto">
+		<h1 class="text-2xl font-bold mb-6">Crear Categoría</h1>
+
+		<form
+			id="createForm"
+			class="max-w-lg bg-gray-50/50 dark:bg-gray-700/50 rounded-lg shadow p-6"
+		>
+			<div class="mb-4">
+				<label
+					for="name"
+					class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
+					>Nombre</label
+				>
+				<input
+					type="text"
+					id="name"
+					name="name"
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					placeholder="Nombre de la Categoría"
+					required
+				/>
+			</div>
+			<div class="mb-4">
+				<label
+					for="description"
+					class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
+					>Description</label
+				>
+				<textarea
+					id="description"
+					name="description"
+					rows="3"
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					placeholder="Category Description"></textarea>
+			</div>
+			<div class="mb-4">
+				<label
+					for="parents"
+					class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
+					>Categoria(s) Superior(es)</label
+				>
+				<select
+					id="parents"
+					name="parents"
+					multiple
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				>
+					{
+						categories.map((category) => (
+							<option value={category.id}>{category.name}</option>
+						))
+					}
+				</select>
+				<p class="mt-2 text-sm text-gray-500 dark:text-gray-400">
+					Sosten Ctrl/Cmd para seleccionar varios nombres
+				</p>
+			</div>
+
+			<div class="mb-4">
+				<label class="relative inline-flex items-center cursor-pointer">
+					<input
+						type="checkbox"
+						id="active"
+						name="active"
+						class="sr-only peer"
+						checked
+					/>
+					<div
+						class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-300 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-700 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-600"
+					>
+					</div>
+					<span
+						class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+						>Active</span
+					>
+				</label>
+			</div>
+
+			<div class="flex justify-end space-x-4">
+				<a
+					href="/categories"
+					class="px-4 py-2 text-gray-200 bg-danger-400 rounded-md hover:bg-danger-500"
+				>
+					Cancel
+				</a>
+				<button
+					type="submit"
+					class="px-4 py-2 text-white bg-primary-500 rounded-md hover:bg-primary-600"
+				>
+					Create
+				</button>
+			</div>
+		</form>
+	</div>
+</BaseLayout>
+
+<script>
+	import { showSuccess, showError } from "../../lib/utils/notifications";
+	import { validateCategory } from "../../lib/utils/validation";
+
+	const form = document.getElementById("createForm");
+	form?.addEventListener("submit", async (e) => {
+		e.preventDefault();
+		const formData = new FormData(form as HTMLFormElement);
+		const select = document.getElementById("parents") as HTMLSelectElement;
+		const selectedOptions = Array.from(select.selectedOptions).map(
+			(option) => option.value,
+		);
+		//const parentId = formData.get("parent_id");
+
+		const data = {
+			name: formData.get("name") as string,
+			description: formData.get("description") as string,
+			parents: selectedOptions,
+			active: formData.get("active") === "on",
+		};
+
+		const validation = validateCategory(data);
+		if (validation.errors) {
+			showError(Object.values(validation.errors).flat().join("\n"));
+			return;
+		}
+
+		try {
+			const response = await fetch("/api/categories", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(data),
+			});
+
+			if (response.ok) {
+				showSuccess("Category created successfully");
+				window.location.href = "/categories";
+			} else {
+				const error = await response.json();
+				showError(error.message || "Failed to create category");
+			}
+		} catch (error) {
+			console.error("Error:", error);
+			showError("An unexpected error occurred");
+		}
+	});
+</script>
