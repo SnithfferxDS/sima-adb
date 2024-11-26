@@ -1,0 +1,454 @@
+import { defineDb, defineTable, column, NOW } from 'astro:db';
+
+const Product = defineTable({
+    columns: {
+        id: column.number({ primaryKey: true }),
+        name: column.text(),
+        handle: column.text({ optional: true }),
+        long_description: column.text({ optional: true }),
+        short_description: column.text({ optional: true }),
+        tags: column.json({ optional: true }),
+        sku: column.text({ optional: true }),
+        mpn: column.text({ optional: true }),
+        upc: column.text({ unique: true }),
+        ean: column.text({ optional: true }),
+        isbn: column.text({ optional: true }),
+        weight: column.number({ optional: true, default: 0.0 }),
+        weight_unit: column.text({ optional: true, default: 'g' }),
+        width: column.number({ optional: true, default: 0.0 }),
+        height: column.number({ optional: true, default: 0.0 }),
+        length: column.number({ optional: true, default: 0.0 }),
+        inner_diameter: column.number({ optional: true, default: 0.0 }),
+        outer_diameter: column.number({ optional: true, default: 0.0 }),
+        measure_unit: column.text({ optional: true, default: 'mm' }),
+        customizable: column.boolean({ optional: true }),
+        customizable_fields: column.json({ optional: true }),
+        created_at: column.date({ default: NOW }),
+        updated_at: column.date({ optional: true }),
+        deleted_at: column.date({ optional: true })
+    }
+});
+
+const User = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    name: column.text({ unique: true }),
+    email: column.text({ unique: true }),
+    password: column.text(),
+    person: column.number({ references: () => Person.columns.id }),
+    level: column.number({ references: () => User_Level.columns.id }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true })
+  }
+});
+
+const User_Level = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    name: column.text({ unique: true }),
+    level_value: column.text({ unique: true }),
+    permissions: column.json(),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true })
+  }
+});
+
+const Person = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    first_name: column.text(),
+    second_name: column.text(),
+    first_last_name: column.text(),
+    second_last_name: column.text(),
+    third_name: column.text(),
+    third_last_name: column.text(),
+    gender: column.text(),
+    birthday: column.date(),
+    address: column.text(),
+    phone: column.text(),
+    email: column.text({ unique: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true })
+  }
+});
+
+const SidebarMenu = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    name: column.text(),
+    url: column.text(),
+    icon: column.text(),
+    submenu: column.json({ optional: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true })
+  }
+});
+
+const CommonName = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    name: column.text(),
+    possition: column.number({ optional: true, default: 1 }),
+    active: column.boolean({ optional: true, default: true }),
+    desc_active: column.boolean({ default: true }),
+    categories: column.json({ optional: true}),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true })
+  }
+});
+
+const Tag = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    name: column.text(),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true })
+  }
+});
+
+const Category = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    name: column.text(),
+    slug: column.text({ unique: true }),
+    description: column.text({ optional: true }),
+    parents: column.json({ optional: true }),
+    active: column.boolean({ default: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true })
+  }
+});
+
+const Group = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    name: column.text(),
+    possition: column.number({ optional: true, default: 1 }),
+    active: column.boolean({ optional: true, default: true }),
+    is_allow_desc: column.boolean({ optional: true, default: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true })
+  }
+});
+
+const Metadata = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    name: column.text(),
+    possition: column.number({ optional: true, default: 1 }),
+    active: column.boolean({ optional: true, default: true }),
+    allow_description: column.boolean({ optional: true, default: true }),
+    is_feature: column.boolean({ optional: true, default: false }),
+    format: column.text({ optional: true }),
+    tooltip: column.text({ optional: true }),
+    id_common_name: column.number({ optional:true, references: () => CommonName.columns.id }),
+    id_group: column.number({ optional:true, references: () => Group.columns.id }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true })
+  }
+});
+
+const Aestetics = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    name: column.text({ unique: true }),
+    description: column.text(),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  },
+});
+
+const Aestetic_Relations = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    aestetics_grade: column.number(),
+    product_id: column.number({ references: () => Product.columns.id }),
+    quantity: column.number(),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  },
+});
+
+const Supplier = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    name: column.text({ unique: true }),
+    address: column.text({ optional: true }),
+    phone: column.text({ optional: true }),
+    email: column.text({ optional: true }),
+    website: column.text({ optional: true }),
+    contact: column.text({ optional: true }),
+    country: column.text({ optional: true }),
+    state: column.text({ optional: true }),
+    city: column.text({ optional: true }),
+    street: column.text({ optional: true }),
+    optional: column.text({ optional: true }),
+    logo: column.text({ optional: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+    deleted_at: column.date({ optional: true }),
+  },
+});
+
+const Status = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    name: column.text({ unique: true }),
+    description: column.text({ optional: true }),
+    active: column.boolean({ default: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+    deleted_at: column.date({ optional: true }),
+  },
+});
+
+const Brand = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    name: column.text({ unique: true }),
+    description: column.text({ optional: true }),
+    logo: column.text({ optional: true }),
+    active: column.boolean({ default: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+    deleted_at: column.date({ optional: true }),
+  },
+});
+
+const Purchase = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    number: column.text({ unique: true }),
+    purchase_date: column.date(),
+    ingress_date: column.date(),
+    procesed_date: column.date(),
+    total: column.number({ default: 0.0 }),
+    taxes: column.number({ default: 0.0 }),
+    discount: column.number({ default: 0.0 }),
+    purchase_details: column.number(),
+    supplier_id: column.number(),
+    buyer_id: column.number(),
+    procesed: column.boolean({ default: false }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+    deleted_at: column.date({ optional: true }),
+  },
+});
+
+const Purchase_Details = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    invoice_number: column.text(),
+    product_id: column.number(),
+    price: column.number({ default: 0.0 }),
+    taxes: column.number({ default: 0.0 }),
+    discount: column.number({ default: 0.0 }),
+    quantity: column.number({ default: 1 }),
+    procesed: column.boolean({ default: false }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+    deleted_at: column.date({ optional: true }),
+  },
+});
+
+const Variant = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    name: column.text(),
+    sku: column.text({ optional: true }),
+    mpn: column.text({ optional: true }),
+    upc: column.text({ unique: true }),
+    ean: column.text({ optional: true }),
+    isbn: column.text({ optional: true }),
+    price: column.number({ default: 0.0 }),
+    compare_at_price: column.number({ optional: true }),
+    cost_price: column.number({ optional: true }),
+    weight: column.number({ optional: true, default: 0.0 }),
+    weight_unit: column.text({ optional: true, default: 'g' }),
+    width: column.number({ optional: true, default: 0.0 }),
+    height: column.number({ optional: true, default: 0.0 }),
+    length: column.number({ optional: true, default: 0.0 }),
+    measure_unit: column.text({ optional: true, default: 'mm' }),
+    stock: column.number({ default: 0 }),
+    low_stock_alert: column.number({ optional: true }),
+    active: column.boolean({ default: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+    deleted_at: column.date({ optional: true }),
+  },
+});
+
+const VariantOption = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    name: column.text(),
+    values: column.json(), // Array of possible values for this option
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  },
+});
+
+const VariantRelation = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    product_id: column.number({ references: () => Product.columns.id }),
+    variant_id: column.number({ references: () => Variant.columns.id }),
+    option_id: column.number({ references: () => VariantOption.columns.id }),
+    value: column.text(), // The selected value from VariantOption.values for this variant
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  },
+});
+
+const variantType = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    name: column.text(),
+    active: column.boolean({ default: false }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  },
+});
+
+const variantTypeValue = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    name: column.text(),
+    value: column.text(),
+    abbreviation: column.text(),
+    variant_type_id: column.number({
+      references: () => variantType.columns.id,
+    }),
+    active: column.boolean({ default: false }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  },
+});
+
+const ProductType = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    name: column.text(),
+    categories: column.json(),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  },
+});
+
+const MetadataRelations = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    metadata_id: column.number(),
+    comun_name: column.number({
+      optional: true,
+      references: () => CommonName.columns.id,
+    }),
+    category: column.number({
+      optional: true,
+      references: () => Category.columns.id,
+    }),
+    product_type: column.number({
+      optional: true,
+      references: () => ProductType.columns.id,
+    }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  },
+});
+
+const MetadataValue = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    metadata_id: column.number(),
+    metadata_value: column.text({ unique: true }),
+    active: column.boolean({ optional: true, default: true }),
+    allow_description: column.boolean({ optional: true, default: true }),
+    created_at: column.date({ default: NOW }),
+  }
+})
+
+const MetadataValueRelations = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    metadata_id: column.number(),
+    product_id: column.text(),
+    content: column.text({ optional: true }),
+    possition: column.number({ optional: true, default: 1 }),
+    active: column.boolean({ optional: true, default: true }),
+    allow_description: column.boolean({ optional: true, default: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  },
+});
+
+const Image = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    name: column.text(),
+    url: column.text(),
+    possition: column.number({ optional: true, default: 1 }),
+    active: column.boolean({ optional: true, default: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  },
+});
+
+const ProductRelations = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    product_id: column.number(),
+    image_id: column.number({
+      optional: true,
+      references: () => Image.columns.id,
+    }),
+    brand_id: column.number({
+      optional: true,
+      references: () => Brand.columns.id,
+    }),
+    status_id: column.number({
+      optional: true,
+      references: () => Status.columns.id,
+    }),
+    variants_id: column.json(),
+    product_type_id: column.number({
+      optional: true,
+      references: () => ProductType.columns.id,
+    }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  },
+});
+
+// https://astro.build/db/config
+export default defineDb({
+  tables: {
+    Product,
+    User,
+    User_Level,
+    Person,
+    SidebarMenu,
+    CommonName,
+    Tag,
+    Group,
+    Category,
+    Metadata,
+    Aestetics,
+    Aestetic_Relations,
+    Supplier,
+    Status,
+    Brand,
+    Purchase,
+    Purchase_Details,
+    Variant,
+    variantType,
+    variantTypeValue,
+    VariantOption,
+    VariantRelation,
+    ProductType,
+    MetadataRelations,
+    MetadataValue,
+    MetadataValueRelations,
+    ProductRelations,
+    Image
+  }
+});
