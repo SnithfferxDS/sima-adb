@@ -1,0 +1,383 @@
+---
+import { db, variantType } from "astro:db";
+
+const variantTypes = await db.select().from(variantType).all();
+---
+
+<div class="grid grid-cols-12 gap-4 mb-6">
+	<div class="col-span-12">
+		<h3 class="text-lg font-semibold mb-4">Agregar Variantes</h3>
+		<form id="variantForm" class="space-y-4">
+			<div class="grid grid-cols-3 gap-4">
+				<div>
+					<label
+						for="variantUPC"
+						class="block
+              mb-2
+              text-sm
+              font-medium
+              text-gray-900
+              dark:text-gray-200"
+						>UPC</label
+					>
+					<div class="relative">
+						<div class="absolute inset-y-0 end-0 flex items-center">
+							<button
+								data-tooltip-target="tooltip-gen-mpn"
+								type="button"
+								class="text-white
+                end-2.5
+                bottom-2.5
+                focus:ring-4
+                focus:outline-none
+                font-medium
+                rounded-lg
+                text-sm px-3 py-2.5
+                text-center
+                bg-primary-600
+                hover:bg-primary-700
+                focus:ring-primary-700
+                dark:bg-primary-600
+                dark:hover:bg-primary-700
+                dark:focus:ring-primary-700"
+								id="VariantUPCGenBtn"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									height="24px"
+									viewBox="0 -960 960 960"
+									width="24px"
+									fill="#e8eaed"
+									><path
+										d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-400H160v400Zm140-40-56-56 103-104-104-104 57-56 160 160-160 160Zm180 0v-80h240v80H480Z"
+									>
+									</path></svg
+								>
+								<span class="sr-only">Generar UPC</span>
+							</button>
+							<div
+								id="tooltip-gen-mpn"
+								role="tooltip"
+								class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
+							>
+								Generar UPC
+								<div class="tooltip-arrow" data-popper-arrow>
+								</div>
+							</div>
+						</div>
+						<input
+							type="text"
+							id="variantUPC"
+							name="upc"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							required
+						/>
+					</div>
+				</div>
+				<div>
+					<label
+						for="variantMPN"
+						class="block
+              mb-2
+              text-sm
+              font-medium
+              text-gray-900
+              dark:text-gray-200"
+						>MPN</label
+					>
+					<div class="relative">
+						<div class="absolute inset-y-0 end-0 flex items-center">
+							<button
+								data-tooltip-target="tooltip-gen-mpn"
+								type="button"
+								class="text-white
+                end-2.5
+                bottom-2.5
+                focus:ring-4
+                focus:outline-none
+                font-medium
+                rounded-lg
+                text-sm px-3 py-2.5
+                text-center
+                bg-primary-600
+                hover:bg-primary-700
+                focus:ring-primary-700
+                dark:bg-primary-600
+                dark:hover:bg-primary-700
+                dark:focus:ring-primary-700"
+								id="VariantMPNGenBtn"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									height="24px"
+									viewBox="0 -960 960 960"
+									width="24px"
+									fill="#e8eaed"
+									><path
+										d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-400H160v400Zm140-40-56-56 103-104-104-104 57-56 160 160-160 160Zm180 0v-80h240v80H480Z"
+									>
+									</path></svg
+								>
+								<span class="sr-only">Generar MPN</span>
+							</button>
+							<div
+								id="tooltip-gen-mpn"
+								role="tooltip"
+								class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
+							>
+								Generar MPN
+								<div class="tooltip-arrow" data-popper-arrow>
+								</div>
+							</div>
+						</div>
+						<input
+							type="text"
+							id="variantMPN"
+							name="mpn"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						/>
+					</div>
+				</div>
+				<div>
+					<label
+						for="variantSKU"
+						class="block
+              mb-2
+              text-sm
+              font-medium
+              text-gray-900
+              dark:text-gray-200"
+						>SKU</label
+					>
+					<div class="relative">
+						<div class="absolute inset-y-0 end-0 flex items-center">
+							<button
+								data-tooltip-target="tooltip-gen-mpn"
+								type="button"
+								class="text-white
+                end-2.5
+                bottom-2.5
+                focus:ring-4
+                focus:outline-none
+                font-medium
+                rounded-lg
+                text-sm px-3 py-2.5
+                text-center
+                bg-primary-600
+                hover:bg-primary-700
+                focus:ring-primary-700
+                dark:bg-primary-600
+                dark:hover:bg-primary-700
+                dark:focus:ring-primary-700"
+								id="VariantSKUGenBtn"
+							>
+								<svg
+									xmlns="http://www.w3.org/2000/svg"
+									height="24px"
+									viewBox="0 -960 960 960"
+									width="24px"
+									fill="#e8eaed"
+									><path
+										d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-400H160v400Zm140-40-56-56 103-104-104-104 57-56 160 160-160 160Zm180 0v-80h240v80H480Z"
+									>
+									</path></svg
+								>
+								<span class="sr-only">Generar SKU</span>
+							</button>
+							<div
+								id="tooltip-gen-mpn"
+								role="tooltip"
+								class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
+							>
+								Generar SKU
+								<div class="tooltip-arrow" data-popper-arrow>
+								</div>
+							</div>
+						</div>
+						<input
+							type="text"
+							id="variantSKU"
+							name="sku"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						/>
+					</div>
+				</div>
+				<div>
+					<label
+						for="variantType"
+						class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+						>Variant Type</label
+					>
+					<select
+						id="variantType"
+						name="type"
+						class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						required
+					>
+						<option value="">Select Type</option>
+						{
+							variantTypes.map((type) => (
+								<option value={type.id}>{type.name}</option>
+							))
+						}
+					</select>
+				</div>
+				<div>
+					<label
+						for="variantValue"
+						class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+						>Value</label
+					>
+					<select
+						id="variantValue"
+						name="value"
+						class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						required
+						disabled
+					>
+						<option value="">Select Value</option>
+					</select>
+				</div>
+			</div>
+
+			<div class="flex justify-end">
+				<button
+					type="submit"
+					class="text-center
+          py-2.5
+          px-3
+          border
+          border-transparent
+          text-sm
+          font-medium
+          rounded-lg
+          focus:outline-none
+          focus:ring-2
+          focus:ring-offset-2
+          text-white
+          bg-primary-600
+          hover:bg-primary-700
+          focus:ring-primary-800
+          dark:bg-primary-600
+          dark:hover:bg-primary-700
+          dark:focus:ring-primary-700"
+				>
+					Agregar Variante
+				</button>
+			</div>
+		</form>
+	</div>
+</div>
+
+<script>
+	const variantForm = document.getElementById("variantForm");
+	const variantType = document.getElementById("variantType");
+	const variantValue = document.getElementById("variantValue");
+	const variantUPCGenBtn = document.getElementById("variantUPCGenBtn");
+	const variantSKUGenBtn = document.getElementById("variantSKUGenBtn");
+	const variantMPNGenBtn = document.getElementById("variantMPNGenBtn");
+	const upcInput = document.getElementById("variantUPC");
+	const mpnInput = document.getElementById("variantMPN");
+	const skuInput = document.getElementById("variantSKU");
+
+	// Load variant values when type is selected
+	variantType?.addEventListener("change", async (e) => {
+		const typeId = (e.target as HTMLSelectElement).value;
+		if (typeId) {
+			try {
+				const response = await fetch(
+					`/api/variant-types/${typeId}/values`,
+				);
+				const values = await response.json();
+
+				if (variantValue) {
+					(variantValue as HTMLSelectElement).innerHTML =
+						'<option value="">Select Value</option>';
+					values.forEach((value: any) => {
+						const option = document.createElement("option");
+						option.value = value.id;
+						option.textContent = value.name;
+						variantValue.appendChild(option);
+					});
+					(variantValue as HTMLSelectElement).disabled = false;
+				}
+			} catch (error) {
+				console.error("Error loading variant values:", error);
+			}
+		} else if (variantValue) {
+			(variantValue as HTMLSelectElement).innerHTML =
+				'<option value="">Select Value</option>';
+			(variantValue as HTMLSelectElement).disabled = true;
+		}
+	});
+
+	// Handle form submission
+	variantForm?.addEventListener("submit", async (e) => {
+		e.preventDefault();
+		const formData = new FormData(e.target as HTMLFormElement);
+
+		try {
+			const response = await fetch("/api/variants", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(Object.fromEntries(formData)),
+			});
+
+			if (response.ok) {
+				(e.target as HTMLFormElement).reset();
+				// Trigger event to notify parent component
+				variantForm.dispatchEvent(
+					new CustomEvent("variantAdded", {
+						detail: await response.json(),
+					}),
+				);
+			}
+		} catch (error) {
+			console.error("Error creating variant:", error);
+		}
+	});
+
+	variantMPNGenBtn?.addEventListener("click", async (e) => {
+		e.preventDefault();
+		try {
+			const response = await fetch("/api/products/mpn/exists").then(
+				(res) => res.text(),
+			);
+			if (response) {
+				mpnInput.value = response;
+			}
+		} catch (error) {
+			console.error("Error:", error);
+		}
+	});
+
+	variantSKUGenBtn?.addEventListener("click", async (e) => {
+		e.preventDefault();
+		try {
+			const response = await fetch("/api/products/sku/exists").then(
+				(res) => res.text(),
+			);
+			if (response) {
+				skuInput.value = response;
+			}
+		} catch (error) {
+			console.error("Error:", error);
+		}
+	});
+
+	variantUPCGenBtn?.addEventListener("click", async (e) => {
+		e.preventDefault();
+		try {
+			const response = await fetch("/api/products/upc/exists").then(
+				(res) => res.text(),
+			);
+			if (response) {
+				upcInput.value = response;
+			}
+		} catch (error) {
+			console.error("Error: ", error);
+		}
+	});
+</script>
