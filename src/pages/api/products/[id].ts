@@ -4,8 +4,11 @@ import { db, eq, Product } from 'astro:db';
 export const GET: APIRoute = async ({ params }) => {
     try {
       const type = params.id;
-      const identifier = await generateIdentifier(type);
-      return new Response(identifier, { status: 200 });
+      if (type !== undefined) {
+        const identifier = await generateIdentifier(type);
+        return new Response(identifier, {status: 200});
+      }
+      return new Response(JSON.stringify({ error: 'Failed to generate identifier' }), {status: 400});
     } catch (error) {
       return new Response(
         JSON.stringify({ error: 'Failed to generate identifier' }),
