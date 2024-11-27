@@ -1,0 +1,46 @@
+---
+import Layout from "../../layouts/app.layout.astro";
+import Table from "../../components/table.astro";
+import { db, ProductType } from "astro:db";
+
+const productTypes = await db.select().from(ProductType).all();
+---
+
+<Layout title="Product Types">
+	<div
+		class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg p-6"
+	>
+		<div class="flex justify-between items-center mb-6 border-b">
+			<h1 class="text-2xl font-bold">Tipos de Producto</h1>
+			<a
+				href="/product-types/create"
+				class="bg-purple-700 text-white px-4 py-2 mb-2 rounded-lg hover:bg-purple-600"
+			>
+				Agregar Nuevo
+			</a>
+		</div>
+
+		<div
+			class="flex
+			justify-between
+			items-center
+			mb-6
+			p-6
+			rounded-md
+			shadow-purple-700/25
+			bg-secondary-700/25
+			text-white
+			dark:bg-gray-800/25"
+		>
+			<Table
+				resource="product-types"
+				data={productTypes}
+				columns={[
+					{ name: "id", label: "ID", sortable: true },
+					{ name: "name", label: "Nombre", sortable: true },
+					{ name: "active", label: "Activo", sortable: true },
+				]}
+			/>
+		</div>
+	</div>
+</Layout>

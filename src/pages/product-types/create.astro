@@ -1,0 +1,154 @@
+---
+import Layout from "../../layouts/app.layout.astro";
+import { db, eq, Category } from "astro:db";
+
+const categories = await db
+	.select()
+	.from(Category)
+	.where(eq(Category.active, true))
+	.orderBy(Category.name);
+---
+
+<Layout title="Add Product Type">
+	<div
+		class="p-6
+		shadow-md
+		rounded-lg
+		overflow-hidden
+		max-w-2xl
+		mx-auto
+		transition-shadow
+		hover:shadow-lg"
+	>
+		<div class="p-4 border-b">
+			<h1 class="text-2xl font-bold">Add Product Type</h1>
+		</div>
+
+		<form
+			class="bg-gray-50/50 dark:bg-gray-700/50 rounded-lg shadow p-6"
+			id="createForm"
+		>
+			<div class="transition-all duration-200 ease-in-out">
+				<label
+					for="name"
+					class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
+					>Name</label
+				>
+				<input
+					type="text"
+					name="name"
+					id="name"
+					value=""
+					required
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					placeholder="Enter product type name"
+				/>
+			</div>
+
+			<div class="transition-all duration-200 ease-in-out">
+				<label
+					class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
+					>Categorías</label
+				>
+				<div
+					class="space-y-3 max-h-60 overflow-y-auto p-3 border rounded-md bg-gray-50/75 dark:bg-gray-700/75"
+				>
+					{
+						categories.map((category) => (
+							<label class="flex items-center group p-2 rounded hover:bg-white/75 transition-colors">
+								<input
+									type="checkbox"
+									name="categories"
+									value={category.id}
+									class="rounded border-gray-300 text-primary-600 shadow-sm 
+              focus:border-primary-500 focus:ring-primary-500 transition-shadow
+              group-hover:border-primary-400"
+								/>
+								<div class="ml-3">
+									<span class="text-sm text-gray-900 font-medium">
+										{category.name}
+									</span>
+									{category.description && (
+										<p class="text-xs text-gray-500 mt-0.5">
+											{category.description}
+										</p>
+									)}
+								</div>
+							</label>
+						))
+					}
+					{
+						categories.length === 0 && (
+							<p class="text-sm text-gray-500 text-center py-2">
+								No categories available
+							</p>
+						)
+					}
+				</div>
+			</div>
+
+			<div class="flex justify-end space-x-3 pt-2">
+				<a
+					href="/product-types"
+					class="bg-danger-400 text-gray-200 px-4 py-2 rounded-md hover:bg-danger-500
+        transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400"
+				>
+					Cancel
+				</a>
+				<button
+					type="submit"
+					class="bg-primary-500 text-white px-4 py-2 rounded-md hover:bg-primary-600
+        transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
+				>
+					Create
+				</button>
+			</div>
+		</form>
+	</div>
+</Layout>
+<script>
+	import { showSuccess, showError } from "../../lib/utils/notifications";
+	import { validateCategory } from "../../lib/utils/validation";
+
+	const form = document.getElementById("createForm");
+	form?.addEventListener("submit", async (e) => {
+		e.preventDefault();
+		const formData = new FormData(form as HTMLFormElement);
+		const categories = formData
+			.getAll("categories")
+			.map((id) => parseInt(id as string));
+
+		const data = {
+			name: formData.get("name") as string,
+			categories: categories,
+			created_at: new Date(),
+		};
+
+		const validation = validateCategory(data);
+		if (validation.errors) {
+			showError(Object.values(validation.errors).flat().join("\n"));
+			return;
+		}
+
+		try {
+			const response = await fetch("/api/product-types", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(data),
+			});
+
+			if (response.ok) {
+				showSuccess("Product Type created successfully");
+				window.location.href = "/product-types";
+			} else {
+				const error = await response.json();
+				showError(error.message || "Failed to create product type");
+			}
+		} catch (error) {
+			console.error("Error:", error);
+			showError("An unexpected error occurred");
+		}
+	});
+</script>
