@@ -50,7 +50,7 @@ const { data, columns } = Astro.props;
 			data.map((item) => (
 				<tr>
 					{columns.map((column) => (
-						<td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
+						<td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900 dark:text-gray-100">
 							{item[column.name]}
 						</td>
 					))}
@@ -73,6 +73,7 @@ const { data, columns } = Astro.props;
 								focus:ring-2 
 								text-warning-400 
 								hover:bg-warning-800 
+								hover:text-warning-400
 								focus:ring-orange-600 
 								focus:text-warning-300"
 							>
@@ -85,6 +86,32 @@ const { data, columns } = Astro.props;
 									viewBox="0 -960 960 960"
 								>
 									<path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h357l-80 80H200v560h560v-278l80-80v358q0 33-23.5 56.5T760-120H200Zm280-360ZM360-360v-170l367-367q12-12 27-18t30-6q16 0 30.5 6t26.5 18l56 57q11 12 17 26.5t6 29.5q0 15-5.5 29.5T897-728L530-360H360Zm481-424-56-56 56 56ZM440-440h56l232-232-28-28-29-28-231 231v57Zm260-260-29-28 29 28 28 28-28-28Z" />
+								</svg>
+							</a>
+							<a
+								href={`/${Astro.props.resource}/${item.id}/details`}
+								class="px-1 py-1 mr-1 text-sm font-medium rounded-e-lg focus:z-10 focus:ring-2 text-warning-400 hover:bg-warning-800 focus:ring-orange-600 focus:text-warning-300"
+							>
+								<span class="sr-only">Details</span>
+								<svg
+									class="w-6 h-6"
+									aria-hidden="true"
+									xmlns="http://www.w3.org/2000/svg"
+									width="24"
+									height="24"
+									fill="none"
+									viewBox="0 0 24 24"
+								>
+									<path
+										stroke="currentColor"
+										stroke-width="2"
+										d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z"
+									/>
+									<path
+										stroke="currentColor"
+										stroke-width="2"
+										d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+									/>
 								</svg>
 							</a>
 							<button
@@ -136,7 +163,8 @@ const { data, columns } = Astro.props;
 		searchable: true,
 		sortable: true,
 		perPage: 15,
-		perPageSelect: [5, 10, 15, 20, 25],
+		perPageSelect: [10, 15, 20, 50, 100],
+		scrollY: "45vh",
 	});
 
 	const deleteButtons = document.querySelectorAll(".delete-btn");
@@ -161,104 +189,3 @@ const { data, columns } = Astro.props;
 		});
 	});
 </script>
-
-{
-	/* 
-<table class="min-w-full divide-y divide-gray-300" id="default-table">
-	<thead class="bg-gray-800/75 text-white">
-		<tr>
-			<th scope="col">
-				<span
-					class="px-3 py-3 flex items-center text-center font-medium text-gray-800 dark:text-gray-100 uppercase tracking-wider"
-				>
-					Nombre
-				</span>
-			</th>
-			<th scope="col">
-				<span
-					class="px-3 py-3.5 flex items-center text-center font-medium text-gray-800 dark:text-gray-100 uppercase tracking-wider"
-				>
-					Descripción
-					<svg
-						class="w-4 h-4 ms-1"
-						aria-hidden="true"
-						xmlns="http://www.w3.org/2000/svg"
-						width="24"
-						height="24"
-						fill="none"
-						viewBox="0 0 24 24"
-					>
-						<path
-							stroke="currentColor"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="m8 15 4 4 4-4m0-6-4-4-4 4"></path>
-					</svg>
-				</span>
-			</th>
-			<th scope="col">
-				<span
-					class="px-3 py-3.5 flex items-center text-center font-medium text-gray-800 dark:text-gray-100 uppercase tracking-wider"
-				>
-					Estado
-					<svg
-						class="w-4 h-4 ms-1"
-						aria-hidden="true"
-						xmlns="http://www.w3.org/2000/svg"
-						width="24"
-						height="24"
-						fill="none"
-						viewBox="0 0 24 24"
-					>
-						<path
-							stroke="currentColor"
-							stroke-linecap="round"
-							stroke-linejoin="round"
-							stroke-width="2"
-							d="m8 15 4 4 4-4m0-6-4-4-4 4"></path>
-					</svg>
-				</span>
-			</th>
-			<th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
-				<span class="sr-only">Acciones</span>
-			</th>
-		</tr>
-	</thead>
-	<tbody class="divide-y divide-gray-200 bg-white">
-		{
-			brands.map((brand) => (
-				<tr>
-					<td class="whitespace-nowrap px-3 py-4 text-sm text-gray-900">
-						<div class="flex items-center">
-							{brand.logo && (
-								<img
-									src={brand.logo}
-									alt=""
-									class="h-10 w-10 rounded-full mr-3"
-								/>
-							)}
-							{brand.name}
-						</div>
-					</td>
-					<td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-						{brand.description}
-					</td>
-					<td class="whitespace-nowrap px-3 py-4 text-sm text-gray-500">
-						<span
-							class={`inline-flex rounded-full px-2 text-xs font-semibold leading-5 ${
-								brand.active
-									? "bg-green-100 text-green-800"
-									: "bg-red-100 text-red-800"
-							}`}
-						>
-							{brand.active ? "Active" : "Inactive"}
-						</span>
-					</td>
-				</tr>
-			))
-		}
-	</tbody>
-</table>
-*/
-}
