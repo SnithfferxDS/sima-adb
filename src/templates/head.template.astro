@@ -49,4 +49,15 @@ const { title } = Astro.props;
 	<meta name="twitter:site" content={APP_NAME} />
 	<title>{title} | {APP_NAME} v{APP_VERSION}</title>
 	{/* <ViewTransitions /> */}
+	<script is:inline>
+		if (
+			localStorage.getItem("color-theme") === "dark" ||
+			(!("color-theme" in localStorage) &&
+				window.matchMedia("(prefers-color-scheme: dark)").matches)
+		) {
+			document.documentElement.classList.add("dark");
+		} else {
+			document.documentElement.classList.remove("dark");
+		}
+	</script>
 </head>

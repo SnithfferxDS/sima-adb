@@ -1,0 +1,20 @@
+---
+const { token } = Astro.props;
+---
+<input type="hidden" name="_csrf" value={token} />
+<script>
+    // Add CSRF token to all fetch requests
+    document.addEventListener('DOMContentLoaded', () => {
+        const token = document.querySelector('input[name="_csrf"]')?.value;
+        if (token) {
+            const originalFetch = window.fetch;
+            window.fetch = function(url, options = {}) {
+                options.headers = {
+                    ...options.headers,
+                    'x-csrf-token': token
+                };
+                return originalFetch(url, options);
+            };
+        }
+    });
+</script>

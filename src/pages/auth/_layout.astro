@@ -1,0 +1,37 @@
+---
+import MainLayout from "../../layouts/main.layout.astro";
+import Footer from "../../templates/footer.guest.template.astro";
+//import Navbar from "../../templates/navbar.guest.template.astro";
+
+interface Props {
+	title: string;
+}
+
+const { title } = Astro.props;
+---
+
+<MainLayout title={`${title} | Auth`}>
+	<div
+		class="flex
+        min-h-screen
+        items-center
+        justify-center"
+	>
+		<div
+			class="w-full
+        h-full
+        min-h-screen
+        overflow-y-auto
+        bg-gradient-to-b
+        text-gray-800
+        dark:text-white
+        from-secondary-600
+        to-primary-600
+        dark:from-secondary-300
+        dark:to-primary-300"
+		>
+			<slot />
+		</div>
+		<Footer />
+	</div>
+</MainLayout>
