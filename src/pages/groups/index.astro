@@ -1,0 +1,40 @@
+---
+import { db, Group } from "astro:db";
+import Layout from "../../layouts/app.layout.astro";
+import Table from "../../components/table.astro";
+
+const groups = await db.select().from(Group).orderBy(Group.id);
+---
+
+<Layout title="Groups">
+	<div
+		class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg"
+	>
+		<div class="p-4 flex justify-between items-center border-b">
+			<h1 class="text-2xl font-bold text-gray-800">Groups</h1>
+			<a
+				href="/groups/new"
+				class="bg-primary hover:bg-primary-600 text-white px-4 py-2 rounded transition-colors"
+			>
+				Add New
+			</a>
+		</div>
+		<div class="overflow-x-auto">
+			<Table
+				resource="groups"
+				data={groups}
+				columns={[
+					{ name: "id", label: "ID", sortable: true },
+					{ name: "name", label: "Nombre", sortable: true },
+					{ name: "possition", label: "Posición", sortable: true },
+					{ name: "active", label: "Estado", sortable: true },
+					{
+						name: "is_allow_desc",
+						label: "En Descripción",
+						sortable: true,
+					},
+				]}
+			/>
+		</div>
+	</div>
+</Layout>
