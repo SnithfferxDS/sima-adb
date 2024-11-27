@@ -8,8 +8,9 @@ export const POST: APIRoute = async ({ request }) => {
       name: data.name,
       possition: parseInt(data.possition) || 1,
       active: data.active === 'true' || data.active === true,
-      created_at: new Date(),
-      updated_at: new Date()
+      desc_active: data.desc_active === 'true' || data.desc_active === true,
+      categories: JSON.stringify(data.categories),
+      created_at: new Date()
     });
 
     return new Response(JSON.stringify({ success: true, commonName }), {

@@ -36,6 +36,8 @@ export const PUT: APIRoute = async ({ request, params }) => {
         name: data.name,
         possition: parseInt(data.possition) || 1,
         active: data.active === 'true' || data.active === true,
+        desc_active: data.desc_active === 'true' || data.desc_active === true,
+        categories: data.categories,
         updated_at: new Date(),
       })
       .where(eq(CommonName.id, id));

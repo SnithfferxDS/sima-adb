@@ -1,13 +1,15 @@
 ---
 import BaseLayout from "../../../layouts/app.layout.astro";
-import { db, CommonName } from "astro:db";
-import { eq } from "astro:db";
+import { db, eq } from "astro:db";
+import { CommonName, Category } from "astro:db";
 
 const { id } = Astro.params;
 
 if (!id) {
 	return Astro.redirect("/common-names");
 }
+
+const Categories = await db.select().from(Category).all();
 
 const commonName = await db
 	.select()
@@ -29,6 +31,133 @@ if (!commonName) {
 			id="createForm"
 			class="max-w-lg bg-gray-50/50 dark:bg-gray-700/50 rounded-lg shadow p-6"
 		>
+			<div class="mb-4">
+				<label
+					for="parent_id"
+					class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
+					>Categoría Padre</label
+				>
+				<select
+					name="parent_id"
+					id="parent_id"
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				>
+					<option value="">None</option>
+					{
+						Categories.map((cat) => (
+							<option
+								value={cat.id}
+								selected={
+									commonName[0] !== undefined &&
+									(
+										commonName[0] as {
+											categories: number[];
+										}
+									).categories?.includes(cat.id)
+								}
+							>
+								{cat.name}
+							</option>
+						))
+					}
+				</select>
+			</div>
+
+			<div class="mb-4">
+				<label
+					for="level1_id"
+					class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
+					>Categoría Nivel 1</label
+				>
+				<select
+					name="level1_id"
+					id="level1_id"
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				>
+					<option value="">None</option>
+					{
+						Categories.map((cat) => (
+							<option
+								value={cat.id}
+								selected={
+									commonName[0] !== undefined &&
+									(
+										commonName[0] as {
+											categories: number[];
+										}
+									).categories?.includes(cat.id)
+								}
+							>
+								{cat.name}
+							</option>
+						))
+					}
+				</select>
+			</div>
+
+			<div class="mb-4">
+				<label
+					for="level2_id"
+					class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
+					>Categoría Nivel 2</label
+				>
+				<select
+					name="level2_id"
+					id="level2_id"
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				>
+					<option value="">None</option>
+					{
+						Categories.map((cat) => (
+							<option
+								value={cat.id}
+								selected={
+									commonName[0] !== undefined &&
+									(
+										commonName[0] as {
+											categories: number[];
+										}
+									).categories?.includes(cat.id)
+								}
+							>
+								{cat.name}
+							</option>
+						))
+					}
+				</select>
+			</div>
+
+			<div class="mb-4">
+				<label
+					for="level3_id"
+					class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
+					>Categoría Nivel 3</label
+				>
+				<select
+					name="level3_id"
+					id="level3_id"
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				>
+					<option value="">None</option>
+					{
+						Categories.map((cat) => (
+							<option
+								value={cat.id}
+								selected={
+									commonName[0] !== undefined &&
+									(
+										commonName[0] as {
+											categories: number[];
+										}
+									).categories?.includes(cat.id)
+								}
+							>
+								{cat.name}
+							</option>
+						))
+					}
+				</select>
+			</div>
 			<div class="mb-4">
 				<label
 					for="name"
@@ -71,10 +200,38 @@ if (!commonName) {
 					>
 					<div class="flex items-center h-5">
 						{
-							commonName[0]?.active
-								? <input checked type="checkbox" value="true" class="w-6 h-6 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-500 dark:border-gray-400 dark:focus:ring-blue-600 dark:ring-offset-gray-600 dark:focus:ring-offset-gray-600" />
-								: <input type="checkbox" value="false" class="w-6 h-6 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-500 dark:border-gray-400 dark:focus:ring-blue-600 dark:ring-offset-gray-600 dark:focus:ring-offset-gray-600" />
+							commonName[0]?.active ? (
+								<input
+									checked
+									type="checkbox"
+									value="true"
+									class="w-6 h-6 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-500 dark:border-gray-400 dark:focus:ring-blue-600 dark:ring-offset-gray-600 dark:focus:ring-offset-gray-600"
+								/>
+							) : (
+								<input
+									type="checkbox"
+									value="false"
+									class="w-6 h-6 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-500 dark:border-gray-400 dark:focus:ring-blue-600 dark:ring-offset-gray-600 dark:focus:ring-offset-gray-600"
+								/>
+							)
 						}
+					</div>
+				</div>
+				<div class="relative z-0 w-full mb-5 group">
+					<label
+						for="active_desc"
+						class="block mb-4 text-sm font-medium text-gray-900 dark:text-white"
+						>En Descripción</label
+					>
+					<div class="flex items-center h-5">
+						<input
+							id="active_desc"
+							name="active_desc"
+							type="checkbox"
+							value=""
+							class="w-6 h-6 border border-gray-300 rounded bg-gray-50 focus:ring-3 focus:ring-blue-300 dark:bg-gray-500 dark:border-gray-400 dark:focus:ring-blue-600 dark:ring-offset-gray-600 dark:focus:ring-offset-gray-600"
+							checked
+						/>
 					</div>
 				</div>
 			</div>
@@ -99,10 +256,62 @@ if (!commonName) {
 
 <script>
 	const form = document.getElementById("createForm");
+	function updateName() {
+		const level1Select = document.getElementById(
+			"level1_id",
+		) as HTMLSelectElement;
+		const level2Select = document.getElementById(
+			"level2_id",
+		) as HTMLSelectElement;
+		const level3Select = document.getElementById(
+			"level3_id",
+		) as HTMLSelectElement;
+		const nameInput = document.getElementById("name") as HTMLInputElement;
+
+		const level1Text =
+			level1Select.options[level1Select.selectedIndex].text;
+		const level2Text =
+			level2Select.options[level2Select.selectedIndex].text;
+		const level3Text =
+			level3Select.options[level3Select.selectedIndex].text;
+
+		const selectedValues = [level1Text, level2Text, level3Text]
+			.filter((text) => text !== "None")
+			.join(" ");
+
+		if (selectedValues) {
+			nameInput.value = selectedValues;
+		}
+	}
+
+	// Add event listeners to all select elements
+	document
+		.getElementById("level1_id")
+		?.addEventListener("change", updateName);
+	document
+		.getElementById("level2_id")
+		?.addEventListener("change", updateName);
+	document
+		.getElementById("level3_id")
+		?.addEventListener("change", updateName);
 	form?.addEventListener("submit", async (e) => {
 		e.preventDefault();
 		const formData = new FormData(form as HTMLFormElement);
 
+		const parent = formData.get("parent_id") as string;
+		const level1 = formData.get("level1_id") as string;
+		const level2 = formData.get("level2_id") as string;
+		const level3 = formData.get("level3_id") as string;
+		let levels_name = [parent];
+		if (level1 !== "") {
+			levels_name.push(level1);
+		}
+		if (level2 !== "") {
+			levels_name.push(level2);
+		}
+		if (level3 !== "") {
+			levels_name.push(level3);
+		}
 		try {
 			console.log(formData.get("active"));
 			let id = formData.get("id");
@@ -115,6 +324,8 @@ if (!commonName) {
 					name: formData.get("name"),
 					possition: formData.get("possition"),
 					active: formData.get("active"),
+					categories: JSON.stringify(levels_name),
+					desc_active: formData.get("active_desc"),
 				}),
 			});
 
