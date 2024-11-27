@@ -1,0 +1,21 @@
+---
+import { db, eq, MetadataValue } from "astro:db";
+
+const { id, value } = Astro.params;
+
+if (Astro.request.method === "POST") {
+	try {
+		await db
+			.delete(MetadataValue)
+			.where(eq(MetadataValue.metadata_id, parseInt(id!)))
+			.where(eq(MetadataValue.metadata_value, value!));
+
+		return Astro.redirect(`/metadata/${id}/values`);
+	} catch (error) {
+		console.error("Error deleting metadata value:", error);
+		return new Response("Error deleting metadata value", { status: 500 });
+	}
+}
+
+return Astro.redirect(`/metadata/${id}/values`);
+---

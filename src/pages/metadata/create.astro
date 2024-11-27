@@ -1,0 +1,42 @@
+---
+import Layout from "../../layouts/Layout.astro";
+import MetadataForm from "../../components/MetadataForm.astro";
+import { db, Group, Category, CommonName, ProductType, eq } from "astro:db";
+
+const [groupLists, categories, commonNames, productTypes] = await Promise.all([
+	db.select().from(Group).orderBy(Group.name).orderBy(Group.name),
+	db
+		.select()
+		.from(Category)
+		.where(eq(Category.active, true))
+		.orderBy(Category.name),
+	db
+		.select()
+		.from(CommonName)
+		.orderBy(CommonName.name)
+		.orderBy(CommonName.name),
+	db
+		.select()
+		.from(ProductType)
+		.orderBy(ProductType.name)
+		.orderBy(ProductType.name),
+]);
+---
+
+<Layout title="Add Metadata">
+	<div
+		class="bg-white shadow-md rounded-lg overflow-hidden max-w-4xl mx-auto transition-shadow hover:shadow-lg"
+	>
+		<div class="p-4 border-b">
+			<h1 class="text-2xl font-bold text-gray-800">Add Metadata</h1>
+		</div>
+		<MetadataForm
+			action="/metadata/create"
+			submitText="Create"
+			groups={groupLists}
+			categories={categories}
+			commonNames={commonNames}
+			productTypes={productTypes}
+		/>
+	</div>
+</Layout>

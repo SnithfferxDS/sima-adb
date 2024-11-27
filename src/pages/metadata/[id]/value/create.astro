@@ -1,0 +1,26 @@
+---
+import { db, MetadataValue } from "astro:db";
+
+const { id } = Astro.params;
+
+if (Astro.request.method === "POST") {
+	const formData = await Astro.request.formData();
+
+	try {
+		await db.insert(MetadataValue).values({
+			metadata_id: parseInt(id!),
+			metadata_value: formData.get("value") as string,
+			active: formData.has("active"),
+			allow_description: formData.has("allow_description"),
+			created_at: new Date(),
+		});
+
+		return Astro.redirect(`/metadata/${id}/values`);
+	} catch (error) {
+		console.error("Error creating metadata value:", error);
+		return new Response("Error creating metadata value", { status: 500 });
+	}
+}
+
+return Astro.redirect(`/metadata/${id}/values`);
+---

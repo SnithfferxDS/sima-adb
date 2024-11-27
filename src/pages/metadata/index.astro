@@ -1,0 +1,225 @@
+---
+import Layout from "../../layouts/app.layout.astro";
+import {
+	db,
+	Metadata,
+	MetadataRelations,
+	Group,
+	Category,
+	CommonName,
+	ProductType,
+	MetadataValue,
+} from "astro:db";
+
+// Fetch metadata with all related data
+const metadataList = await db.select().from(Metadata).orderBy(Metadata.name);
+
+// Fetch all relations and values
+const [relations, values] = await Promise.all([
+	db.select().from(MetadataRelations),
+	db.select().from(MetadataValue),
+]);
+
+// Fetch related data
+const [groups, categories, commonNames, productTypes] = await Promise.all([
+	db.select().from(Group),
+	db.select().from(Category),
+	db.select().from(CommonName),
+	db.select().from(ProductType),
+]);
+
+// Create lookup maps for efficient access
+const groupMap = new Map(groups.map((g) => [g.id, g]));
+const categoryMap = new Map(categories.map((c) => [c.id, c]));
+const commonNameMap = new Map(commonNames.map((cn) => [cn.id, cn]));
+const productTypeMap = new Map(productTypes.map((pt) => [pt.id, pt]));
+
+// Organize relations by metadata ID
+const relationsByMetadata = relations.reduce((acc, rel) => {
+	if (!acc[rel.metadata_id]) {
+		acc[rel.metadata_id] = {
+			categories: [],
+			commonNames: [],
+			productTypes: [],
+		};
+	}
+	if (rel.category)
+		acc[rel.metadata_id].categories.push(categoryMap.get(rel.category));
+	if (rel.comun_name)
+		acc[rel.metadata_id].commonNames.push(
+			commonNameMap.get(rel.comun_name),
+		);
+	if (rel.product_type)
+		acc[rel.metadata_id].productTypes.push(
+			productTypeMap.get(rel.product_type),
+		);
+	return acc;
+}, {});
+
+// Organize values by metadata ID
+const valuesByMetadata = values.reduce((acc, val) => {
+	if (!acc[val.metadata_id]) {
+		acc[val.metadata_id] = [];
+	}
+	acc[val.metadata_id].push(val);
+	return acc;
+}, {});
+---
+
+<Layout title="Metadata">
+	<div
+		class="bg-white shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg"
+	>
+		<div class="p-4 flex justify-between items-center border-b">
+			<h1 class="text-2xl font-bold text-gray-800">Metadata</h1>
+			<a
+				href="/metadata/new"
+				class="bg-primary hover:bg-primary-600 text-white px-4 py-2 rounded transition-colors"
+			>
+				Add New
+			</a>
+		</div>
+		<div class="overflow-x-auto">
+			<table class="min-w-full divide-y divide-gray-200">
+				<thead class="bg-gray-50">
+					<tr>
+						<th
+							class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+							>Name</th
+						>
+						<th
+							class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+							>Description</th
+						>
+						<th
+							class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+							>Feature</th
+						>
+						<th
+							class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+							>Format</th
+						>
+						<th
+							class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+							>Values</th
+						>
+						<th
+							class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+							>Group</th
+						>
+						<th
+							class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+							>Relations</th
+						>
+						<th
+							class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+							>Actions</th
+						>
+					</tr>
+				</thead>
+				<tbody class="bg-white divide-y divide-gray-200">
+					{
+						metadataList.map((metadata) => {
+							const relations =
+								relationsByMetadata[metadata.id] || {};
+							const values = valuesByMetadata[metadata.id] || [];
+							const group = groupMap.get(metadata.id_group);
+
+							return (
+								<tr class="hover:bg-gray-50">
+									<td class="px-6 py-4 whitespace-nowrap text-sm">
+										{metadata.name}
+									</td>
+									<td class="px-6 py-4 whitespace-nowrap text-sm">
+										<span
+											class={`px-2 py-1 rounded-full text-xs ${metadata.allow_description ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
+										>
+											{metadata.allow_description
+												? "Yes"
+												: "No"}
+										</span>
+									</td>
+									<td class="px-6 py-4 whitespace-nowrap text-sm">
+										<span
+											class={`px-2 py-1 rounded-full text-xs ${metadata.is_feature ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
+										>
+											{metadata.is_feature ? "Yes" : "No"}
+										</span>
+									</td>
+									<td class="px-6 py-4 whitespace-nowrap text-sm">
+										{metadata.format || "-"}
+									</td>
+									<td class="px-6 py-4 whitespace-nowrap text-sm">
+										<a
+											href={`/metadata/${metadata.id}/values`}
+											class="text-primary hover:text-primary-600 transition-colors flex items-center gap-2"
+										>
+											<span>Manage Values</span>
+											<span class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-xs">
+												{values.length}
+											</span>
+										</a>
+									</td>
+									<td class="px-6 py-4 whitespace-nowrap text-sm">
+										{group?.name || "-"}
+									</td>
+									<td class="px-6 py-4 text-sm">
+										<div class="space-y-1">
+											{/* relations.categories?.length > 0 && (
+                      <div class="flex flex-wrap gap-1">
+                        {relations.categories.map(cat => (
+                          <span class="px-2 py-1 bg-blue-100 text-blue-800 rounded-full text-xs">
+                            {cat.name}
+                          </span>
+                        ))}
+                      </div>
+                    ) }
+                    {relations.commonNames?.length > 0 && (
+                      <div class="flex flex-wrap gap-1">
+                        {relations.commonNames.map(cn => (
+                          <span class="px-2 py-1 bg-purple-100 text-purple-800 rounded-full text-xs">
+                            {cn.name}
+                          </span>
+                        ))}
+                      </div>
+                    ) }
+                    {relations.productTypes?.length > 0 && (
+                      <div class="flex flex-wrap gap-1">
+                        {relations.productTypes.map(pt => (
+                          <span class="px-2 py-1 bg-yellow-100 text-yellow-800 rounded-full text-xs">
+                            {pt.name}
+                          </span>
+                        ))}
+                      </div>
+                    ) */}
+										</div>
+									</td>
+									<td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+										<a
+											href={`/metadata/${metadata.id}/edit`}
+											class="text-primary hover:text-primary-600 mr-4 transition-colors"
+										>
+											Edit
+										</a>
+										<form
+											method="POST"
+											action={`/metadata/${metadata.id}/delete`}
+											class="inline"
+										>
+											<button
+												type="submit"
+												class="text-danger hover:text-danger-600 transition-colors"
+											>
+												Delete
+											</button>
+										</form>
+									</td>
+								</tr>
+							);
+						})
+					}
+				</tbody>
+			</table>
+		</div>
+	</div>
+</Layout>

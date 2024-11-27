@@ -1,0 +1,262 @@
+---
+import Layout from "../../../layouts/Layout.astro";
+import { db, eq, Metadata, MetadataValue } from "astro:db";
+
+const { id } = Astro.params;
+const metadata = await db
+	.select()
+	.from(Metadata)
+	.where(eq(Metadata.id, parseInt(id!)))
+	.get();
+const values = await db
+	.select()
+	.from(MetadataValue)
+	.where(eq(MetadataValue.metadata_id, parseInt(id!)))
+	.orderBy(MetadataValue.metadata_value);
+
+if (!metadata) {
+	return Astro.redirect("/metadata");
+}
+---
+
+<Layout title={`Metadata Values - ${metadata.name}`}>
+	<div
+		class="bg-white shadow-md rounded-lg overflow-hidden max-w-4xl mx-auto"
+	>
+		<div class="p-4 border-b flex justify-between items-center">
+			<div>
+				<h1 class="text-2xl font-bold text-gray-800">
+					Metadata Values
+				</h1>
+				<p class="text-sm text-gray-600 mt-1">
+					Managing values for: {metadata.name}
+				</p>
+			</div>
+			<button
+				id="addValueBtn"
+				class="bg-primary hover:bg-primary-600 text-white px-4 py-2 rounded transition-colors"
+			>
+				Add Value
+			</button>
+		</div>
+
+		<div class="p-4">
+			<div class="overflow-x-auto">
+				<table class="min-w-full divide-y divide-gray-200">
+					<thead class="bg-gray-50">
+						<tr>
+							<th
+								class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+								>Value</th
+							>
+							<th
+								class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+								>Status</th
+							>
+							<th
+								class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+								>Allow Description</th
+							>
+							<th
+								class="px-6 py-3 text-left text-xs font-medium text-gray-500 uppercase tracking-wider"
+								>Actions</th
+							>
+						</tr>
+					</thead>
+					<tbody class="bg-white divide-y divide-gray-200">
+						{
+							values.map((value) => (
+								<tr class="hover:bg-gray-50">
+									<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+										{value.metadata_value}
+									</td>
+									<td class="px-6 py-4 whitespace-nowrap">
+										<span
+											class={`px-2 py-1 rounded-full text-xs ${value.active ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
+										>
+											{value.active
+												? "Active"
+												: "Inactive"}
+										</span>
+									</td>
+									<td class="px-6 py-4 whitespace-nowrap">
+										<span
+											class={`px-2 py-1 rounded-full text-xs ${value.allow_description ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
+										>
+											{value.allow_description
+												? "Yes"
+												: "No"}
+										</span>
+									</td>
+									<td class="px-6 py-4 whitespace-nowrap text-sm font-medium">
+										<button
+											class="text-primary hover:text-primary-600 mr-4 transition-colors edit-value"
+											data-value={JSON.stringify(value)}
+										>
+											Edit
+										</button>
+										<form
+											method="POST"
+											action={`/metadata/${metadata.id}/values/${value.metadata_value}/delete`}
+											class="inline"
+										>
+											<button
+												type="submit"
+												class="text-danger hover:text-danger-600 transition-colors"
+											>
+												Delete
+											</button>
+										</form>
+									</td>
+								</tr>
+							))
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
+	</div>
+
+	<!-- Modal for adding/editing values -->
+	<div
+		id="valueModal"
+		class="fixed inset-0 bg-gray-600 bg-opacity-50 hidden overflow-y-auto h-full w-full"
+	>
+		<div
+			class="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white"
+		>
+			<div class="mt-3">
+				<h3
+					class="text-lg font-medium text-gray-900 mb-4"
+					id="modalTitle"
+				>
+					Add Value
+				</h3>
+				<form
+					id="valueForm"
+					method="POST"
+					action={`/metadata/${metadata.id}/values/create`}
+				>
+					<input type="hidden" name="_method" value="POST" />
+					<div class="space-y-4">
+						<div>
+							<label
+								for="value"
+								class="block text-sm font-medium text-gray-700"
+								>Value</label
+							>
+							<input
+								type="text"
+								name="value"
+								id="value"
+								required
+								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+							/>
+						</div>
+
+						<div class="flex items-center">
+							<input
+								type="checkbox"
+								name="active"
+								id="active"
+								class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+							/>
+							<label
+								for="active"
+								class="ml-2 block text-sm text-gray-900"
+								>Active</label
+							>
+						</div>
+
+						<div class="flex items-center">
+							<input
+								type="checkbox"
+								name="allow_description"
+								id="allow_description"
+								class="rounded border-gray-300 text-primary-600 focus:ring-primary-500"
+							/>
+							<label
+								for="allow_description"
+								class="ml-2 block text-sm text-gray-900"
+								>Allow Description</label
+							>
+						</div>
+					</div>
+
+					<div class="flex justify-end space-x-3 mt-6">
+						<button
+							type="button"
+							id="cancelBtn"
+							class="bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200 transition-colors"
+						>
+							Cancel
+						</button>
+						<button
+							type="submit"
+							class="bg-primary text-white px-4 py-2 rounded hover:bg-primary-600 transition-colors"
+						>
+							Save
+						</button>
+					</div>
+				</form>
+			</div>
+		</div>
+	</div>
+</Layout>
+
+<script>
+	const modal = document.getElementById("valueModal");
+	const addValueBtn = document.getElementById("addValueBtn");
+	const cancelBtn = document.getElementById("cancelBtn");
+	const valueForm = document.getElementById("valueForm");
+	const modalTitle = document.getElementById("modalTitle");
+	const methodInput = document.querySelector('input[name="_method"]');
+
+	// Show modal for adding new value
+	addValueBtn?.addEventListener("click", () => {
+		modalTitle!.textContent = "Add Value";
+		valueForm!.reset();
+		methodInput!.value = "POST";
+		modal?.classList.remove("hidden");
+	});
+
+	// Handle edit buttons
+	document.querySelectorAll(".edit-value").forEach((button) => {
+		button.addEventListener("click", () => {
+			const value = JSON.parse(
+				(button as HTMLButtonElement).dataset.value!,
+			);
+			modalTitle!.textContent = "Edit Value";
+			methodInput!.value = "PUT";
+
+			const valueInput = document.getElementById(
+				"value",
+			) as HTMLInputElement;
+			const activeInput = document.getElementById(
+				"active",
+			) as HTMLInputElement;
+			const allowDescInput = document.getElementById(
+				"allow_description",
+			) as HTMLInputElement;
+
+			valueInput.value = value.metadata_value;
+			activeInput.checked = value.active;
+			allowDescInput.checked = value.allow_description;
+
+			valueForm!.action = `/metadata/${value.metadata_id}/values/${value.metadata_value}/update`;
+			modal?.classList.remove("hidden");
+		});
+	});
+
+	// Hide modal
+	cancelBtn?.addEventListener("click", () => {
+		modal?.classList.add("hidden");
+	});
+
+	// Close modal when clicking outside
+	modal?.addEventListener("click", (e) => {
+		if (e.target === modal) {
+			modal.classList.add("hidden");
+		}
+	});
+</script>

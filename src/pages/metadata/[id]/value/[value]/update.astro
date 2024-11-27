@@ -1,0 +1,28 @@
+---
+import { db, eq, MetadataValue } from "astro:db";
+
+const { id, value } = Astro.params;
+
+if (Astro.request.method === "POST") {
+	const formData = await Astro.request.formData();
+
+	try {
+		await db
+			.update(MetadataValue)
+			.set({
+				metadata_value: formData.get("value") as string,
+				active: formData.has("active"),
+				allow_description: formData.has("allow_description"),
+			})
+			.where(eq(MetadataValue.metadata_id, parseInt(id!)))
+			.where(eq(MetadataValue.metadata_value, value!));
+
+		return Astro.redirect(`/metadata/${id}/values`);
+	} catch (error) {
+		console.error("Error updating metadata value:", error);
+		return new Response("Error updating metadata value", { status: 500 });
+	}
+}
+
+return Astro.redirect(`/metadata/${id}/values`);
+---
