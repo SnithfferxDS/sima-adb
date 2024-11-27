@@ -6,7 +6,16 @@ const categories = await db.select().from(Category).all();
 ---
 
 <BaseLayout title="Create Category">
-	<div class="p-6 mx-auto">
+	<div
+		class="p-6
+		shadow-md
+		rounded-lg
+		overflow-hidden
+		max-w-2xl
+		mx-auto
+		transition-shadow
+		hover:shadow-lg"
+	>
 		<h1 class="text-2xl font-bold mb-6">Crear Categoría</h1>
 
 		<form

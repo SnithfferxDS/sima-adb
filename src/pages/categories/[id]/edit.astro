@@ -77,13 +77,15 @@ if (!category) {
 				>
 					{
 						// selected each option in category.parents array
-
 						options.map((option) => (
 							<option
 								value={option.id}
-								selected={category[0]?.parents.includes(
-									option.id,
-								)}
+								selected={
+									category[0] !== undefined &&
+									(
+										category[0] as { parents: number[] }
+									).parents?.includes(option.id)
+								}
 							>
 								{option.name}
 							</option>
@@ -151,8 +153,7 @@ if (!category) {
 					name: formData.get("name"),
 					slug: formData.get("slug"),
 					description: formData.get("description"),
-					parent_id: formData.get("parent_id"),
-					common_names: JSON.parse(formData.get("common_names")),
+					parents: formData.get("parents"),
 					active: formData.get("active"),
 				}),
 			});
