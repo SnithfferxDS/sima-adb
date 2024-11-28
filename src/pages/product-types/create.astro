@@ -120,10 +120,8 @@ const categories = await db
 
 		const data = {
 			name: formData.get("name") as string,
-			categories: categories,
-			created_at: new Date(),
+			categories: categories
 		};
-
 		const validation = validateCategory(data);
 		if (validation.errors) {
 			showError(Object.values(validation.errors).flat().join("\n"));
