@@ -1,27 +1,32 @@
 import type { APIRoute } from 'astro';
-import { db,sql, ProductType } from 'astro:db';
+import {db, ProductType} from 'astro:db';
 
-export const GET: APIRoute = async ({ url }) => {
-  const categoryId = url.searchParams.get('categoryId');
-  
-  if (!categoryId) {
-    return new Response('Category ID is required', { status: 400 });
-  }
-
+export const POST: APIRoute = async ({ request }) => {
   try {
-    const productTypes = await db.select()
-      .from(ProductType)
-      .where(sql`JSON_ARRAY_CONTAINS(categories, ${parseInt(categoryId)})`)
-      .orderBy(ProductType.name);
+    const data = await request.json();
+    console.log(data);
+    const productType = await db.insert(ProductType).values({
+      name: data.name,
+      categories: JSON.stringify(data.categories),
+      created_at: new Date()
+    });
 
-    return new Response(JSON.stringify(productTypes), {
-      status: 200,
+    return new Response(JSON.stringify({ success: true, productType }), {
+      status: 201,
       headers: {
-        'Content-Type': 'application/json'
-      }
+        'Content-Type': 'application/json',
+      },
     });
   } catch (error) {
-    console.error('Error fetching product types:', error);
-    return new Response('Error fetching product types', { status: 500 });
+    console.error('Error creating product type:', error);
+    return new Response(
+        JSON.stringify({ error: 'Failed to create product type' }),
+        {
+          status: 500,
+          headers: {
+            'Content-Type': 'application/json',
+          },
+        }
+    );
   }
 };
