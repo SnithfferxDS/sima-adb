@@ -10,7 +10,7 @@ const newCN = await Promise.all(
 			? commonName.categories
 			: JSON.parse(commonName.categories as string);
 		const newCats = await Promise.all(
-			cats.map(async (cat) => {
+			cats.map(async (cat: number) => {
 				const category = await db
 					.select({ name: Category.name })
 					.from(Category)
@@ -21,7 +21,6 @@ const newCN = await Promise.all(
 		commonName.categories = newCats;
 	}),
 );
-console.log(commonNames);
 ---
 
 <BaseLayout title="Common Names">
@@ -269,7 +268,7 @@ console.log(commonNames);
 											rounded-md 
 											focus:z-10 
 											focus:ring-2 
-											text-success-400
+											text-success-200
 											hover:bg-success-800 
 											hover:text-success-400
 											focus:ring-success-700 

@@ -9,10 +9,10 @@ const { data, columns } = Astro.props;
 ---
 
 <table
-	class="min-w-full divide-y divide-gray-300 text-primary-300 dark:text-white"
+	class="min-w-full divide-y table-fixed rounded-md divide-gray-300 text-primary-300 dark:text-white"
 	id="default-table"
 >
-	<thead class="rounded-md bg-gray-800/75 text-white">
+	<thead class="bg-gray-800/75 text-white">
 		<tr>
 			{
 				columns.map((column) => (
@@ -90,7 +90,20 @@ const { data, columns } = Astro.props;
 							</a>
 							<a
 								href={`/${Astro.props.resource}/${item.id}/details`}
-								class="px-1 py-1 mr-1 text-sm font-medium rounded-e-lg focus:z-10 focus:ring-2 text-warning-400 hover:bg-warning-800 focus:ring-orange-600 focus:text-warning-300"
+								class="
+								px-1 
+								py-1 
+								mr-1 
+								text-sm 
+								font-medium 
+								rounded-e-lg 
+								focus:z-10 
+								focus:ring-2 
+								text-success-200 
+								hover:bg-success-800 
+								hover:text-success-400 
+								focus:ring-success-700 
+								focus:text-success-300"
 							>
 								<span class="sr-only">Details</span>
 								<svg
