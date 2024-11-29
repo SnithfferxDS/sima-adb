@@ -1,9 +1,11 @@
 ---
 import {
 	APP_NAME,
-	APP_DESCRIPTION,
-	APP_VERSION,
+	APP_DESC,
+	APP_SHORT_VERSION,
 	BASE_URL,
+	APP_AUTHOR,
+	APP_FULL_NAME,
 } from "../configs/constants.ts";
 //import { ViewTransitions } from "astro:transitions";
 
@@ -19,13 +21,13 @@ const { title } = Astro.props;
 	<meta name="viewport" content="width=device-width" />
 	<link rel="icon" type="image/svg+xml" href="/assets/img/logos/logo.png" />
 	<meta name="generator" content={Astro.generator} />
-	<meta name="description" content={APP_DESCRIPTION} />
+	<meta name="description" content={APP_DESC} />
 	<meta
 		name="keywords"
 		content="astro, astro db, astro db api, astro db rest api, astro db rest, astro db api rest, astro db api rest api"
 	/>
-	<meta name="author" content={APP_NAME} />
-	<meta name="application-name" content={APP_NAME} />
+	<meta name="author" content={APP_AUTHOR} />
+	<meta name="application-name" content={APP_FULL_NAME} />
 	<meta name="apple-mobile-web-app-capable" content="yes" />
 	<meta name="apple-mobile-web-app-status-bar-style" content="default" />
 	<meta name="apple-mobile-web-app-title" content={APP_NAME} />
@@ -42,12 +44,12 @@ const { title } = Astro.props;
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content={BASE_URL} />
 	<meta property="og:image" content={BASE_URL + "/logo.png"} />
-	<meta property="og:description" content={APP_DESCRIPTION} />
+	<meta property="og:description" content={APP_DESC} />
 	<meta property="og:site_name" content={APP_NAME} />
 
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:site" content={APP_NAME} />
-	<title>{title} | {APP_NAME} v{APP_VERSION}</title>
+	<title>{title} | {APP_NAME} v{APP_SHORT_VERSION}</title>
 	{/* <ViewTransitions /> */}
 	<script is:inline>
 		if (
