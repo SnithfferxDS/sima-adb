@@ -1,3 +1,5 @@
+import { BASE_URL } from "../../configs/constants";
+
 export function generateName(
   commonNameSelect: HTMLSelectElement,
   typeSelect: HTMLSelectElement,
@@ -27,4 +29,12 @@ export function generateName(
 
   // Set the generated name
   nameInput.value = parts.join(' ');
+}
+
+export function url(path = '') {
+	return `${BASE_URL}${path}`;
+}
+
+export function asset(path: string) {
+	return `${BASE_URL}/assets/${path}`;
 }
