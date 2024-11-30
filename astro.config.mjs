@@ -13,5 +13,11 @@ export default defineConfig({
   integrations: [db(), tailwind()],
   output: 'server',
 
+  server: {
+    host: true,
+    hostName: 'localhost',
+    baseUrl: '/',
+  },
+
   adapter: netlify(),
 });
