@@ -53,12 +53,13 @@ const newCats = await Promise.all(
 					currentRoute={Astro.url.pathname}
 					headerTitle="Tipos de Producto"
 				/>
-				<div class="items-center justify-between block sm:flex">
+				<div class="items-center justify-between block flex">
 					<div class="flex items-center mb-4 sm:mb-0">
 						<Search
 							action="search"
 							id="product-types"
 							method="get"
+							placeholder="en tipos de producto"
 						/>
 						{
 							/* <div class="flex items-center w-full sm:justify-end">
@@ -128,7 +129,7 @@ const newCats = await Promise.all(
 					</div>
 
 					<div
-						class="flex items-center ml-auto space-x-2 sm:space-x-3"
+						class="flex items-center ml-auto mb-4 sm:mb-0 space-x-1 sm:space-x-2"
 					>
 						<button
 							type="button"
@@ -154,7 +155,7 @@ const newCats = await Promise.all(
 							dark:focus:ring-purple-800"
 						>
 							<svg
-								class="w-5 h-5 mr-2 -ml-1"
+								class="w-5 h-5 sm:mr-2 sm:-ml-1"
 								fill="none"
 								stroke="currentColor"
 								stroke-width="1.5"
@@ -168,7 +169,7 @@ const newCats = await Promise.all(
 									d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
 								></path>
 							</svg>
-							Recargar
+							<span class="hidden md:block">Recargar</span>
 						</button>
 						<button
 							id="createResourceButton"
@@ -198,7 +199,7 @@ const newCats = await Promise.all(
 							data-drawer-placement="right"
 						>
 							<svg
-								class="w-5 h-5 mr-2 -ml-1"
+								class="w-5 h-5 sm:mr-2 sm:-ml-1"
 								fill="currentColor"
 								viewBox="0 0 20 20"
 								xmlns="http://www.w3.org/2000/svg"
@@ -207,7 +208,7 @@ const newCats = await Promise.all(
 									d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
 									clip-rule="evenodd"></path></svg
 							>
-							Agregar Nuevo
+							<span class="hidden md:block">Agregar</span>
 						</button>
 					</div>
 				</div>
