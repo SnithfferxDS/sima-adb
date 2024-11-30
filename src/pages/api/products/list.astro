@@ -3,168 +3,391 @@ import { db, Product } from "astro:db";
 const products = await db.select().from(Product).all();
 ---
 
-<table class="min-w-full divide-y divide-slate-300">
-	<thead class="bg-slate-900 text-white">
-		<tr>
-			<tr>
-				<th>
-					<span class="material-symbols-outlined"> image </span>
-				</th>
-				<th
-					scope="col"
-					class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold"
-					>Producto</th
+<section class="bg-gray-50/5 dark:bg-gray-800/25">
+	<div class="mx-auto max-w-screen-2xl">
+		<div class="relative overflow-hidden shadow-md sm:rounded-lg">
+			<div
+				class="flex flex-col px-4 py-3 space-y-3 lg:flex-row lg:items-center lg:justify-between lg:space-y-0 lg:space-x-4"
+			>
+				<div class="flex items-center flex-1 space-x-4">
+					<h5>
+						<span class="text-primary-500 dark:text-primary-400"
+							>All Products:</span
+						>
+						<span class="text-primary-700 dark:text-gray-300"
+							>123456</span
+						>
+					</h5>
+					<h5>
+						<span class="text-primary-500 dark:text-primary-400"
+							>Total sales:</span
+						>
+						<span class="text-primary-700 dark:text-gray-300"
+							>$88.4k</span
+						>
+					</h5>
+				</div>
+
+				<div
+					class="flex flex-col flex-shrink-0 space-y-3 md:flex-row md:items-center lg:justify-end md:space-y-0 md:space-x-3"
 				>
-				<th
-					scope="col"
-					class="px-3 py-3.5 text-left text-sm font-semibold">UPC</th
+					<button
+						type="button"
+						class="flex items-center justify-center flex-shrink-0 px-3 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg focus:outline-none hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+					>
+						<svg
+							class="w-4 h-4 mr-2"
+							xmlns="http://www.w3.org/2000/svg"
+							aria-hidden="true"
+							fill="none"
+							viewbox="0 0 24 24"
+							stroke-width="1.5"
+							stroke="currentColor"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+							></path>
+						</svg>
+						Update stocks 1/250
+					</button>
+					<button
+						type="button"
+						class="flex items-center justify-center flex-shrink-0 px-3 py-2 text-sm font-medium text-gray-900 bg-white border border-gray-200 rounded-lg focus:outline-none hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-200 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+					>
+						<svg
+							class="w-4 h-4 mr-2"
+							xmlns="http://www.w3.org/2000/svg"
+							fill="none"
+							viewbox="0 0 24 24"
+							stroke-width="2"
+							stroke="currentColor"
+							aria-hidden="true"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M3 16.5v2.25A2.25 2.25 0 005.25 21h13.5A2.25 2.25 0 0021 18.75V16.5m-13.5-9L12 3m0 0l4.5 4.5M12 3v13.5"
+							></path>
+						</svg>
+						Export
+					</button>
+				</div>
+			</div>
+			<div class="overflow-x-auto">
+				<table
+					class="w-full text-sm text-left text-gray-500 dark:text-gray-400"
 				>
-				<th
-					scope="col"
-					class="px-3 py-3.5 text-left text-sm font-semibold"
-					>Brand</th
-				>
-				<th
-					scope="col"
-					class="px-3 py-3.5 text-left text-sm font-semibold"
-					>Stock</th
-				>
-				<th
-					scope="col"
-					class="px-3 py-3.5 text-left text-sm font-semibold"
-					>Price</th
-				>
-				<th scope="col" class="relative py-3.5 pl-3 pr-4 sm:pr-6">
-					<span class="sr-only">Actions</span>
-				</th>
-			</tr>
-		</tr>
-	</thead>
-	<tbody
-		class="divide-y divide-slate-300 bg-gray-200 dark:divide-slate-700 dark:bg-slate-600"
-	>
-		{
-			products.map((product) => (
-				<tr>
-					<td>
-						<img
-							src="/assets/img/no_photo.png"
-							alt="Product Image"
-							class="w-20 h-20 rounded-lg object-cover"
-						/>
-					</td>
-					<td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-slate-900 dark:text-gray-100">
-						<div class="p-1">
-							<h3 class="font-semibold">
-								<a
-									href={`/products/${product.id}/details`}
-									class="text-primary-600 dark:text-primary-300"
-								>
-									{product.name}
-								</a>
-							</h3>
-							<div class="flex justify-center mt-2">
-								<span class="text-primary-300 dark:text-primary-800">
-									SKU: {product.sku}
-								</span>
-								<span class="text-primary-300 dark:text-primary-800">
-									MPN: {product.mpn}
-								</span>
-							</div>
-						</div>
-					</td>
-					<td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-slate-900 dark:text-gray-100">
-						{product.upc}
-					</td>
-					<td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-slate-900 dark:text-gray-100">
-						Product Brand
-					</td>
-					<td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-slate-900 dark:text-gray-100">
-						<span class="text-blue-600">Stock: 0</span>
-					</td>
-					<td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-slate-900 dark:text-gray-100">
-						<span class="text-green-600">$ 0.00</span>
-					</td>
-					<td>
-						<div class="mt-2 space-x-2">
-							<button
-								onclick={`handleTransaction(${product.id}, 'sale')`}
-								class="bg-red-500 text-white px-3 py-1 rounded hover:bg-red-600 disabled:bg-gray-400"
+					<thead
+						class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+					>
+						<tr>
+							<th scope="col" class="p-4">
+								<div class="flex items-center">
+									<input
+										id="checkbox-all"
+										type="checkbox"
+										class="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+									/>
+									<label for="checkbox-all" class="sr-only"
+										>checkbox</label
+									>
+								</div>
+							</th>
+							<th scope="col" class="px-4 py-3">Product</th>
+							<th scope="col" class="px-4 py-3">Category</th>
+							<th scope="col" class="px-4 py-3">Stock</th>
+							<th scope="col" class="px-4 py-3">Sales/Day</th>
+							<th scope="col" class="px-4 py-3">Sales/Month</th>
+							<th scope="col" class="px-4 py-3">Price</th>
+							<th scope="col" class="px-4 py-3">Sales</th>
+							<th scope="col" class="px-4 py-3">Revenue</th>
+							<th scope="col" class="px-4 py-3">Last Update</th>
+							<th
+								scope="col"
+								class="relative py-3.5 pl-3 pr-4 sm:pr-6"
 							>
-								Sell
-							</button>
-							<button
-								onclick={`handleTransaction(${product.id}, 'purchase')`}
-								class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
-							>
-								Purchase
-							</button>
-						</div>
-					</td>
-				</tr>
-			))
-		}
-	</tbody>
-</table>
+								<span class="sr-only">Actions</span>
+							</th>
+						</tr>
+					</thead>
+					<tbody
+						class="divide-y divide-slate-300 bg-gray-200 dark:divide-slate-700 dark:bg-slate-600"
+					>
+						{
+							products.map((product) => (
+								<tr class="border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">
+									<td class="w-4 px-4 py-3">
+										<div class="flex items-center">
+											<input
+												id={`checkbox-table-${product.id}`}
+												type="checkbox"
+												onclick="event.stopPropagation()"
+												class="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"
+											/>
+											<label
+												for={`checkbox-table-${product.id}`}
+												class="sr-only"
+											>
+												checkbox
+											</label>
+										</div>
+									</td>
+									<th
+										scope="row"
+										class="flex items-center px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white"
+									>
+										<img
+											src="/assets/img/no_photo.png"
+											alt="Product Image"
+											class="w-20 h-20 rounded-lg object-cover"
+										/>
+										<div class="p-1">
+											<h3 class="font-semibold">
+												<a
+													href={`/products/${product.id}/details`}
+													class="
+													text-primary-600 
+													dark:text-primary-300 
+													text-balance"
+												>
+													{product.name}
+												</a>
+											</h3>
+											<div class="flex flex-col justify-center mt-2">
+												<span class="text-balance">
+													upc: {product.upc}
+												</span>
+												<span class="text-primary-300 dark:text-primary-800">
+													SKU: {product.sku}
+												</span>
+												<span class="text-primary-300 dark:text-primary-800">
+													MPN: {product.mpn}
+												</span>
+											</div>
+										</div>
+									</th>
+									<td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-slate-900 dark:text-gray-100">
+										<span class="bg-primary-100 text-primary-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-primary-900 dark:text-primary-300">
+											Category
+										</span>
+									</td>
+									<td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+										<div class="flex items-center">
+											<div class="inline-block w-4 h-4 mr-2 bg-red-700 rounded-full" />
+											95 pzs
+										</div>
+									</td>
+									<td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+										$ 1.47
+									</td>
+									<td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+										$ 0.47
+									</td>
+									<td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+										$ 10.47
+									</td>
+									<td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+										<div class="flex items-center">
+											<svg
+												xmlns="http://www.w3.org/2000/svg"
+												viewbox="0 0 24 24"
+												fill="currentColor"
+												class="w-5 h-5 mr-2 text-gray-400"
+												aria-hidden="true"
+											>
+												<path d="M2.25 2.25a.75.75 0 000 1.5h1.386c.17 0 .318.114.362.278l2.558 9.592a3.752 3.752 0 00-2.806 3.63c0 .414.336.75.75.75h15.75a.75.75 0 000-1.5H5.378A2.25 2.25 0 017.5 15h11.218a.75.75 0 00.674-.421 60.358 60.358 0 002.96-7.228.75.75 0 00-.525-.965A60.864 60.864 0 005.68 4.509l-.232-.867A1.875 1.875 0 003.636 2.25H2.25zM3.75 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0zM16.5 20.25a1.5 1.5 0 113 0 1.5 1.5 0 01-3 0z" />
+											</svg>
+											1.6M
+										</div>
+									</td>
+									<td class="px-4 py-2">$3.2M</td>
+									<td class="px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+										Just now
+									</td>
+									<td>
+										<div class="justify-center">
+											<button
+												onclick={`handleTransaction(${product.id}, 'sale')`}
+												class="bg-red-500 text-white px-3 py-2 rounded hover:bg-red-600 disabled:bg-gray-400"
+											>
+												<svg
+													class="w-6 h-6 text-gray-800 dark:text-white"
+													aria-hidden="true"
+													xmlns="http://www.w3.org/2000/svg"
+													width="24"
+													height="24"
+													fill="none"
+													viewBox="0 0 24 24"
+												>
+													<path
+														stroke="currentColor"
+														stroke-linecap="round"
+														stroke-linejoin="round"
+														stroke-width="2"
+														d="M5 18h14M5 18v3h14v-3M5 18l1-9h12l1 9M16 6v3m-4-3v3m-2-6h8v3h-8V3Zm-1 9h.01v.01H9V12Zm3 0h.01v.01H12V12Zm3 0h.01v.01H15V12Zm-6 3h.01v.01H9V15Zm3 0h.01v.01H12V15Zm3 0h.01v.01H15V15Z"
+													/>
+												</svg>
+												<span class="sr-only">
+													Sell
+												</span>
+											</button>
+											<button
+												onclick={`handleTransaction(${product.id}, 'purchase')`}
+												class="bg-green-500 text-white px-3 py-1 rounded hover:bg-green-600"
+											>
+												<svg
+													class="w-6 h-6 text-gray-800 dark:text-white"
+													aria-hidden="true"
+													xmlns="http://www.w3.org/2000/svg"
+													width="24"
+													height="24"
+													fill="none"
+													viewBox="0 0 24 24"
+												>
+													<path
+														stroke="currentColor"
+														stroke-linecap="round"
+														stroke-linejoin="round"
+														stroke-width="2"
+														d="M9 10V6a3 3 0 0 1 3-3v0a3 3 0 0 1 3 3v4m3-2 .917 11.923A1 1 0 0 1 17.92 21H6.08a1 1 0 0 1-.997-1.077L6 8h12Z"
+													/>
+												</svg>
+												<span class="sr-only">
+													Purchase
+												</span>
+											</button>
+											<button
+												onclick={`handleTransaction(${product.id}, 'return')`}
+												class="bg-yellow-500 text-white px-3 py-1 rounded hover:bg-yellow-600"
+											>
+												<svg
+													class="w-6 h-6 text-gray-800 dark:text-white"
+													aria-hidden="true"
+													xmlns="http://www.w3.org/2000/svg"
+													width="24"
+													height="24"
+													fill="none"
+													viewBox="0 0 24 24"
+												>
+													<path
+														stroke="currentColor"
+														stroke-linecap="round"
+														stroke-linejoin="round"
+														stroke-width="2"
+														d="M5 18h14M5 18v3h14v-3M5 18l1-9h12l1 9M16 6v3m-4-3v3m-2-6h8v3h-8V3Zm-1 9h.01v.01H9V12Zm3 0h.01v.01H12V12Zm3 0h.01v.01H15V12Zm-6 3h.01v.01H9V15Zm3 0h.01v.01H12V15Zm3 0h.01v.01H15V15Z"
+													/>
+												</svg>
+												<span class="sr-only">
+													Return
+												</span>
+											</button>
+											<button
+												onclick={`handleTransaction(${product.id}, 'exchange')`}
+												class="bg-blue-500 text-white px-3 py-1 rounded hover:bg-blue-600"
+											>
+												<svg
+													class="w-6 h-6 text-gray-800 dark:text-white"
+													aria-hidden="true"
+													xmlns="http://www.w3.org/2000/svg"
+													width="24"
+													height="24"
+													fill="none"
+													viewBox="0 0 24 24"
+												>
+													<path
+														stroke="currentColor"
+														stroke-linecap="round"
+														stroke-linejoin="round"
+														stroke-width="2"
+														d="m14.304 4.844 2.852 2.852M7 7H4a1 1 0 0 0-1 1v10a1 1 0 0 0 1 1h11a1 1 0 0 0 1-1v-4.5m2.409-9.91a2.017 2.017 0 0 1 0 2.853l-6.844 6.844L8 14l.713-3.565 6.844-6.844a2.015 2.015 0 0 1 2.852 0Z"
+													/>
+												</svg>
 
-<script>
-	async function handleTransaction(productId: Number, type: String) {
-		const userInput = prompt(`Enter quantity to ${type}:`);
-		if (!userInput) return;
-		const quantity = parseInt(userInput);
-		if (isNaN(quantity) || quantity <= 0) {
-			alert("Please enter a valid quantity");
-			return;
-		}
+												<span class="sr-only">
+													Edit
+												</span>
+											</button>
+										</div>
+									</td>
+								</tr>
+							))
+						}
+					</tbody>
+				</table>
+			</div>
+		</div>
 
-		const price = parseFloat(prompt(`Enter price per unit:`) || "0");
-		if (!price || isNaN(price) || price <= 0) {
-			alert("Please enter a valid price");
-			return;
-		}
+		<script>
+			async function handleTransaction(productId: Number, type: String) {
+				const userInput = prompt(`Enter quantity to ${type}:`);
+				if (!userInput) return;
+				const quantity = parseInt(userInput);
+				if (isNaN(quantity) || quantity <= 0) {
+					alert("Please enter a valid quantity");
+					return;
+				}
 
-		try {
-			const response = await fetch(
-				"http://localhost:3000/api/transactions",
-				{
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify({
-						product_id: productId,
-						type,
-						quantity: quantity,
-						price: price,
-					}),
-				},
-			);
+				const price = parseFloat(
+					prompt(`Enter price per unit:`) || "0",
+				);
+				if (!price || isNaN(price) || price <= 0) {
+					alert("Please enter a valid price");
+					return;
+				}
 
-			if (!response.ok) {
-				throw new Error(`HTTP error! status: ${response.status}`);
-			}
-		} catch (error) {
-			console.error("Error processing transaction:", error);
-			alert("Error processing transaction. Please try again.");
-		}
-	}
-
-	const deleteButtons = document.querySelectorAll(".delete-btn");
-	deleteButtons.forEach((button) => {
-		button.addEventListener("click", async () => {
-			if (confirm("¿Está seguro de querer borrar este producto?")) {
-				const id = button.getAttribute("data-id");
 				try {
-					const response = await fetch(`/api/products/${id}`, {
-						method: "DELETE",
-					});
-					if (response.ok) {
-						window.location.reload();
+					const response = await fetch(
+						"http://localhost:3000/api/transactions",
+						{
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify({
+								product_id: productId,
+								type,
+								quantity: quantity,
+								price: price,
+							}),
+						},
+					);
+
+					if (!response.ok) {
+						throw new Error(
+							`HTTP error! status: ${response.status}`,
+						);
 					}
 				} catch (error) {
-					console.error("Error:", error);
+					console.error("Error processing transaction:", error);
+					alert("Error processing transaction. Please try again.");
 				}
 			}
-		});
-	});
-</script>
+
+			const deleteButtons = document.querySelectorAll(".delete-btn");
+			deleteButtons.forEach((button) => {
+				button.addEventListener("click", async () => {
+					if (
+						confirm("¿Está seguro de querer borrar este producto?")
+					) {
+						const id = button.getAttribute("data-id");
+						try {
+							const response = await fetch(
+								`/api/products/${id}`,
+								{
+									method: "DELETE",
+								},
+							);
+							if (response.ok) {
+								window.location.reload();
+							}
+						} catch (error) {
+							console.error("Error:", error);
+						}
+					}
+				});
+			});
+		</script>
+	</div>
+</section>
