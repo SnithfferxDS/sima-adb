@@ -1,6 +1,8 @@
 ---
 import BaseLayout from "../../layouts/app.layout.astro";
 import { db, eq, CommonName, Category } from "astro:db";
+import BreadCrumbs from "../../components/BreadCrumbs.astro";
+import Search from "../../components/Search.astro";
 
 const commonNames = await db.select().from(CommonName).all();
 // recorrer cada commonName y buscar las categorías en el array de commonName.categories
@@ -21,130 +23,233 @@ const newCN = await Promise.all(
 		commonName.categories = newCats;
 	}),
 );
+
+const breadcrumbs = [
+	{
+		lable: "Nombres Comunes",
+		path: "/common-names",
+	},
+];
 ---
 
 <BaseLayout title="Common Names">
-	<div class="p-6">
-		<div class="flex justify-between items-center mb-6">
-			<h1 class="text-2xl font-bold text-slate-900 dark:text-white">
-				Nombres Comunes
-			</h1>
-			<a
-				href="/common-names/create"
-				class="bg-purple-700 text-white px-4 py-2 rounded-lg hover:bg-purple-600"
-			>
-				Agregar Nombre Común
-			</a>
-		</div>
+	<div
+		class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg"
+	>
+		<div
+			class="p-4 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5"
+		>
+			<div class="w-full mb-1">
+				<BreadCrumbs
+					routes={breadcrumbs}
+					currentRoute={Astro.url.pathname}
+					headerTitle="Nombres Comunes"
+				/>
+				<div class="items-center justify-between flex">
+					<div class="flex items-center mb-4 sm:mb-0">
+						<Search
+							action="search"
+							id="commonNamesSearch"
+							placeholder="en nombres comunes"
+							method="get"
+						/>
+					</div>
 
-		<div class="bg-white/25 dark:bg-gray-800/25 rounded-lg shadow">
-			<table
-				class="min-w-full divide-y divide-gray-200"
-				id="default-table"
-			>
-				<thead class="bg-slate-900 text-white">
-					<tr>
-						<th>
-							<span
-								class="px-6 py-3 flex items-center font-medium uppercase tracking-wider"
+					<div
+						class="flex items-center mb-4 sm:mb-0 ml-auto space-x-1 sm:space-x-2"
+					>
+						<button
+							type="button"
+							data-refresh
+							class="inline-flex
+							items-center
+							justify-center
+							w-1/2
+							px-3
+							py-2
+							text-sm
+							font-medium
+							text-center
+							rounded-lg
+							focus:ring-4
+							sm:w-auto
+							text-white
+							bg-purple-700
+							hover:bg-purple-800
+							focus:ring-purple-300
+							dark:bg-purple-600
+							dark:hover:bg-purple-700
+							dark:focus:ring-purple-800"
+						>
+							<svg
+								class="w-5 h-5 sm:mr-2 sm:-ml-1"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.5"
+								viewBox="0 0 24 24"
+								xmlns="http://www.w3.org/2000/svg"
+								aria-hidden="true"
 							>
-								Nombre
-								<svg
-									class="w-4 h-4 ms-1"
-									aria-hidden="true"
-									xmlns="http://www.w3.org/2000/svg"
-									width="24"
-									height="24"
-									fill="none"
-									viewBox="0 0 24 24"
-								>
-									<path
-										stroke="currentColor"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="m8 15 4 4 4-4m0-6-4-4-4 4"></path>
-								</svg>
-							</span>
-						</th>
-						<th>
-							<span
-								class="px-6 py-3 flex items-center font-medium uppercase tracking-wider"
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+								></path>
+							</svg>
+							<span class="hidden md:block">Recargar</span>
+						</button>
+						<a
+							class="inline-flex
+							items-center
+							justify-center
+							w-1/2
+							px-3
+							py-2
+							text-sm
+							font-medium
+							text-center
+							rounded-lg
+							focus:ring-4
+							sm:w-auto
+							text-white
+							bg-purple-700
+							hover:bg-purple-800
+							focus:ring-purple-300
+							dark:bg-purple-600
+							dark:hover:bg-purple-700
+							dark:focus:ring-purple-800"
+							href="/common-names/create"
+						>
+							<svg
+								class="w-5 h-5 sm:mr-2 sm:-ml-1"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								xmlns="http://www.w3.org/2000/svg"
+								><path
+									fill-rule="evenodd"
+									d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+									clip-rule="evenodd"></path></svg
 							>
-								Posición
-								<svg
-									class="w-4 h-4 ms-1"
-									aria-hidden="true"
-									xmlns="http://www.w3.org/2000/svg"
-									width="24"
-									height="24"
-									fill="none"
-									viewBox="0 0 24 24"
-								>
-									<path
-										stroke="currentColor"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="m8 15 4 4 4-4m0-6-4-4-4 4"></path>
-								</svg>
-							</span>
-						</th>
-						<th>
-							<span
-								class="px-6 py-3 flex items-center font-medium uppercase tracking-wider"
-							>
-								Estado
-								<svg
-									class="w-4 h-4 ms-1"
-									aria-hidden="true"
-									xmlns="http://www.w3.org/2000/svg"
-									width="24"
-									height="24"
-									fill="none"
-									viewBox="0 0 24 24"
-								>
-									<path
-										stroke="currentColor"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="m8 15 4 4 4-4m0-6-4-4-4 4"></path>
-								</svg>
-							</span>
-						</th>
-						<th>
-							<span
-								class="px-6 py-3 flex items-center font-medium uppercase tracking-wider"
-							>
-								En Descripción
-								<svg
-									class="w-4 h-4 ms-1"
-									aria-hidden="true"
-									xmlns="http://www.w3.org/2000/svg"
-									width="24"
-									height="24"
-									fill="none"
-									viewBox="0 0 24 24"
-								>
-									<path
-										stroke="currentColor"
-										stroke-linecap="round"
-										stroke-linejoin="round"
-										stroke-width="2"
-										d="m8 15 4 4 4-4m0-6-4-4-4 4"></path>
-								</svg>
-							</span>
-						</th>
-						<th>
-							<span
-								class="px-6 py-3 flex items-center font-medium uppercase tracking-wider"
-							>
-								Categorias
-							</span>
-						</th>
-						{
-							/* <th data-type="date" data-format="YYYY/DD/MM">
+							<span class="hidden md:block">Agregar</span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="flex flex-col">
+			<div class="overflow-x-auto">
+				<div class="inline-block min-w-full align-middle">
+					<table
+						class="min-w-full divide-y divide-gray-200"
+						id="default-table"
+					>
+						<thead class="bg-slate-900 text-white">
+							<tr>
+								<th>
+									<span
+										class="px-6 py-3 flex items-center font-medium uppercase tracking-wider"
+									>
+										Nombre
+										<svg
+											class="w-4 h-4 ms-1"
+											aria-hidden="true"
+											xmlns="http://www.w3.org/2000/svg"
+											width="24"
+											height="24"
+											fill="none"
+											viewBox="0 0 24 24"
+										>
+											<path
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="m8 15 4 4 4-4m0-6-4-4-4 4"
+											></path>
+										</svg>
+									</span>
+								</th>
+								<th>
+									<span
+										class="px-6 py-3 flex items-center font-medium uppercase tracking-wider"
+									>
+										Posición
+										<svg
+											class="w-4 h-4 ms-1"
+											aria-hidden="true"
+											xmlns="http://www.w3.org/2000/svg"
+											width="24"
+											height="24"
+											fill="none"
+											viewBox="0 0 24 24"
+										>
+											<path
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="m8 15 4 4 4-4m0-6-4-4-4 4"
+											></path>
+										</svg>
+									</span>
+								</th>
+								<th>
+									<span
+										class="px-6 py-3 flex items-center font-medium uppercase tracking-wider"
+									>
+										Estado
+										<svg
+											class="w-4 h-4 ms-1"
+											aria-hidden="true"
+											xmlns="http://www.w3.org/2000/svg"
+											width="24"
+											height="24"
+											fill="none"
+											viewBox="0 0 24 24"
+										>
+											<path
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="m8 15 4 4 4-4m0-6-4-4-4 4"
+											></path>
+										</svg>
+									</span>
+								</th>
+								<th>
+									<span
+										class="px-6 py-3 flex items-center font-medium uppercase tracking-wider"
+									>
+										En Descripción
+										<svg
+											class="w-4 h-4 ms-1"
+											aria-hidden="true"
+											xmlns="http://www.w3.org/2000/svg"
+											width="24"
+											height="24"
+											fill="none"
+											viewBox="0 0 24 24"
+										>
+											<path
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="m8 15 4 4 4-4m0-6-4-4-4 4"
+											></path>
+										</svg>
+									</span>
+								</th>
+								<th>
+									<span
+										class="px-6 py-3 flex items-center font-medium uppercase tracking-wider"
+									>
+										Categorias
+									</span>
+								</th>
+								{
+									/* <th data-type="date" data-format="YYYY/DD/MM">
 							<span
 								class="px-6 py-3 flex items-center font-medium uppercase tracking-wider"
 							>
@@ -167,71 +272,77 @@ const newCN = await Promise.all(
 								</svg>
 							</span>
 						</th> */
-						}
-						<th
-							class="px-6 py-3 flex items-center font-medium uppercase tracking-wider"
-							>Actions
-						</th>
-					</tr>
-				</thead>
-				<tbody class="divide-y divide-slate-300 dark:divide-slate-400">
-					{
-						commonNames.map((commonName) => (
-							<tr>
-								<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
-									<a
-										href={`/common-names/${commonName.id}/details`}
-									>
-										{commonName.name}
-									</a>
-								</td>
-								<td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900 dark:text-gray-100">
-									{commonName.possition}
-								</td>
-								<td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900 dark:text-gray-100">
-									{commonName.active ? "Activo" : "Inactivo"}
-								</td>
-								<td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900 dark:text-gray-100">
-									<span
-										class={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${commonName.desc_active ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
-									>
-										{commonName.desc_active
-											? "Abilitado"
-											: "Desabilitado"}
-									</span>
-								</td>
-								<td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
-									<div class="space-y-1">
-										{Array.isArray(commonName.categories) &&
-											commonName.categories.length >
-												0 && (
-												<div class="flex flex-col gap-1">
-													{commonName.categories.map(
-														(cat) => (
-															<span
-																class="
+								}
+								<th
+									class="px-6 py-3 flex items-center font-medium uppercase tracking-wider"
+									>Actions
+								</th>
+							</tr>
+						</thead>
+						<tbody
+							class="divide-y divide-slate-300 dark:divide-slate-400"
+						>
+							{
+								commonNames.map((commonName) => (
+									<tr>
+										<td class="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900 dark:text-gray-100">
+											<a
+												href={`/common-names/${commonName.id}/details`}
+											>
+												{commonName.name}
+											</a>
+										</td>
+										<td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900 dark:text-gray-100">
+											{commonName.possition}
+										</td>
+										<td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900 dark:text-gray-100">
+											{commonName.active
+												? "Activo"
+												: "Inactivo"}
+										</td>
+										<td class="px-6 py-4 whitespace-nowrap text-center text-sm text-gray-900 dark:text-gray-100">
+											<span
+												class={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full ${commonName.desc_active ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
+											>
+												{commonName.desc_active
+													? "Abilitado"
+													: "Desabilitado"}
+											</span>
+										</td>
+										<td class="px-6 py-4 text-sm text-gray-900 dark:text-gray-100">
+											<div class="space-y-1">
+												{Array.isArray(
+													commonName.categories,
+												) &&
+													commonName.categories
+														.length > 0 && (
+														<div class="flex flex-col gap-1">
+															{commonName.categories.map(
+																(cat) => (
+																	<span
+																		class="
 																px-1 
 																py-1 
 																text-blue-100 
 																text-xs 
 																text-center"
-															>
-																{cat}
-															</span>
-														),
+																	>
+																		{cat}
+																	</span>
+																),
+															)}
+														</div>
 													)}
-												</div>
-											)}
-									</div>
-								</td>
-								<td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
-									<div
-										class="inline-flex rounded-md shadow-sm"
-										role="group"
-									>
-										<a
-											href={`/common-names/${commonName.id}/edit`}
-											class="
+											</div>
+										</td>
+										<td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+											<div
+												class="inline-flex rounded-md shadow-sm"
+												role="group"
+											>
+												<a
+													href={`/common-names/${commonName.id}/edit`}
+													class="
 											px-1 
 										py-1
 										mr-1
@@ -245,21 +356,23 @@ const newCN = await Promise.all(
 										hover:text-warning-400
 										focus:ring-orange-600 
 										focus:text-warning-300"
-										>
-											<span class="sr-only">Edit</span>
-											<svg
-												xmlns="http://www.w3.org/2000/svg"
-												class="w-6 h-6"
-												aria-hidden="true"
-												fill="currentColor"
-												viewBox="0 -960 960 960"
-											>
-												<path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h357l-80 80H200v560h560v-278l80-80v358q0 33-23.5 56.5T760-120H200Zm280-360ZM360-360v-170l367-367q12-12 27-18t30-6q16 0 30.5 6t26.5 18l56 57q11 12 17 26.5t6 29.5q0 15-5.5 29.5T897-728L530-360H360Zm481-424-56-56 56 56ZM440-440h56l232-232-28-28-29-28-231 231v57Zm260-260-29-28 29 28 28 28-28-28Z" />
-											</svg>
-										</a>
-										<a
-											href={`/common-names/${commonName.id}/details`}
-											class="
+												>
+													<span class="sr-only">
+														Edit
+													</span>
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														class="w-6 h-6"
+														aria-hidden="true"
+														fill="currentColor"
+														viewBox="0 -960 960 960"
+													>
+														<path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h357l-80 80H200v560h560v-278l80-80v358q0 33-23.5 56.5T760-120H200Zm280-360ZM360-360v-170l367-367q12-12 27-18t30-6q16 0 30.5 6t26.5 18l56 57q11 12 17 26.5t6 29.5q0 15-5.5 29.5T897-728L530-360H360Zm481-424-56-56 56 56ZM440-440h56l232-232-28-28-29-28-231 231v57Zm260-260-29-28 29 28 28 28-28-28Z" />
+													</svg>
+												</a>
+												<a
+													href={`/common-names/${commonName.id}/details`}
+													class="
 											px-1 
 											py-1
 											mr-1
@@ -273,33 +386,35 @@ const newCN = await Promise.all(
 											hover:text-success-400
 											focus:ring-success-700 
 											focus:text-success-300"
-										>
-											<span class="sr-only">Ver</span>
-											<svg
-												class="w-6 h-6"
-												aria-hidden="true"
-												xmlns="http://www.w3.org/2000/svg"
-												width="24"
-												height="24"
-												fill="none"
-												viewBox="0 0 24 24"
-											>
-												<path
-													stroke="currentColor"
-													stroke-width="2"
-													d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z"
-												/>
-												<path
-													stroke="currentColor"
-													stroke-width="2"
-													d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
-												/>
-											</svg>
-										</a>
-										<button
-											data-id={commonName.id}
-											type="button"
-											class="
+												>
+													<span class="sr-only">
+														Ver
+													</span>
+													<svg
+														class="w-6 h-6"
+														aria-hidden="true"
+														xmlns="http://www.w3.org/2000/svg"
+														width="24"
+														height="24"
+														fill="none"
+														viewBox="0 0 24 24"
+													>
+														<path
+															stroke="currentColor"
+															stroke-width="2"
+															d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z"
+														/>
+														<path
+															stroke="currentColor"
+															stroke-width="2"
+															d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+														/>
+													</svg>
+												</a>
+												<button
+													data-id={commonName.id}
+													type="button"
+													class="
 											px-1 
 											py-1
 											text-sm 
@@ -312,35 +427,38 @@ const newCN = await Promise.all(
 											focus:ring-orange-600 
 											focus:text-danger-300 
 											delete-btn"
-										>
-											<span class="sr-only">Delete</span>
-											<svg
-												class="w-6 h-6"
-												aria-hidden="true"
-												xmlns="http://www.w3.org/2000/svg"
-												fill="none"
-												viewBox="0 0 24 24"
-											>
-												<path
-													stroke="currentColor"
-													stroke-linecap="round"
-													stroke-linejoin="round"
-													stroke-width="2"
-													d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
-												/>
-											</svg>
-										</button>
-									</div>
-								</td>
-							</tr>
-						))
-					}
-				</tbody>
-			</table>
+												>
+													<span class="sr-only">
+														Delete
+													</span>
+													<svg
+														class="w-6 h-6"
+														aria-hidden="true"
+														xmlns="http://www.w3.org/2000/svg"
+														fill="none"
+														viewBox="0 0 24 24"
+													>
+														<path
+															stroke="currentColor"
+															stroke-linecap="round"
+															stroke-linejoin="round"
+															stroke-width="2"
+															d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+														/>
+													</svg>
+												</button>
+											</div>
+										</td>
+									</tr>
+								))
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
 		</div>
 	</div>
 </BaseLayout>
-
 <script>
 	import { DataTable } from "simple-datatables";
 
