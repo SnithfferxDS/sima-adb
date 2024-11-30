@@ -1,0 +1,10 @@
+---
+import Layout from "../../layouts/app.layout.astro";
+import AccountSettings from "../../components/accounts/settings.astro";
+
+const { user } = Astro.props;
+---
+
+<Layout title="Settings">
+	<AccountSettings user={user} />
+</Layout>

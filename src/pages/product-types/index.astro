@@ -1,46 +1,452 @@
 ---
 import Layout from "../../layouts/app.layout.astro";
-import Table from "../../components/table.astro";
-import { db, ProductType } from "astro:db";
+import Table from "../../components/Table.astro";
+import { db, eq, ProductType, Category } from "astro:db";
+import BreadCrumbs from "../../components/BreadCrumbs.astro";
+import Search from "../../components/Search.astro";
+
+const categories = await db
+	.select()
+	.from(Category)
+	.where(eq(Category.active, true))
+	.orderBy(Category.name);
+
+const breadcrumbs = [
+	{
+		lable: "Tipos de Producto",
+		path: "/product-types",
+	},
+];
 
 const productTypes = await db.select().from(ProductType).all();
+
+const newCats = await Promise.all(
+	productTypes.map(async (productType) => {
+		const cats = Array.isArray(productType.categories)
+			? productType.categories
+			: JSON.parse(productType.categories as string);
+
+		const categorias = await Promise.all(
+			cats.map(async (cat: number) => {
+				const category = await db
+					.select({ name: Category.name })
+					.from(Category)
+					.where(eq(Category.id, cat));
+				return category[0]?.name;
+			}),
+		);
+		productType.categories = categorias;
+	}),
+);
 ---
 
 <Layout title="Product Types">
 	<div
-		class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg p-6"
+		class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg"
 	>
-		<div class="flex justify-between items-center mb-6 border-b">
-			<h1 class="text-2xl font-bold">Tipos de Producto</h1>
-			<a
-				href="/product-types/create"
-				class="bg-purple-700 text-white px-4 py-2 mb-2 rounded-lg hover:bg-purple-600"
-			>
-				Agregar Nuevo
-			</a>
+		<div
+			class="p-4 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5"
+		>
+			<div class="w-full mb-1">
+				<BreadCrumbs
+					routes={breadcrumbs}
+					currentRoute={Astro.url.pathname}
+					headerTitle="Tipos de Producto"
+				/>
+				<div class="items-center justify-between block flex">
+					<div class="flex items-center mb-4 sm:mb-0">
+						<Search
+							action="search"
+							id="product-types"
+							method="get"
+							placeholder="en tipos de producto"
+						/>
+						{
+							/* <div class="flex items-center w-full sm:justify-end">
+							<div class="flex pl-2 space-x-1">
+								<a
+									href="#"
+									class="inline-flex justify-center p-1 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+								>
+									<svg
+										class="w-6 h-6"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
+											clip-rule="evenodd"></path></svg
+									>
+								</a>
+								<a
+									href="#"
+									class="inline-flex justify-center p-1 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+								>
+									<svg
+										class="w-6 h-6"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
+											clip-rule="evenodd"></path></svg
+									>
+								</a>
+								<a
+									href="#"
+									class="inline-flex justify-center p-1 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+								>
+									<svg
+										class="w-6 h-6"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											fill-rule="evenodd"
+											d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
+											clip-rule="evenodd"></path></svg
+									>
+								</a>
+								<a
+									href="#"
+									class="inline-flex justify-center p-1 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
+								>
+									<svg
+										class="w-6 h-6"
+										fill="currentColor"
+										viewBox="0 0 20 20"
+										xmlns="http://www.w3.org/2000/svg"
+										><path
+											d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
+										></path></svg
+									>
+								</a>
+							</div>
+						</div> */
+						}
+					</div>
+
+					<div
+						class="flex items-center ml-auto mb-4 sm:mb-0 space-x-1 sm:space-x-2"
+					>
+						<button
+							type="button"
+							data-refresh
+							class="inline-flex
+							items-center
+							justify-center
+							w-1/2
+							px-3
+							py-2
+							text-sm
+							font-medium
+							text-center
+							rounded-lg
+							focus:ring-4
+							sm:w-auto
+							text-white
+							bg-purple-700
+							hover:bg-purple-800
+							focus:ring-purple-300
+							dark:bg-purple-600
+							dark:hover:bg-purple-700
+							dark:focus:ring-purple-800"
+						>
+							<svg
+								class="w-5 h-5 sm:mr-2 sm:-ml-1"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.5"
+								viewBox="0 0 24 24"
+								xmlns="http://www.w3.org/2000/svg"
+								aria-hidden="true"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+								></path>
+							</svg>
+							<span class="hidden md:block">Recargar</span>
+						</button>
+						<button
+							id="createResourceButton"
+							class="inline-flex
+							items-center
+							justify-center
+							w-1/2
+							px-3
+							py-2
+							text-sm
+							font-medium
+							text-center
+							rounded-lg
+							focus:ring-4
+							sm:w-auto
+							text-white
+							bg-purple-700
+							hover:bg-purple-800
+							focus:ring-purple-300
+							dark:bg-purple-600
+							dark:hover:bg-purple-700
+							dark:focus:ring-purple-800"
+							type="button"
+							data-drawer-target="drawer-create-default"
+							data-drawer-show="drawer-create-default"
+							aria-controls="drawer-create-default"
+							data-drawer-placement="right"
+						>
+							<svg
+								class="w-5 h-5 sm:mr-2 sm:-ml-1"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								xmlns="http://www.w3.org/2000/svg"
+								><path
+									fill-rule="evenodd"
+									d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+									clip-rule="evenodd"></path></svg
+							>
+							<span class="hidden md:block">Agregar</span>
+						</button>
+					</div>
+				</div>
+			</div>
 		</div>
 
-		<div
-			class="flex
-			justify-between
-			items-center
-			mb-6
-			p-6
-			rounded-md
-			shadow-purple-700/25
-			bg-secondary-700/25
-			text-white
-			dark:bg-gray-800/25"
-		>
-			<Table
-				resource="product-types"
-				data={productTypes}
-				columns={[
-					{ name: "id", label: "ID", sortable: true },
-					{ name: "name", label: "Nombre", sortable: true },
-					{ name: "active", label: "Activo", sortable: true },
-				]}
-			/>
+		<div class="flex flex-col">
+			<div class="overflow-x-auto">
+				<div class="inline-block min-w-full align-middle">
+					<Table
+						resource="product-types"
+						data={productTypes}
+						columns={[
+							{ name: "id", label: "ID", sortable: true },
+							{ name: "name", label: "Nombre", sortable: true },
+							{
+								name: "categories",
+								label: "Categorías",
+								sortable: false,
+							},
+						]}
+					/>
+				</div>
+			</div>
 		</div>
 	</div>
+	<!-- Create New -->
+	<div
+		id="drawer-create-default"
+		class="fixed
+		top-0
+		right-0
+		z-40
+		w-full
+		h-screen
+		max-w-xs
+		p-6
+		overflow-y-auto
+		transition-transform
+		translate-x-full
+		rounded-l-md
+		bg-primary-800/50
+		dark:bg-primary-700/50
+		shadow-purple-500/50"
+		tabindex="-1"
+		aria-labelledby="drawer-label"
+		aria-hidden="true"
+	>
+		<h5
+			id="drawer-label"
+			class="inline-flex items-center mb-6 text-sm font-semibold text-gray-500 uppercase dark:text-gray-400"
+		>
+			Nuevo Tipo de Producto
+		</h5>
+		<button
+			type="button"
+			data-drawer-dismiss="drawer-create-default"
+			aria-controls="drawer-create-default"
+			class="text-gray-400 bg-transparent hover:bg-danger-200 hover:text-danger-900 rounded-lg text-sm p-1.5 absolute top-2.5 right-2.5 inline-flex items-center dark:hover:bg-danger-600 dark:hover:text-white"
+		>
+			<svg
+				aria-hidden="true"
+				class="w-5 h-5"
+				fill="currentColor"
+				viewBox="0 0 20 20"
+				xmlns="http://www.w3.org/2000/svg"
+				><path
+					fill-rule="evenodd"
+					d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+					clip-rule="evenodd"></path></svg
+			>
+			<span class="sr-only">Close menu</span>
+		</button>
+		<form id="createForm">
+			<div class="space-y-4">
+				<div>
+					<label
+						for="type_name"
+						class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+						>Nombre</label
+					>
+					<input
+						type="text"
+						name="type_name"
+						id="type_name"
+						class="border
+						text-sm
+						rounded-lg
+						block
+						w-full p-2.5
+						bg-gray-50
+						border-gray-300
+						text-gray-900
+						focus:ring-primary-600
+						focus:border-primary-600
+						dark:bg-gray-700
+						dark:border-gray-600
+						dark:placeholder-gray-400
+						dark:text-white"
+						placeholder="Digite el tipo de producto"
+						required=""
+					/>
+				</div>
+				<div class="transition-all duration-200 ease-in-out">
+					<label
+						class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
+						>Categorías</label
+					>
+					<div
+						class="space-y-3
+						max-h-96
+						overflow-y-auto
+						p-3
+						border
+						rounded-md
+						bg-gray-50 border-gray-300
+						focus:ring-primary-600
+						focus:border-primary-600
+						dark:bg-gray-700
+						dark:border-gray-600"
+					>
+						{
+							categories.map((category) => (
+								<label class="flex items-center group p-2 rounded hover:bg-gray-500/75 transition-colors">
+									<input
+										type="checkbox"
+										name="categories"
+										value={category.id}
+										id={category.id.toString()}
+										class="
+										rounded 
+										shadow-sm 
+										transition-shadow"
+									/>
+									<div class="ml-3">
+										<span
+											class="text-sm text-gray-900 dark:text-white
+										 font-medium"
+										>
+											{category.name}
+										</span>
+										{category.description && (
+											<p class="text-xs text-gray-300 mt-0.5">
+												{category.description}
+											</p>
+										)}
+									</div>
+								</label>
+							))
+						}
+						{
+							categories.length === 0 && (
+								<p class="text-sm text-gray-300 text-center py-2">
+									No categories available
+								</p>
+							)
+						}
+					</div>
+				</div>
+				<div
+					class="bottom-0 left-0 flex justify-center w-full pb-4 space-x-4 md:px-4 md:absolute"
+				>
+					<button
+						type="submit"
+						class="text-white w-full justify-center bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-700 dark:hover:bg-primary-600 dark:focus:ring-primary-600"
+					>
+						Agregar
+					</button>
+					<button
+						type="button"
+						data-drawer-dismiss="drawer-create-default"
+						aria-controls="drawer-create-default"
+						class="inline-flex w-full justify-center text-gray-500 items-center bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 rounded-lg border border-gray-200 text-sm font-medium px-5 py-2.5 hover:text-gray-900 focus:z-10 dark:bg-gray-700 dark:text-gray-300 dark:border-gray-500 dark:hover:text-white dark:hover:bg-gray-600 dark:focus:ring-gray-600"
+					>
+						<svg
+							aria-hidden="true"
+							class="w-5 h-5 -ml-1 sm:mr-1"
+							fill="none"
+							stroke="currentColor"
+							viewBox="0 0 24 24"
+							xmlns="http://www.w3.org/2000/svg"
+							><path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								stroke-width="2"
+								d="M6 18L18 6M6 6l12 12"></path></svg
+						>
+						Cancelar
+					</button>
+				</div>
+			</div>
+		</form>
+	</div>
 </Layout>
+<script>
+	import { showSuccess, showError } from "../../lib/utils/notifications";
+	import { validateProductType } from "../../lib/utils/validation";
+
+	const form = document.getElementById("createForm");
+	form?.addEventListener("submit", async (e) => {
+		e.preventDefault();
+		const formData = new FormData(form as HTMLFormElement);
+		const categories = formData
+			.getAll("categories")
+			.map((id) => parseInt(id as string));
+
+		const data = {
+			name: formData.get("type_name") as string,
+			categories: categories,
+		};
+		console.log(data);
+		const validation = validateProductType(data);
+		console.log("Validation");
+		console.log(validation);
+		if (validation.errors) {
+			showError(Object.values(validation.errors).flat().join("\n"));
+			return;
+		}
+
+		try {
+			const response = await fetch("/api/product-types", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(data),
+			});
+
+			if (response.ok) {
+				showSuccess("Product Type created successfully");
+				window.location.href = "/product-types";
+			} else {
+				const error = await response.json();
+				showError(error.message || "Failed to create product type");
+			}
+		} catch (error) {
+			console.error("Error:", error);
+			showError("An unexpected error occurred");
+		}
+	});
+</script>

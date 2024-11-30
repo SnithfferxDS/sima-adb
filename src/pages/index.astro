@@ -1,9 +1,12 @@
 ---
 import BaseLayout from "../layouts/guest.layout.astro";
-import { APP_NAME, APP_VERSION, APP_DESCRIPTION } from "../configs/constants";
+import { APP_NAME, APP_SHORT_VERSION, APP_DESC } from "../configs/constants";
 import { db, eq } from "astro:db";
 import ProductCard from "../components/ProductCard.astro";
 import { Product, ProductRelations, Image } from "astro:db";
+import FQA from "../components/fqa.astro";
+import Hero from "../components/Hero.astro";
+
 const products = await db
 	.select({
 		id: Product.id,
@@ -19,45 +22,10 @@ const products = await db
 ---
 
 <BaseLayout title="Home">
-	<main class="max-w-7xl mx-auto py-6 sm:px-6 lg:px-8">
-		<div class="px-4 py-6 sm:px-0">
-			<div class="text-center">
-				<h1
-					class="text-4xl tracking-tight font-extrabold text-gray-900 sm:text-5xl md:text-6xl"
-				>
-					<span class="block">Welcome to</span>
-					<span class="block text-purple-600">{APP_NAME}</span>
-					<span class="font-semibold text-gray-700 dark:text-gray-500"
-						>v{APP_VERSION}</span
-					>
-				</h1>
-				<p
-					class="mt-3 max-w-md mx-auto text-base text-primary-500 dark:text-primary-700 sm:text-lg md:mt-5 md:text-xl md:max-w-3xl"
-				>
-					{APP_DESCRIPTION}
-				</p>
-				<div
-					class="mt-5 max-w-md mx-auto sm:flex sm:justify-center md:mt-8"
-				>
-					<div class="rounded-md shadow">
-						<a
-							href="/dashboard"
-							class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 md:py-4 md:text-lg md:px-10"
-						>
-							Dashboard
-						</a>
-					</div>
-					<div class="mt-3 rounded-md shadow sm:mt-0 sm:ml-3">
-						<a
-							href="/auth/login"
-							class="w-full flex items-center justify-center px-8 py-3 border border-transparent text-base font-medium rounded-md text-indigo-600 bg-white hover:bg-gray-50 md:py-4 md:text-lg md:px-10"
-						>
-							Iniciar
-						</a>
-					</div>
-				</div>
-			</div>
-			<div class="container mx-auto px-4 py-8">
+	<main class="mx-auto py-6 sm:px-4 lg:px-6">
+		<div class="px-4 py-6 sm:px-2">
+			<Hero />
+			<div class="container mx-auto px-4 py-6">
 				<h1
 					class="text-3xl font-bold text-gray-900 dark:text-white mb-8"
 				>
@@ -82,6 +50,9 @@ const products = await db
 					}
 				</div>
 			</div>
+		</div>
+		<div class="flex flex-col items-center justify-center gap-4 mt-10">
+			<FQA />
 		</div>
 	</main>
 </BaseLayout>

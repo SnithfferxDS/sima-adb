@@ -3,7 +3,8 @@ import BaseLayout from "../../layouts/app.layout.astro";
 import ProductVariantUpload from "../../components/ProductVariantUpload.astro";
 import ProductVariantForm from "../../components/ProductVariantForm.astro";
 import UploadFile from "../../components/FileUpload.astro";
-import { CommonName, db, Brand, Category } from "astro:db";
+import { db, Brand, Category, CommonName, ProductType } from "astro:db";
+import BreadCrumbs from "../../components/BreadCrumbs.astro";
 
 const Categories = await db
 	.select({ id: Category.id, name: Category.name })
@@ -17,123 +18,176 @@ const CommonNames = await db
 	.select({ id: CommonName.id, name: CommonName.name })
 	.from(CommonName)
 	.all();
+const ProductTypes = await db
+	.select({ id: ProductType.id, name: ProductType.name })
+	.from(ProductType)
+	.all();
+
+const breadcrumbs = [
+	{
+		lable: "Productos",
+		path: "/products",
+	},
+	{
+		lable: "Crear Producto",
+		path: "/products/create",
+	},
+];
 ---
 
 <BaseLayout title="Crear Producto">
-	<div class="mx-auto">
-		<form id="createForm" class="space-y-6">
-			<section class="flex flex-col">
-				<div class="overflow-x-auto">
-					<div
-						class="relative shadow-md sm:rounded-lg bg-gray-50 dark:bg-gray-800"
-					>
-						<div
-							class="p-4 space-y-3 md:space-y-0 md:space-x-4 overflow-hidden"
-						>
-							<div
-								class="mb-4 border-b border-gray-200 dark:border-gray-700"
-							>
-								<ul
-									class="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-600 border-b border-gray-400 dark:border-gray-500 dark:text-gray-300"
-									id="default-tab"
-									data-tabs-toggle="#default-tab-content"
-									role="tablist"
-								>
-									<li class="me-2" role="presentation">
-										<button
-											class="inline-block p-4 border-b-2 rounded-t-lg text-primary-600 bg-gray-100 dark:bg-gray-600 dark:text-primary-400"
-											id="productGeneral-tab"
-											data-tabs-target="#productGeneral"
-											type="button"
-											role="tab"
-											aria-controls="productGeneral"
-											aria-selected="false"
-											>General</button
-										>
-									</li>
-									<li class="me-2" role="presentation">
-										<button
-											class="inline-block p-4 border-b-2 rounded-t-lg"
-											id="productVariants-tab"
-											data-tabs-target="#productVariants"
-											type="button"
-											role="tab"
-											aria-controls="productVariants"
-											aria-selected="false"
-											>Variantes</button
-										>
-									</li>
-									<li class="me-2" role="presentation">
-										<button
-											class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-											id="productDesc-tab"
-											data-tabs-target="#productDesc"
-											type="button"
-											role="tab"
-											aria-controls="productDesc"
-											aria-selected="false"
-											>Descripción</button
-										>
-									</li>
-									<li class="me-2" role="presentation">
-										<button
-											class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-											id="productPrices-tab"
-											data-tabs-target="#productPrices"
-											type="button"
-											role="tab"
-											aria-controls="productPrices"
-											aria-selected="false"
-											>Precios</button
-										>
-									</li>
-									<li class="me-2" role="presentation">
-										<button
-											class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-											id="productStock-tab"
-											data-tabs-target="#productStock"
-											type="button"
-											role="tab"
-											aria-controls="productStock"
-											aria-selected="false">Stock</button
-										>
-									</li>
-									<li class="me-2" role="presentation">
-										<button
-											class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
-											id="productLogistics-tab"
-											data-tabs-target="#productLogistics"
-											type="button"
-											role="tab"
-											aria-controls="productLogistics"
-											aria-selected="false"
-											>Logistica</button
-										>
-									</li>
-								</ul>
-							</div>
-							<div id="default-tab-content">
-								<!-- General -->
+	<div
+		class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg"
+	>
+		<div
+			class="p-4 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5"
+		>
+			<div class="w-full mb-1">
+				<BreadCrumbs
+					routes={breadcrumbs}
+					currentRoute={Astro.url.pathname}
+					headerTitle="Crear Producto"
+				/>
+			</div>
+		</div>
+
+		<div class="flex flex-col">
+			<div class="overflow-x-auto">
+				<div class="inline-block min-w-full align-middle">
+					<form id="createForm" class="space-y-6">
+						<section class="flex flex-col">
+							<div class="overflow-x-auto">
 								<div
-									class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-700"
-									id="productGeneral"
-									role="tabpanel"
-									aria-labelledby="productGeneral-tab"
+									class="relative shadow-md sm:rounded-lg bg-gray-50 dark:bg-gray-800"
 								>
 									<div
-										class="grid grid-cols-12 gap-1 md:gap-4"
+										class="p-4 space-y-3 md:space-y-0 md:space-x-4 overflow-hidden"
 									>
 										<div
-											class="col-span-12 md:col-span-4 mb-2"
+											class="mb-4 border-b border-gray-200 dark:border-gray-700"
 										>
-											<div class="rounded-lg
-												shadow">
-												<UploadFile
-													id="productImage"
-													label=""
-												/>
-												{
-													/* <img
+											<ul
+												class="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-600 border-b border-gray-400 dark:border-gray-500 dark:text-gray-300"
+												id="default-tab"
+												data-tabs-toggle="#default-tab-content"
+												role="tablist"
+											>
+												<li
+													class="me-2"
+													role="presentation"
+												>
+													<button
+														class="inline-block p-4 border-b-2 rounded-t-lg text-primary-600 bg-gray-100 dark:bg-gray-600 dark:text-primary-400"
+														id="productGeneral-tab"
+														data-tabs-target="#productGeneral"
+														type="button"
+														role="tab"
+														aria-controls="productGeneral"
+														aria-selected="false"
+														>General</button
+													>
+												</li>
+												<li
+													class="me-2"
+													role="presentation"
+												>
+													<button
+														class="inline-block p-4 border-b-2 rounded-t-lg"
+														id="productVariants-tab"
+														data-tabs-target="#productVariants"
+														type="button"
+														role="tab"
+														aria-controls="productVariants"
+														aria-selected="false"
+														>Variantes</button
+													>
+												</li>
+												<li
+													class="me-2"
+													role="presentation"
+												>
+													<button
+														class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+														id="productDesc-tab"
+														data-tabs-target="#productDesc"
+														type="button"
+														role="tab"
+														aria-controls="productDesc"
+														aria-selected="false"
+														>Descripción</button
+													>
+												</li>
+												<li
+													class="me-2"
+													role="presentation"
+												>
+													<button
+														class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+														id="productPrices-tab"
+														data-tabs-target="#productPrices"
+														type="button"
+														role="tab"
+														aria-controls="productPrices"
+														aria-selected="false"
+														>Precios</button
+													>
+												</li>
+												<li
+													class="me-2"
+													role="presentation"
+												>
+													<button
+														class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+														id="productStock-tab"
+														data-tabs-target="#productStock"
+														type="button"
+														role="tab"
+														aria-controls="productStock"
+														aria-selected="false"
+														>Stock</button
+													>
+												</li>
+												<li
+													class="me-2"
+													role="presentation"
+												>
+													<button
+														class="inline-block p-4 border-b-2 rounded-t-lg hover:text-gray-600 hover:border-gray-300 dark:hover:text-gray-300"
+														id="productLogistics-tab"
+														data-tabs-target="#productLogistics"
+														type="button"
+														role="tab"
+														aria-controls="productLogistics"
+														aria-selected="false"
+														>Logistica</button
+													>
+												</li>
+											</ul>
+										</div>
+										<div id="default-tab-content">
+											<!-- General -->
+											<div
+												class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-700"
+												id="productGeneral"
+												role="tabpanel"
+												aria-labelledby="productGeneral-tab"
+											>
+												<div
+													class="grid grid-cols-12 gap-1 md:gap-4"
+												>
+													<div
+														class="col-span-12 md:col-span-4 mb-2"
+													>
+														<div
+															class="rounded-lg
+												shadow"
+														>
+															<UploadFile
+																id="productImage"
+																label=""
+															/>
+															{
+																/* <img
 													class="rounded-t-lg w-full"
 													src="/assets/img/no_photo.png"
 													alt="asset photo"
@@ -184,344 +238,369 @@ const CommonNames = await db
 														</svg>
 													</a>
 												</div> */
-												}
-											</div>
-										</div>
-										<div class="col-span-12 sm:col-span-8">
-											<div class="grid grid-cols-6 gap-4">
-												<div
-													class="col-span-6 sm:col-span-3"
-												>
-													<label
-														for="productCommonName"
-														class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-														>Nombre Común</label
-													>
-													<select
-														id="productCommonName"
-														name="productCommonName"
-														class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 select2"
-													>
-														<option
-															value="0"
-															selected=""
-															>-- Seleccionar
-															Nombre Común --</option
-														>
-														{
-															CommonNames.map(
-																(
-																	commonName,
-																) => (
-																	<option
-																		value={
-																			commonName.id
-																		}
-																	>
-																		{
-																			commonName.name
-																		}
-																	</option>
-																),
-															)
-														}
-													</select>
-												</div>
-												<div
-													class="col-span-6 sm:col-span-3"
-												>
-													<label
-														for="productType"
-														class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-														>Tipo</label
-													>
-													<select
-														id="productType"
-														name="productType"
-														class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 select2"
-													>
-														<option
-															value="0"
-															selected=""
-															>-- Seleccionar Tipo
-															--</option
-														>
-
-														{
-															Categories.map(
-																(category) => (
-																	<option
-																		value={
-																			category.id
-																		}
-																	>
-																		{
-																			category.name
-																		}
-																	</option>
-																),
-															)
-														}
-													</select>
-												</div>
-												<div
-													class="col-span-6 sm:col-span-3"
-												>
-													<label
-														for="productBrand"
-														class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-														>Marca</label
-													>
-													<select
-														id="productBrand"
-														name="productBrand"
-														class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 select2"
-													>
-														<option
-															value="0"
-															selected=""
-															>-- Seleccionar Maca
-															--</option
-														>
-														{
-															Brands.map(
-																(brand) => (
-																	<option
-																		value={
-																			brand.id
-																		}
-																	>
-																		{
-																			brand.name
-																		}
-																	</option>
-																),
-															)
-														}
-													</select>
-												</div>
-												<div
-													class="col-span-6 sm:col-span-3"
-												>
-													<label
-														for="productMPN"
-														class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-														>MPN</label
-													>
-													<div class="relative">
-														<div
-															class="absolute inset-y-0 end-0 flex items-center"
-														>
-															<button
-																data-tooltip-target="tooltip-gen-mpn"
-																type="button"
-																class="text-white
-                                                                end-2.5
-                                                                bottom-2.5
-                                                                focus:ring-4
-                                                                focus:outline-none
-                                                                font-medium
-                                                                rounded-lg
-                                                                text-sm px-3 py-2.5
-                                                                text-center
-                                                                bg-primary-600
-                                                                hover:bg-primary-700
-                                                                focus:ring-primary-700
-                                                                dark:bg-primary-600
-                                                                dark:hover:bg-primary-700
-                                                                dark:focus:ring-primary-700"
-																id="productMPNGenButton"
-															>
-																<svg
-																	xmlns="http://www.w3.org/2000/svg"
-																	height="24px"
-																	viewBox="0 -960 960 960"
-																	width="24px"
-																	fill="#e8eaed"
-																	><path
-																		d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-400H160v400Zm140-40-56-56 103-104-104-104 57-56 160 160-160 160Zm180 0v-80h240v80H480Z"
-																	>
-																	</path></svg
-																>
-																<span
-																	class="sr-only"
-																	>Generar MPN</span
-																>
-															</button>
-															<div
-																id="tooltip-gen-mpn"
-																role="tooltip"
-																class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
-															>
-																Generar MPN
-																<div
-																	class="tooltip-arrow"
-																	data-popper-arrow
-																>
-																</div>
-															</div>
+															}
 														</div>
-														<input
-															type="text"
-															name="productMPN"
-															id="productMPN"
-															class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-															placeholder="MPN del Producto"
-														/>
 													</div>
-												</div>
-												<div
-													class="col-span-6 sm:col-span-3"
-												>
-													<label
-														for="productSKU"
-														class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-														>SKU</label
-													>
-													<div class="relative">
-														<div
-															class="absolute inset-y-0 end-0 flex items-center"
-														>
-															<button
-																data-tooltip-target="tooltip-gen-sku"
-																type="button"
-																class="text-white
-                                                                end-2.5
-                                                                bottom-2.5
-                                                                bg-primary-700
-                                                                hover:bg-primary-800
-                                                                focus:ring-4
-                                                                focus:outline-none
-                                                                focus:ring-primary-300
-                                                                font-medium
-                                                                rounded-lg
-                                                                text-sm px-3 py-2.5
-                                                                text-center
-                                                                dark:bg-primary-600
-                                                                dark:hover:bg-primary-700
-                                                                dark:focus:ring-primary-800"
-																id="productSKUGenButton"
-															>
-																<svg
-																	xmlns="http://www.w3.org/2000/svg"
-																	height="24px"
-																	viewBox="0 -960 960 960"
-																	width="24px"
-																	fill="#e8eaed"
-																	><path
-																		d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-400H160v400Zm140-40-56-56 103-104-104-104 57-56 160 160-160 160Zm180 0v-80h240v80H480Z"
-																	>
-																	</path></svg
-																>
-																<span
-																	class="sr-only"
-																	>Generar SKU</span
-																>
-															</button>
-															<div
-																id="tooltip-gen-sku"
-																role="tooltip"
-																class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
-															>
-																Generar SKU
-																<div
-																	class="tooltip-arrow"
-																	data-popper-arrow
-																>
-																</div>
-															</div>
-														</div>
-														<input
-															type="text"
-															name="productSKU"
-															id="productSKU"
-															class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-															placeholder="SKU del Producto"
-														/>
-													</div>
-												</div>
-												<div
-													class="col-span-12 sm:col-span-6"
-												>
-													<label
-														for="productName"
-														class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-														>Nombre</label
-													>
-													<input
-														type="text"
-														name="productName"
-														id="productName"
-														class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-														placeholder="Nombre del Producto"
-														required=""
-													/>
-												</div>
-											</div>
-										</div>
-										<div class="col-span-12 sm:col-span-4">
-											<label
-												for="productUPC"
-												class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-												>UPC</label
-											>
-											<div class="relative">
-												<div
-													class="absolute inset-y-0 end-0 flex items-center"
-												>
-													<button
-														data-tooltip-target="tooltip-gen-upc"
-														type="button"
-														class="text-white
-														end-2.5
-														bottom-2.5
-														bg-primary-700
-														hover:bg-primary-800
-														focus:ring-4
-														focus:outline-none
-														focus:ring-primary-300
-														font-medium
-														rounded-lg
-														text-sm px-3 py-2.5
-														text-center
-														dark:bg-primary-600
-														dark:hover:bg-primary-700
-														dark:focus:ring-primary-800"
-														id="productUPCGenButton"
-													>
-														<svg
-															xmlns="http://www.w3.org/2000/svg"
-															height="24px"
-															viewBox="0 -960 960 960"
-															width="24px"
-															fill="#e8eaed"
-															><path
-																d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-400H160v400Zm140-40-56-56 103-104-104-104 57-56 160 160-160 160Zm180 0v-80h240v80H480Z"
-															>
-															</path></svg
-														>
-														<span class="sr-only"
-															>Generar UPC</span
-														>
-													</button>
 													<div
-														id="tooltip-gen-upc"
-														role="tooltip"
-														class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
+														class="col-span-12 sm:col-span-8"
 													>
-														Generar UPC
 														<div
-															class="tooltip-arrow"
-															data-popper-arrow
+															class="grid grid-cols-6 gap-4"
 														>
+															<div
+																class="col-span-6 sm:col-span-3"
+															>
+																<label
+																	for="productCommonName"
+																	class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+																	>Nombre
+																	Común</label
+																>
+																<select
+																	id="productCommonName"
+																	name="productCommonName"
+																	class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 select2"
+																>
+																	<option
+																		value="0"
+																		selected=""
+																		>--
+																		Seleccionar
+																		Nombre
+																		Común --</option
+																	>
+																	{
+																		CommonNames.map(
+																			(
+																				commonName,
+																			) => (
+																				<option
+																					value={
+																						commonName.id
+																					}
+																				>
+																					{
+																						commonName.name
+																					}
+																				</option>
+																			),
+																		)
+																	}
+																</select>
+															</div>
+															<div
+																class="col-span-6 sm:col-span-3"
+															>
+																<label
+																	for="productType"
+																	class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+																	>Tipo</label
+																>
+																<select
+																	id="productType"
+																	name="productType"
+																	class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 select2"
+																>
+																	<option
+																		value="0"
+																		selected=""
+																		>--
+																		Seleccionar
+																		Tipo --</option
+																	>
+
+																	{
+																		ProductTypes.map(
+																			(
+																				type,
+																			) => (
+																				<option
+																					value={
+																						type.id
+																					}
+																				>
+																					{
+																						type.name
+																					}
+																				</option>
+																			),
+																		)
+																	}
+																</select>
+															</div>
+															<div
+																class="col-span-6 sm:col-span-3"
+															>
+																<label
+																	for="productBrand"
+																	class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+																	>Marca</label
+																>
+																<select
+																	id="productBrand"
+																	name="productBrand"
+																	class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 select2"
+																>
+																	<option
+																		value="0"
+																		selected=""
+																		>--
+																		Seleccionar
+																		Maca --</option
+																	>
+																	{
+																		Brands.map(
+																			(
+																				brand,
+																			) => (
+																				<option
+																					value={
+																						brand.id
+																					}
+																				>
+																					{
+																						brand.name
+																					}
+																				</option>
+																			),
+																		)
+																	}
+																</select>
+															</div>
+															<div
+																class="col-span-6 sm:col-span-3"
+															>
+																<label
+																	for="productMPN"
+																	class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+																	>MPN</label
+																>
+																<div
+																	class="relative"
+																>
+																	<div
+																		class="absolute inset-y-0 end-0 flex items-center"
+																	>
+																		<button
+																			data-tooltip-target="tooltip-gen-mpn"
+																			type="button"
+																			class="text-white
+																			end-2.5
+																			bottom-2.5
+																			focus:ring-4
+																			focus:outline-none
+																			font-medium
+																			rounded-lg
+																			text-sm px-3 py-2.5
+																			text-center
+																			bg-primary-600
+																			hover:bg-primary-700
+																			focus:ring-primary-700
+																			dark:bg-primary-600
+																			dark:hover:bg-primary-700
+																			dark:focus:ring-primary-700"
+																			id="productMPNGenButton"
+																		>
+																			<svg
+																				xmlns="http://www.w3.org/2000/svg"
+																				height="24px"
+																				viewBox="0 -960 960 960"
+																				width="24px"
+																				fill="#e8eaed"
+																				><path
+																					d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-400H160v400Zm140-40-56-56 103-104-104-104 57-56 160 160-160 160Zm180 0v-80h240v80H480Z"
+																				>
+																				</path></svg
+																			>
+																			<span
+																				class="sr-only"
+																				>Generar
+																				MPN</span
+																			>
+																		</button>
+																		<div
+																			id="tooltip-gen-mpn"
+																			role="tooltip"
+																			class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
+																		>
+																			Generar
+																			MPN
+																			<div
+																				class="tooltip-arrow"
+																				data-popper-arrow
+																			>
+																			</div>
+																		</div>
+																	</div>
+																	<input
+																		type="text"
+																		name="productMPN"
+																		id="productMPN"
+																		class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+																		placeholder="MPN del Producto"
+																	/>
+																</div>
+															</div>
+															<div
+																class="col-span-6 sm:col-span-3"
+															>
+																<label
+																	for="productSKU"
+																	class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+																	>SKU</label
+																>
+																<div
+																	class="relative"
+																>
+																	<div
+																		class="absolute inset-y-0 end-0 flex items-center"
+																	>
+																		<button
+																			data-tooltip-target="tooltip-gen-sku"
+																			type="button"
+																			class="text-white
+																			end-2.5
+																			bottom-2.5
+																			bg-primary-700
+																			hover:bg-primary-800
+																			focus:ring-4
+																			focus:outline-none
+																			focus:ring-primary-300
+																			font-medium
+																			rounded-lg
+																			text-sm px-3 py-2.5
+																			text-center
+																			dark:bg-primary-600
+																			dark:hover:bg-primary-700
+																			dark:focus:ring-primary-800"
+																			id="productSKUGenButton"
+																		>
+																			<svg
+																				xmlns="http://www.w3.org/2000/svg"
+																				height="24px"
+																				viewBox="0 -960 960 960"
+																				width="24px"
+																				fill="#e8eaed"
+																				><path
+																					d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-400H160v400Zm140-40-56-56 103-104-104-104 57-56 160 160-160 160Zm180 0v-80h240v80H480Z"
+																				>
+																				</path></svg
+																			>
+																			<span
+																				class="sr-only"
+																				>Generar
+																				SKU</span
+																			>
+																		</button>
+																		<div
+																			id="tooltip-gen-sku"
+																			role="tooltip"
+																			class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
+																		>
+																			Generar
+																			SKU
+																			<div
+																				class="tooltip-arrow"
+																				data-popper-arrow
+																			>
+																			</div>
+																		</div>
+																	</div>
+																	<input
+																		type="text"
+																		name="productSKU"
+																		id="productSKU"
+																		class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+																		placeholder="SKU del Producto"
+																	/>
+																</div>
+															</div>
+															<div
+																class="col-span-12 sm:col-span-6"
+															>
+																<label
+																	for="productName"
+																	class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+																	>Nombre</label
+																>
+																<input
+																	type="text"
+																	name="productName"
+																	id="productName"
+																	class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+																	placeholder="Nombre del Producto"
+																	required=""
+																/>
+															</div>
 														</div>
 													</div>
-												</div>
-												<input
-													type="text"
-													name="productUPC"
-													id="productUPC"
-													class="shadow-sm
+													<div
+														class="col-span-12 sm:col-span-4"
+													>
+														<label
+															for="productUPC"
+															class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+															>UPC</label
+														>
+														<div class="relative">
+															<div
+																class="absolute inset-y-0 end-0 flex items-center"
+															>
+																<button
+																	data-tooltip-target="tooltip-gen-upc"
+																	type="button"
+																	class="text-white
+																	end-2.5
+																	bottom-2.5
+																	bg-primary-700
+																	hover:bg-primary-800
+																	focus:ring-4
+																	focus:outline-none
+																	focus:ring-primary-300
+																	font-medium
+																	rounded-lg
+																	text-sm px-3 py-2.5
+																	text-center
+																	dark:bg-primary-600
+																	dark:hover:bg-primary-700
+																	dark:focus:ring-primary-800"
+																	id="productUPCGenButton"
+																>
+																	<svg
+																		xmlns="http://www.w3.org/2000/svg"
+																		height="24px"
+																		viewBox="0 -960 960 960"
+																		width="24px"
+																		fill="#e8eaed"
+																		><path
+																			d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-400H160v400Zm140-40-56-56 103-104-104-104 57-56 160 160-160 160Zm180 0v-80h240v80H480Z"
+																		>
+																		</path></svg
+																	>
+																	<span
+																		class="sr-only"
+																		>Generar
+																		UPC</span
+																	>
+																</button>
+																<div
+																	id="tooltip-gen-upc"
+																	role="tooltip"
+																	class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
+																>
+																	Generar UPC
+																	<div
+																		class="tooltip-arrow"
+																		data-popper-arrow
+																	>
+																	</div>
+																</div>
+															</div>
+															<input
+																type="text"
+																name="productUPC"
+																id="productUPC"
+																class="shadow-sm
                                                                 bg-gray-50
                                                                 border
                                                                 text-sm
@@ -539,121 +618,134 @@ const CommonNames = await db
                                                                 dark:text-white
                                                                 dark:focus:ring-primary-500
                                                                 dark:focus:border-primary-500"
-													placeholder="UPC de Producto"
-													required=""
-												/>
-											</div>
-											<p
-												id="productUPC-valid"
-												class="mt-2 text-sm text-green-600 dark:text-green-500"
-											>
-												<span class="font-medium"
-													>¡Bien!</span
-												> ¡El UPC no existe!
-											</p>
+																placeholder="UPC de Producto"
+																required=""
+															/>
+														</div>
+														<p
+															id="productUPC-valid"
+															class="mt-2 text-sm text-green-600 dark:text-green-500 hidden"
+														>
+															<span
+																class="font-medium"
+																>¡Bien!</span
+															> ¡El UPC no existe!
+														</p>
 
-											<p
-												id="productUPC-invalid"
-												class="mt-2 text-sm text-red-600 dark:text-red-500"
-											>
-												<span class="font-medium"
-													>Oops!</span
-												> ¡El UPC ya existe!
-											</p>
-										</div>
-										<div class="col-span-12 sm:col-span-4">
-											<label
-												for="productEAN"
-												class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-												>EAN</label
-											>
-											<input
-												type="text"
-												name="productEAN"
-												id="productEAN"
-												class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-												placeholder="EAN del Producto"
-											/>
-										</div>
-										<div
-											class="col-span-12 sm:col-span-2 flex items-center"
-										>
-											<label
-												class="inline-flex items-center mb-2 cursor-pointer"
-											>
-												<input
-													id="productActive"
-													name="productActive"
-													type="checkbox"
-													value=""
-													class="sr-only peer"
-												/>
-												<div
-													class="relative
+														<p
+															id="productUPC-invalid"
+															class="mt-2 text-sm text-red-600 dark:text-red-500 hidden"
+														>
+															<span
+																class="font-medium"
+																>Oops!</span
+															> ¡El UPC ya existe!
+														</p>
+													</div>
+													<div
+														class="col-span-12 sm:col-span-4"
+													>
+														<label
+															for="productEAN"
+															class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+															>EAN</label
+														>
+														<input
+															type="text"
+															name="productEAN"
+															id="productEAN"
+															class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+															placeholder="EAN del Producto"
+														/>
+													</div>
+													<div
+														class="col-span-12 sm:col-span-2 flex items-center"
+													>
+														<label
+															class="inline-flex items-center mb-2 cursor-pointer"
+														>
+															<input
+																id="productActive"
+																name="productActive"
+																type="checkbox"
+																value=""
+																class="sr-only peer"
+															/>
+															<div
+																class="relative
                                                     w-11
                                                     h-6
                                                     bg-red-500 peer peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-300 peer-checked:after:translate-x-full peer-checked:after:border-white peer-checked:bg-green-600 rounded-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:w-5 after:h-5 after:transition-all dark:peer-focus:ring-gray-800 dark:bg-red-700 dark:border-gray-600"
-												>
+															>
+															</div>
+															<span
+																class="ms-3 text-sm font-medium text-gray-400 dark:text-gray-500"
+															>
+																Activo
+															</span>
+														</label>
+													</div>
+													<div
+														class="col-span-12 sm:col-span-6"
+													>
+														<label
+															for="productTags"
+															class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+															>Etiquetas</label
+														>
+														<input
+															type="text"
+															name="productTags"
+															id="productTags"
+															class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+															placeholder="Etiquetas del Producto"
+														/>
+													</div>
+													<div
+														class="col-span-12 sm:col-span-6"
+													>
+														<label
+															for="productURL"
+															class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+															>URL tienda</label
+														>
+														<input
+															type="text"
+															name="productURL"
+															id="productURL"
+															class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+															placeholder="Enlace del Producto"
+														/>
+													</div>
+													<div
+														class="col-span-6 sm:col-span-2"
+													>
+														<button
+															id="btnAddProduct"
+															class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md"
+															type="button"
+															>Guardar</button
+														>
+													</div>
 												</div>
-												<span
-													class="ms-3 text-sm font-medium text-gray-400 dark:text-gray-500"
-												>
-													Activo
-												</span>
-											</label>
-										</div>
-										<div class="col-span-12 sm:col-span-6">
-											<label
-												for="productTags"
-												class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-												>Etiquetas</label
-											>
-											<input
-												type="text"
-												name="productTags"
-												id="productTags"
-												class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-												placeholder="Etiquetas del Producto"
-											/>
-										</div>
-										<div class="col-span-12 sm:col-span-6">
-											<label
-												for="productURL"
-												class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-												>URL tienda</label
-											>
-											<input
-												type="text"
-												name="productURL"
-												id="productURL"
-												class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-												placeholder="Enlace del Producto"
-											/>
-										</div>
-										<div class="col-span-6 sm:col-span-2">
-											<button
-												id="btnAddProduct"
-												class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md"
-												type="submit">Guardar</button
-											>
-										</div>
-									</div>
-								</div>
+											</div>
 
-								<!-- Product Variants -->
-								<div
-									class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-700"
-									id="productVariants"
-									role="tabpanel"
-									aria-labelledby="productVariants-tab"
-								>
-									<div class="grid grid-cols-1 gap-4">
-										<div class="col-span-1">
-											<ProductVariantForm />
-										</div>
-										<div class="col-span-12">
-											{
-												/* <span
+											<!-- Product Variants -->
+											<div
+												class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-700"
+												id="productVariants"
+												role="tabpanel"
+												aria-labelledby="productVariants-tab"
+											>
+												<div
+													class="grid grid-cols-1 gap-4"
+												>
+													<div class="col-span-1">
+														<ProductVariantForm />
+													</div>
+													<div class="col-span-12">
+														{
+															/* <span
 												class="block mb-2 text-sm font-medium text-gray-800 dark:text-gray-50"
 												>Product Images</span
 											>
@@ -777,177 +869,205 @@ const CommonNames = await db
 													</button>
 												</div>
 											</div> */
-											}
-											<ProductVariantUpload />
-										</div>
+														}
+														<ProductVariantUpload />
+													</div>
 
-										<div class="col-span-6 sm:col-span-2">
-											<button
-												id="btnAddVariantsProduct"
-												class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md"
-												type="submit">Guardar</button
-											>
-										</div>
-									</div>
-								</div>
+													<div
+														class="col-span-6 sm:col-span-2"
+													>
+														<button
+															id="btnAddVariantsProduct"
+															class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md"
+															type="submit"
+															>Guardar</button
+														>
+													</div>
+												</div>
+											</div>
 
-								<!-- Product Tags -->
-								<div
-									class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
-									id="productDesc"
-									role="tabpanel"
-									aria-labelledby="productDesc-tab"
-								>
-									<h1 class="text-center text-2xl">
-										Seleccione un Nombre Común
-									</h1>
-								</div>
-
-								<!-- Taxonomy & Prices -->
-								<div
-									class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
-									id="productPrices"
-									role="tabpanel"
-									aria-labelledby="productPrices-tab"
-								>
-									<div class="grid grid-cols-12 gap-4">
-										<div class="col-span-6 sm:col-span-12">
-											<label
-												for="productTaxonomy"
-												class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-												>Taxonomia Google</label
+											<!-- Product Tags -->
+											<div
+												class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
+												id="productDesc"
+												role="tabpanel"
+												aria-labelledby="productDesc-tab"
 											>
-											<select
-												id="productTaxonomy"
-												name="productTaxonomy"
-												class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-											>
-												<option value="0" selected=""
-													>-- Seleccionar Taxonomia --</option
+												<h1
+													class="text-center text-2xl"
 												>
-											</select>
-										</div>
-										<div class="col-span-6 sm:col-span-3">
-											<label
-												for="phone-number"
-												class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-												>Cantidad</label
-											>
-											<input
-												type="number"
-												name="phone-number"
-												id="phone-number"
-												class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-												placeholder="e.g. +(12)3456 789"
-												required=""
-											/>
-										</div>
-										<div class="col-span-6 sm:col-span-3">
-											<label
-												for="department"
-												class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-												>Sucursal</label
-											>
-											<input
-												type="text"
-												name="department"
-												id="department"
-												class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-												placeholder="Development"
-												required=""
-											/>
-										</div>
-									</div>
-								</div>
+													Seleccione un Nombre Común
+												</h1>
+											</div>
 
-								<!-- Stock -->
-								<div
-									class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
-									id="productStock"
-									role="tabpanel"
-									aria-labelledby="productStock-tab"
-								>
-									<div class="grid grid-cols-12 gap-4">
-										<div class="col-span-6 sm:col-span-3">
-											<label
-												for="phone-number"
-												class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-												>Medida</label
+											<!-- Taxonomy & Prices -->
+											<div
+												class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
+												id="productPrices"
+												role="tabpanel"
+												aria-labelledby="productPrices-tab"
 											>
-											<input
-												type="number"
-												name="phone-number"
-												id="phone-number"
-												class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-												placeholder="e.g. +(12)3456 789"
-												required=""
-											/>
-										</div>
-										<div class="col-span-6 sm:col-span-3">
-											<label
-												for="department"
-												class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-												>Unidades</label
-											>
-											<input
-												type="text"
-												name="department"
-												id="department"
-												class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-												placeholder="Development"
-												required=""
-											/>
-										</div>
-									</div>
-								</div>
+												<div
+													class="grid grid-cols-12 gap-4"
+												>
+													<div
+														class="col-span-6 sm:col-span-12"
+													>
+														<label
+															for="productTaxonomy"
+															class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+															>Taxonomia Google</label
+														>
+														<select
+															id="productTaxonomy"
+															name="productTaxonomy"
+															class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+														>
+															<option
+																value="0"
+																selected=""
+																>-- Seleccionar
+																Taxonomia --</option
+															>
+														</select>
+													</div>
+													<div
+														class="col-span-6 sm:col-span-3"
+													>
+														<label
+															for="phone-number"
+															class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+															>Cantidad</label
+														>
+														<input
+															type="number"
+															name="phone-number"
+															id="phone-number"
+															class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+															placeholder="e.g. +(12)3456 789"
+															required=""
+														/>
+													</div>
+													<div
+														class="col-span-6 sm:col-span-3"
+													>
+														<label
+															for="department"
+															class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+															>Sucursal</label
+														>
+														<input
+															type="text"
+															name="department"
+															id="department"
+															class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+															placeholder="Development"
+															required=""
+														/>
+													</div>
+												</div>
+											</div>
 
-								<!-- Logistics -->
-								<div
-									class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
-									id="productLogistics"
-									role="tabpanel"
-									aria-labelledby="productLogistics-tab"
-								>
-									<div class="grid grid-cols-12 gap-4">
-										<div class="col-span-6 sm:col-span-3">
-											<label
-												for="phone-number"
-												class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-												>Phone Number</label
+											<!-- Stock -->
+											<div
+												class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
+												id="productStock"
+												role="tabpanel"
+												aria-labelledby="productStock-tab"
 											>
-											<input
-												type="number"
-												name="phone-number"
-												id="phone-number"
-												class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-												placeholder="e.g. +(12)3456 789"
-												required=""
-											/>
-										</div>
-										<div class="col-span-6 sm:col-span-3">
-											<label
-												for="department"
-												class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-												>Department</label
+												<div
+													class="grid grid-cols-12 gap-4"
+												>
+													<div
+														class="col-span-6 sm:col-span-3"
+													>
+														<label
+															for="phone-number"
+															class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+															>Medida</label
+														>
+														<input
+															type="number"
+															name="phone-number"
+															id="phone-number"
+															class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+															placeholder="e.g. +(12)3456 789"
+															required=""
+														/>
+													</div>
+													<div
+														class="col-span-6 sm:col-span-3"
+													>
+														<label
+															for="department"
+															class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+															>Unidades</label
+														>
+														<input
+															type="text"
+															name="department"
+															id="department"
+															class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+															placeholder="Development"
+															required=""
+														/>
+													</div>
+												</div>
+											</div>
+
+											<!-- Logistics -->
+											<div
+												class="hidden p-4 rounded-lg bg-gray-50 dark:bg-gray-800"
+												id="productLogistics"
+												role="tabpanel"
+												aria-labelledby="productLogistics-tab"
 											>
-											<input
-												type="text"
-												name="department"
-												id="department"
-												class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-												placeholder="Development"
-												required=""
-											/>
+												<div
+													class="grid grid-cols-12 gap-4"
+												>
+													<div
+														class="col-span-6 sm:col-span-3"
+													>
+														<label
+															for="phone-number"
+															class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+															>Phone Number</label
+														>
+														<input
+															type="number"
+															name="phone-number"
+															id="phone-number"
+															class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+															placeholder="e.g. +(12)3456 789"
+															required=""
+														/>
+													</div>
+													<div
+														class="col-span-6 sm:col-span-3"
+													>
+														<label
+															for="department"
+															class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+															>Department</label
+														>
+														<input
+															type="text"
+															name="department"
+															id="department"
+															class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+															placeholder="Development"
+															required=""
+														/>
+													</div>
+												</div>
+											</div>
 										</div>
 									</div>
 								</div>
 							</div>
-						</div>
-					</div>
-				</div>
-			</section>
-			{
-				/* 
+						</section>
+						{
+							/* 
 			<div>
 				<button
 					type="submit"
@@ -956,147 +1076,173 @@ const CommonNames = await db
 					Crear Marca
 				</button>
 			</div>*/
-			}
-		</form>
+						}
+					</form>
+				</div>
+			</div>
+			<script>
+				import { generateName } from "../../lib/utils/functions";
+				import {
+					showSuccess,
+					showError,
+				} from "../../lib/utils/notifications";
+				import { uploadFile } from "../../lib/utils/upload";
+
+				// Get all required elements
+				const commonNameSelect = document.getElementById(
+					"productCommonName",
+				) as HTMLSelectElement;
+				const typeSelect = document.getElementById(
+					"productType",
+				) as HTMLSelectElement;
+				const brandSelect = document.getElementById(
+					"productBrand",
+				) as HTMLSelectElement;
+				const mpnInput = document.getElementById(
+					"productMPN",
+				) as HTMLInputElement;
+				const skuInput = document.getElementById(
+					"productSKU",
+				) as HTMLInputElement;
+				const nameInput = document.getElementById(
+					"productName",
+				) as HTMLInputElement;
+				const upcInput = document.getElementById(
+					"productUPC",
+				) as HTMLInputElement;
+				const eanInput = document.getElementById(
+					"productEAN",
+				) as HTMLInputElement;
+
+				// Function to update product name
+				const updateProductName = () => {
+					generateName(
+						commonNameSelect,
+						typeSelect,
+						brandSelect,
+						mpnInput,
+						skuInput,
+						nameInput,
+					);
+				};
+
+				// Add event listeners
+				commonNameSelect.addEventListener("change", updateProductName);
+				typeSelect.addEventListener("change", updateProductName);
+				brandSelect.addEventListener("change", updateProductName);
+				mpnInput.addEventListener("keyup", updateProductName);
+				skuInput.addEventListener("keyup", updateProductName);
+				upcInput.addEventListener("keyup", updateProductName);
+
+				// Initialize MPN and SKU generation buttons
+				const mpnGenButton = document.getElementById(
+					"productMPNGenButton",
+				);
+				const skuGenButton = document.getElementById(
+					"productSKUGenButton",
+				);
+				const upcGenButton = document.getElementById(
+					"productUPCGenButton",
+				);
+
+				mpnGenButton?.addEventListener("click", async (e) => {
+					e.preventDefault();
+					try {
+						const response = await fetch(
+							"/api/products/mpn/exists",
+						).then((res) => res.text());
+						if (response) {
+							mpnInput.value = response;
+						}
+					} catch (error) {
+						console.error("Error:", error);
+					}
+					updateProductName();
+				});
+
+				skuGenButton?.addEventListener("click", async (e) => {
+					e.preventDefault();
+					try {
+						const response = await fetch(
+							"/api/products/sku/exists",
+						).then((res) => res.text());
+						if (response) {
+							skuInput.value = response;
+						}
+					} catch (error) {
+						console.error("Error:", error);
+					}
+					updateProductName();
+				});
+
+				upcGenButton?.addEventListener("click", async (e) => {
+					e.preventDefault();
+					try {
+						const response = await fetch(
+							"/api/products/upc/exists",
+						).then((res) => res.text());
+						if (response) {
+							upcInput.value = response;
+							eanInput.value = response;
+						}
+					} catch (error) {
+						console.error("Error: ", error);
+					}
+					updateProductName();
+				});
+
+				const generalInfo = document.getElementById("btnAddProduct");
+				const form = document.getElementById("createForm");
+				generalInfo?.addEventListener("click", async (e) => {
+					e.preventDefault();
+					const formData = new FormData(form as HTMLFormElement);
+					const logoFile = (
+						document.getElementById(
+							"productImage",
+						) as HTMLInputElement
+					).files?.[0];
+					try {
+						let logoUrl = null;
+						if (logoFile) {
+							logoUrl = await uploadFile(logoFile);
+						}
+
+						const data = {
+							name: formData.get("productName"),
+							common: formData.get("productCommonName"),
+							logo: logoUrl,
+							active: formData.get("productActive") === "on",
+							type: formData.get("productType"),
+							brand: formData.get("productBrand"),
+							mpn: formData.get("productMPN"),
+							sku: formData.get("productSKU"),
+							upc: formData.get("productUPC"),
+							ean: formData.get("productEAN"),
+							info: "general",
+						};
+						const response = await fetch("/api/products", {
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify(data),
+						});
+
+						if (response.ok) {
+							showSuccess("Producto creado exitosamente");
+							window.location.href = "/products";
+						} else {
+							const error = await response.json();
+							showError(
+								error.message || "Error al crear producto",
+							);
+						}
+					} catch (error) {
+						console.error("Error:", error);
+						showError("Error al crear producto");
+					}
+				});
+			</script>
+		</div>
 	</div>
 </BaseLayout>
-<script>
-	import { generateName } from "../../lib/utils/functions";
-	import { showSuccess, showError } from "../../lib/utils/notifications";
-	import { uploadFile } from "../../lib/utils/upload";
-
-	// Get all required elements
-	const commonNameSelect = document.getElementById(
-		"productCommonName",
-	) as HTMLSelectElement;
-	const typeSelect = document.getElementById(
-		"productType",
-	) as HTMLSelectElement;
-	const brandSelect = document.getElementById(
-		"productBrand",
-	) as HTMLSelectElement;
-	const mpnInput = document.getElementById("productMPN") as HTMLInputElement;
-	const skuInput = document.getElementById("productSKU") as HTMLInputElement;
-	const nameInput = document.getElementById(
-		"productName",
-	) as HTMLInputElement;
-	const upcInput = document.getElementById("productUPC") as HTMLInputElement;
-
-	// Function to update product name
-	const updateProductName = () => {
-		generateName(
-			commonNameSelect,
-			typeSelect,
-			brandSelect,
-			mpnInput,
-			skuInput,
-			nameInput,
-		);
-	};
-
-	// Add event listeners
-	commonNameSelect.addEventListener("change", updateProductName);
-	typeSelect.addEventListener("change", updateProductName);
-	brandSelect.addEventListener("change", updateProductName);
-	mpnInput.addEventListener("keyup", updateProductName);
-	skuInput.addEventListener("keyup", updateProductName);
-	upcInput.addEventListener("keyup", updateProductName);
-
-	// Initialize MPN and SKU generation buttons
-	const mpnGenButton = document.getElementById("productMPNGenButton");
-	const skuGenButton = document.getElementById("productSKUGenButton");
-	const upcGenButton = document.getElementById("productUPCGenButton");
-
-	mpnGenButton?.addEventListener("click", async (e) => {
-		e.preventDefault();
-		try {
-			const response = await fetch("/api/products/mpn/exists").then(
-				(res) => res.text(),
-			);
-			if (response) {
-				mpnInput.value = response;
-			}
-		} catch (error) {
-			console.error("Error:", error);
-		}
-		updateProductName();
-	});
-
-	skuGenButton?.addEventListener("click", async (e) => {
-		e.preventDefault();
-		try {
-			const response = await fetch("/api/products/sku/exists").then(
-				(res) => res.text(),
-			);
-			if (response) {
-				skuInput.value = response;
-			}
-		} catch (error) {
-			console.error("Error:", error);
-		}
-		updateProductName();
-	});
-
-	upcGenButton?.addEventListener("click", async (e) => {
-		e.preventDefault();
-		try {
-			const response = await fetch("/api/products/upc/exists").then(
-				(res) => res.text(),
-			);
-			if (response) {
-				upcInput.value = response;
-			}
-		} catch (error) {
-			console.error("Error: ", error);
-		}
-		updateProductName();
-	});
-
-	const generalInfo = document.getElementById("btnAddProduct");
-	const form = document.getElementById("createForm");
-	generalInfo?.addEventListener("click", async (e) => {
-		e.preventDefault();
-		const formData = new FormData(form as HTMLFormElement);
-		const logoFile = (
-			document.getElementById("productImage") as HTMLInputElement
-		).files?.[0];
-		try {
-			let logoUrl = null;
-			if (logoFile) {
-				logoUrl = await uploadFile(logoFile);
-			}
-
-			const data = {
-				name: formData.get("productName"),
-				common: formData.get("productCommonName"),
-				logo: logoUrl,
-				active: formData.get("productActive") === "on",
-				type: formData.get("productType"),
-				brand: formData.get("productBrand"),
-				mpn: formData.get("productMPN"),
-				sku: formData.get("productSKU"),
-				upc: formData.get("productUPC"),
-				ean: formData.get("productEAN"),
-				info: "general",
-			};
-			const response = await fetch("/api/products", {
-				method: "POST",
-				headers: {
-					"Content-Type": "application/json",
-				},
-				body: JSON.stringify(data),
-			});
-
-			if (response.ok) {
-				showSuccess("Producto creado exitosamente");
-				window.location.href = "/products";
-			} else {
-				const error = await response.json();
-				showError(error.message || "Error al crear producto");
-			}
-		} catch (error) {
-			console.error("Error:", error);
-			showError("Error al crear producto");
-		}
-	});
-</script>

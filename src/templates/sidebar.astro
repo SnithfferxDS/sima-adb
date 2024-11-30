@@ -44,7 +44,7 @@ interface Submenu {
     drop-shadow-md lg:drop-shadow-none
     transition-width
     shadow-md
-    pt-16"
+    pt-14"
 	aria-label="Sidebar"
 >
 	<div
@@ -53,7 +53,7 @@ interface Submenu {
         flex-col
         flex-1
         min-h-0
-        pt-0
+        pt-6
         border-r shadow-lg shadow-purple-500/75
 		text-gray-800
         dark:text-white
@@ -178,9 +178,9 @@ interface Submenu {
 					{
 						sidebarMenu.map((item) => (
 							<li>
-								{item.submenu.length > 0 ? (
+								{(item.submenu as SubmenuItem[]).length > 0 ? (
 									<button
-										id={item.id}
+										id={item.id.toString()}
 										type="button"
 										class="flex items-center p-2 w-full text-base font-normal 
                                         rounded-lg transition duration-75 group text-gray-200
@@ -215,14 +215,14 @@ interface Submenu {
 											id={`${item.id}_${item.name}`}
 											class="hidden py-2 space-y-2"
 										>
-											{item.submenu.map((submenuItem,index) => (
+											{(item.submenu as SubmenuItem[]).map((submenuItem,index) => (
 													<li>
 														<a
-															id={index}
+															id={index.toString()}
 															href={
 																submenuItem.url
 															}
-															class="flex items-center p-2 pl-11 w-full 
+															class="flex items-center p-2 pl-8 w-full 
                                                         text-base font-normal rounded-lg transition 
                                                         duration-75 group text-gray-100
                                                         hover:bg-secondary-600
@@ -230,7 +230,8 @@ interface Submenu {
                                                         dark:hover:bg-secondary-500
                             "
 														>
-															{submenuItem.title}
+														<svg class="w-4 h-4 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.153 19 21 12l-4.847-7H3l4.848 7L3 19h13.153Z"/></svg>
+														<span class="ml-3">{submenuItem.title}</span>
 														</a>
 													</li>
 												),
