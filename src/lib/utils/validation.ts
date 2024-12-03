@@ -61,3 +61,43 @@ export function validateUserAccount (data: unknown) {
     return {data:null, errors: {_form: ['An unexpected error occurred'] } };
   }
 }
+
+export const countrySchema = z.object({
+  name: z.string().min(3, 'Name is required').max(100),
+  tlc: z.number().min(0, 'TLC is required').max(100),
+  impex: z.number().min(0, 'IMPEX is required').max(100),
+  additional: z.number().min(0, 'Additional is required').max(100),
+});
+
+export type CountryFormData = z.infer<typeof countrySchema>;
+
+export function validateCountry(data: unknown) {
+  try {
+    return { data: countrySchema.parse(data), errors: null };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { data: null, errors: error.flatten().fieldErrors };
+    }
+    return { data: null, errors: { _form: ['An unexpected error occurred'] } };
+  }
+}
+
+export const sidebarMenuSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(100),
+  url: z.string().nullable(),
+  icon: z.string().nullable(),
+  submenu: z.array(z.number()).nullable(), // Allow null for children
+});
+
+export type SidebarMenuFormData = z.infer<typeof sidebarMenuSchema>;
+
+export function validateSidebarMenu(data: unknown) {
+  try {
+    return { data: sidebarMenuSchema.parse(data), errors: null };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { data: null, errors: error.flatten().fieldErrors };
+    }
+    return { data: null, errors: { _form: ['An unexpected error occurred'] } };
+  }
+}
