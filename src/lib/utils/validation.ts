@@ -7,6 +7,16 @@ export const categorySchema = z.object({
   active: z.boolean().default(true),
 });
 
+export const userSchema = z.object({
+  name: z.string().min(3, 'Name is required').max(150),
+  lastname: z.string().min(3, 'LastName is required').max(150),
+  email: z.string().min(1,"e-Mail is required").max(150),
+  password: z.string().min(1,"password is required").max(12),
+  confirmPassword: z.string().min(1,"confirm password is required").max(12),
+  phone: z.string().optional(),
+  user:z.string().optional(),
+})
+
 export type CategoryFormData = z.infer<typeof categorySchema>;
 
 export function validateCategory(data: unknown) {
@@ -36,5 +46,18 @@ export function validateProductType(data: unknown) {
       return { data: null, errors: error.flatten().fieldErrors };
     }
     return { data: null, errors: { _form: ['An unexpected error occurred'] } };
+  }
+}
+
+export function validateProductData(data: unknown) {}
+
+export function validateUserAccount (data: unknown) {
+  try {
+    return {data: userSchema.parse(data), errors: null };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return {data: null, errors: error.flatten().fieldErrors };
+    }
+    return {data:null, errors: {_form: ['An unexpected error occurred'] } };
   }
 }

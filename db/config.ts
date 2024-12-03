@@ -35,6 +35,7 @@ const User = defineTable({
     name: column.text({ unique: true }),
     email: column.text({ unique: true }),
     password: column.text(),
+    phone: column.text({ unique: true }),
     verified_token: column.text({ optional: true }),
     email_verified: column.boolean({ default: false }),
     reset_token: column.text({ optional: true }),
@@ -69,7 +70,7 @@ const Person = defineTable({
     gender: column.text({ optional: true }),
     birthday: column.date({ optional: true }),
     address: column.text({ optional: true }),
-    phone: column.text({ optional: true }),
+    phone: column.text({ unique:true, optional: true }),
     email: column.text({ unique: true }),
     created_at: column.date({ default: NOW }),
     updated_at: column.date({ optional: true })
@@ -92,7 +93,7 @@ const CommonName = defineTable({
   columns: {
     id: column.number({ primaryKey: true }),
     name: column.text(),
-    possition: column.number({ optional: true, default: 1 }),
+    position: column.number({ optional: true, default: 1 }),
     active: column.boolean({ optional: true, default: true }),
     desc_active: column.boolean({ default: true }),
     categories: column.json({ optional: true}),
@@ -127,7 +128,7 @@ const Group = defineTable({
   columns: {
     id: column.number({ primaryKey: true }),
     name: column.text(),
-    possition: column.number({ optional: true, default: 1 }),
+    position: column.number({ optional: true, default: 1 }),
     active: column.boolean({ optional: true, default: true }),
     is_allow_desc: column.boolean({ optional: true, default: true }),
     created_at: column.date({ default: NOW }),
@@ -139,7 +140,7 @@ const Metadata = defineTable({
   columns: {
     id: column.number({ primaryKey: true }),
     name: column.text(),
-    possition: column.number({ optional: true, default: 1 }),
+    position: column.number({ optional: true, default: 1 }),
     active: column.boolean({ optional: true, default: true }),
     allow_description: column.boolean({ optional: true, default: true }),
     is_feature: column.boolean({ optional: true, default: false }),
@@ -152,7 +153,7 @@ const Metadata = defineTable({
   }
 });
 
-const Aestetics = defineTable({
+const Aesthetics = defineTable({
   columns: {
     id: column.number({ primaryKey: true }),
     name: column.text({ unique: true }),
@@ -162,10 +163,10 @@ const Aestetics = defineTable({
   },
 });
 
-const Aestetic_Relations = defineTable({
+const Aesthetic_Relations = defineTable({
   columns: {
     id: column.number({ primaryKey: true }),
-    aestetics_grade: column.number(),
+    aesthetics_grade: column.number(),
     product_id: column.number({ references: () => Product.columns.id }),
     quantity: column.number(),
     created_at: column.date({ default: NOW }),
@@ -225,14 +226,14 @@ const Purchase = defineTable({
     number: column.text({ unique: true }),
     purchase_date: column.date(),
     ingress_date: column.date(),
-    procesed_date: column.date(),
+    processed_date: column.date(),
     total: column.number({ default: 0.0 }),
     taxes: column.number({ default: 0.0 }),
     discount: column.number({ default: 0.0 }),
     purchase_details: column.number(),
     supplier_id: column.number(),
     buyer_id: column.number(),
-    procesed: column.boolean({ default: false }),
+    processed: column.boolean({ default: false }),
     created_at: column.date({ default: NOW }),
     updated_at: column.date({ optional: true }),
     deleted_at: column.date({ optional: true }),
@@ -248,7 +249,7 @@ const Purchase_Details = defineTable({
     taxes: column.number({ default: 0.0 }),
     discount: column.number({ default: 0.0 }),
     quantity: column.number({ default: 1 }),
-    procesed: column.boolean({ default: false }),
+    processed: column.boolean({ default: false }),
     created_at: column.date({ default: NOW }),
     updated_at: column.date({ optional: true }),
     deleted_at: column.date({ optional: true }),
@@ -343,7 +344,7 @@ const MetadataRelations = defineTable({
   columns: {
     id: column.number({ primaryKey: true }),
     metadata_id: column.number(),
-    comun_name: column.number({
+    common_name: column.number({
       optional: true,
       references: () => CommonName.columns.id,
     }),
@@ -377,7 +378,7 @@ const MetadataValueRelations = defineTable({
     metadata_id: column.number(),
     product_id: column.text(),
     content: column.text({ optional: true }),
-    possition: column.number({ optional: true, default: 1 }),
+    position: column.number({ optional: true, default: 1 }),
     active: column.boolean({ optional: true, default: true }),
     allow_description: column.boolean({ optional: true, default: true }),
     created_at: column.date({ default: NOW }),
@@ -390,7 +391,7 @@ const Image = defineTable({
     id: column.number({ primaryKey: true, autoIncrement: true }),
     name: column.text(),
     url: column.text(),
-    possition: column.number({ optional: true, default: 1 }),
+    position: column.number({ optional: true, default: 1 }),
     active: column.boolean({ optional: true, default: true }),
     created_at: column.date({ default: NOW }),
     updated_at: column.date({ optional: true }),
@@ -436,8 +437,8 @@ export default defineDb({
     Group,
     Category,
     Metadata,
-    Aestetics,
-    Aestetic_Relations,
+    Aesthetics,
+    Aesthetic_Relations,
     Supplier,
     Status,
     Brand,
