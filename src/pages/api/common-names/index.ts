@@ -6,7 +6,7 @@ export const POST: APIRoute = async ({ request }) => {
     const data = await request.json();
     const commonName = await db.insert(CommonName).values({
       name: data.name,
-      possition: parseInt(data.possition) || 1,
+      position: parseInt(data.possition) || 1,
       active: data.active === 'true' || data.active === true,
       desc_active: data.desc_active === 'true' || data.desc_active === true,
       categories: JSON.stringify(data.categories),
