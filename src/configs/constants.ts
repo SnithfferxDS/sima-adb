@@ -23,4 +23,3 @@ export const API_KEY = import.meta.env.API_KEY;
 export const API_VERSION = import.meta.env.API_VERSION;
 export const API_DEBUG = import.meta.env.API_DEBUG;
 export const API_TOKEN = import.meta.env.API_TOKEN;
-
