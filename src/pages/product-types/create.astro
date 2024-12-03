@@ -64,7 +64,7 @@ const categories = await db
               focus:border-primary-500 focus:ring-primary-500 transition-shadow
               group-hover:border-primary-400"
 								/>
-								<div class="ml-3">
+								<template class="ml-3">
 									<span class="text-sm text-gray-900 font-medium">
 										{category.name}
 									</span>
@@ -73,7 +73,7 @@ const categories = await db
 											{category.description}
 										</p>
 									)}
-								</div>
+								</template>
 							</label>
 						))
 					}
