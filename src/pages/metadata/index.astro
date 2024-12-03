@@ -11,6 +11,39 @@ import {
 	MetadataValue,
 } from "astro:db";
 
+interface Categoria {
+	id: number;
+	name: string;
+}
+ interface NombreComun {
+	id: number;
+	name: string;
+}
+
+ interface TipoProducto {
+	id: number;
+	name: string;
+}
+
+interface Valor {
+	id: number;
+	metadata_id: number;
+	metadata_value:string;
+}
+
+// Add these interfaces at the top of the file
+interface Relations {
+	[key: number]: {
+		categories: Categoria[];
+		commonNames: NombreComun[];
+		productTypes: TipoProducto[];
+	}
+}
+
+interface Values {
+	[key: number]: Valor[];
+}
+
 // Fetch metadata with all related data
 const metadataList = await db.select().from(Metadata).orderBy(Metadata.name);
 
@@ -35,29 +68,29 @@ const commonNameMap = new Map(commonNames.map((cn) => [cn.id, cn]));
 const productTypeMap = new Map(productTypes.map((pt) => [pt.id, pt]));
 
 // Organize relations by metadata ID
-const relationsByMetadata = relations.reduce((acc, rel) => {
-	if (!acc[rel.metadata_id]) {
-		acc[rel.metadata_id] = {
+const relationsByMetadata = relations.reduce<Relations>((acc, rel) => {
+	let index = rel.metadata_id;
+	if (!acc[index]) {
+		acc[index] = {
 			categories: [],
 			commonNames: [],
 			productTypes: [],
 		};
 	}
-	if (rel.category)
-		acc[rel.metadata_id].categories.push(categoryMap.get(rel.category));
-	if (rel.comun_name)
-		acc[rel.metadata_id].commonNames.push(
-			commonNameMap.get(rel.comun_name),
-		);
-	if (rel.product_type)
-		acc[rel.metadata_id].productTypes.push(
-			productTypeMap.get(rel.product_type),
-		);
+	
+	const category = rel.category ? categoryMap.get(rel.category) : null;
+	const commonName = rel.comun_name ? commonNameMap.get(rel.comun_name) : null;
+	const productType = rel.product_type ? productTypeMap.get(rel.product_type) : null;
+
+	if (category) acc[index].categories.push(category);
+	if (commonName) acc[index].commonNames.push(commonName);
+	if (productType) acc[index].productTypes.push(productType);
+	
 	return acc;
 }, {});
 
 // Organize values by metadata ID
-const valuesByMetadata = values.reduce((acc, val) => {
+const valuesByMetadata = values.reduce<Values>((acc, val) => {
 	if (!acc[val.metadata_id]) {
 		acc[val.metadata_id] = [];
 	}
@@ -123,7 +156,7 @@ const valuesByMetadata = values.reduce((acc, val) => {
 							const relations =
 								relationsByMetadata[metadata.id] || {};
 							const values = valuesByMetadata[metadata.id] || [];
-							const group = groupMap.get(metadata.id_group);
+							const group = groupMap.get(metadata.id_group || 0);
 
 							return (
 								<tr class="hover:bg-gray-50">
