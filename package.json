@@ -10,7 +10,8 @@
     "build": "astro build --remote",
     "push": "astro db push --remote",
     "preview": "astro preview",
-    "astro": "astro"
+    "astro": "astro",
+    "reset-force": "astro db push --remote --force-reset"
   },
   "dependencies": {
     "@astrojs/check": "^0.9.4",

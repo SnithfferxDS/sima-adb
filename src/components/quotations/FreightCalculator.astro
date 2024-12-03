@@ -1,0 +1,254 @@
+---
+interface Props {
+    categories: Array<{
+        id: number;
+        name: string;
+        dai: number;
+        licenses: number;
+        eco_tax: number;
+    }>;
+    countries: Array<{
+        id: number;
+        name: string;
+        tlc: string;
+        impex: number;
+        additional: number;
+    }>;
+}
+
+const { categories, countries } = Astro.props;
+---
+
+<form id="freightCalculator" class="space-y-6">
+    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <!-- Product Information -->
+        <div class="space-y-4">
+            <h3 class="text-lg font-medium text-gray-900">Product Information</h3>
+
+            <div>
+                <label for="price" class="block text-sm font-medium text-gray-700">Price (USD)</label>
+                <input
+                        type="number"
+                        id="price"
+                        name="price"
+                        step="0.01"
+                        required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                >
+            </div>
+
+            <div>
+                <label for="weight" class="block text-sm font-medium text-gray-700">Weight (kg)</label>
+                <input
+                        type="number"
+                        id="weight"
+                        name="weight"
+                        step="0.01"
+                        required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                >
+            </div>
+
+            <div>
+                <label for="shipping" class="block text-sm font-medium text-gray-700">Shipping Cost (USD)</label>
+                <input
+                        type="number"
+                        id="shipping"
+                        name="shipping"
+                        step="0.01"
+                        required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                >
+            </div>
+        </div>
+
+        <!-- Category and Country -->
+        <div class="space-y-4">
+            <h3 class="text-lg font-medium text-gray-900">Import Details</h3>
+
+            <div>
+                <label for="category" class="block text-sm font-medium text-gray-700">Product Category</label>
+                <select
+                        id="category"
+                        name="category"
+                        required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                >
+                    <option value="">Select a category</option>
+                    {categories.map((category) => (
+                            <option
+                                    value={category.id}
+                                    data-dai={category.dai}
+                                    data-licenses={category.licenses}
+                                    data-eco-tax={category.eco_tax}
+                            >
+                                {category.name}
+                            </option>
+                    ))}
+                </select>
+            </div>
+
+            <div>
+                <label for="country" class="block text-sm font-medium text-gray-700">Country of Origin</label>
+                <select
+                        id="country"
+                        name="country"
+                        required
+                        class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+                >
+                    <option value="">Select a country</option>
+                    {countries.map((country) => (
+                            <option
+                                    value={country.id}
+                                    data-tlc={country.tlc}
+                                    data-impex={country.impex}
+                                    data-additional={country.additional}
+                            >
+                                {country.name}
+                            </option>
+                    ))}
+                </select>
+            </div>
+        </div>
+    </div>
+
+    <!-- Results Section -->
+    <div class="mt-8 p-6 bg-gray-50 rounded-lg">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">Calculation Results</h3>
+        <div class="grid grid-cols-2 gap-4">
+            <div>
+                <p class="text-sm text-gray-600">Fuel Cost:</p>
+                <p id="fuelResult" class="text-lg font-medium">$0.00</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Transportation Cost:</p>
+                <p id="transportResult" class="text-lg font-medium">$0.00</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Package Cost:</p>
+                <p id="packageResult" class="text-lg font-medium">$0.00</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">DAI:</p>
+                <p id="daiResult" class="text-lg font-medium">$0.00</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Licenses:</p>
+                <p id="licensesResult" class="text-lg font-medium">$0.00</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Eco Tax:</p>
+                <p id="ecoTaxResult" class="text-lg font-medium">$0.00</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">IMPEX:</p>
+                <p id="impexResult" class="text-lg font-medium">$0.00</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Additional Charges:</p>
+                <p id="additionalResult" class="text-lg font-medium">$0.00</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">IVA:</p>
+                <p id="ivaResult" class="text-lg font-medium">$0.00</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Rent:</p>
+                <p id="rentResult" class="text-lg font-medium">$0.00</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Base Total:</p>
+                <p id="baseTotalResult" class="text-lg font-medium">$0.00</p>
+            </div>
+            <div>
+                <p class="text-sm text-gray-600">Profit (20%):</p>
+                <p id="profitResult" class="text-lg font-medium">$0.00</p>
+            </div>
+            <div class="col-span-2">
+                <p class="text-sm font-medium text-gray-800">Suggested Final Price:</p>
+                <p id="suggestedPriceResult" class="text-2xl font-bold text-primary">$0.00</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="flex justify-end">
+        <button
+                type="submit"
+                class="bg-primary text-white px-6 py-2 rounded-md hover:bg-primary-600 focus:outline-none focus:ring-2 focus:ring-primary-500 focus:ring-offset-2"
+        >
+            Calculate
+        </button>
+    </div>
+</form>
+
+<script>
+    const form = document.getElementById('freightCalculator') as HTMLFormElement;
+
+    form?.addEventListener('submit', (e) => {
+        e.preventDefault();
+
+        // Constants
+        const IVA = 0.13;
+        const RENT = 0.01;
+        const DOCS = 10;
+        const FUEL = 0.98;
+        const PER_LB = 3.65;
+        const PROFIT_MARGIN = 0.20;
+
+        // Get form values
+        const price = parseFloat((document.getElementById('price') as HTMLInputElement).value);
+        const weight = parseFloat((document.getElementById('weight') as HTMLInputElement).value);
+        const weightLbs = weight * 2.20462; // Convert kg to lbs
+        const shipping = parseFloat((document.getElementById('shipping') as HTMLInputElement).value);
+
+        const categorySelect = document.getElementById('category') as HTMLSelectElement;
+        const selectedCategory = categorySelect.options[categorySelect.selectedIndex];
+        const dai = parseFloat(selectedCategory.dataset.dai || '0');
+        const licenses = parseFloat(selectedCategory.dataset.licenses || '0');
+        const ecoTax = parseFloat(selectedCategory.dataset.ecoTax || '0');
+
+        const countrySelect = document.getElementById('country') as HTMLSelectElement;
+        const selectedCountry = countrySelect.options[countrySelect.selectedIndex];
+        const impex = parseFloat(selectedCountry.dataset.impex || '0');
+        const additional = parseFloat(selectedCountry.dataset.additional || '0');
+
+        // Calculate transportation costs
+        const fuelCost = weightLbs * FUEL;
+        const transportCost = weightLbs * PER_LB;
+        const packageCost = fuelCost + transportCost + DOCS;
+
+        // Calculate import costs
+        const baseValue = price + shipping;
+        const licensesAmount = (baseValue * licenses) / 100;
+        const impexAmount = (baseValue * impex) / 100;
+        const daiAmount = (baseValue * dai) / 100;
+        const ecoTaxAmount = weight * ecoTax;
+        const additionalAmount = (baseValue * additional) / 100;
+
+        // Calculate taxes and rent
+        const subtotal = baseValue + packageCost + daiAmount + licensesAmount + ecoTaxAmount + impexAmount + additionalAmount;
+        const profitAmount = subtotal * PROFIT_MARGIN;
+        const rentAmount = (subtotal + profitAmount) * RENT;
+        const ivaAmount = ((subtotal + profitAmount) + rentAmount) * IVA;
+
+        // Calculate total and profit
+        const baseTotal = subtotal + ivaAmount + rentAmount;
+        //const profitAmount = baseTotal * PROFIT_MARGIN;
+        const suggestedPrice = baseTotal + profitAmount;
+
+        // Update results
+        document.getElementById('fuelResult')!.textContent = `$${fuelCost.toFixed(2)}`;
+        document.getElementById('transportResult')!.textContent = `$${transportCost.toFixed(2)}`;
+        document.getElementById('packageResult')!.textContent = `$${packageCost.toFixed(2)}`;
+        document.getElementById('daiResult')!.textContent = `$${daiAmount.toFixed(2)}`;
+        document.getElementById('licensesResult')!.textContent = `$${licensesAmount.toFixed(2)}`;
+        document.getElementById('ecoTaxResult')!.textContent = `$${ecoTaxAmount.toFixed(2)}`;
+        document.getElementById('impexResult')!.textContent = `$${impexAmount.toFixed(2)}`;
+        document.getElementById('additionalResult')!.textContent = `$${additionalAmount.toFixed(2)}`;
+        document.getElementById('ivaResult')!.textContent = `$${ivaAmount.toFixed(2)}`;
+        document.getElementById('rentResult')!.textContent = `$${rentAmount.toFixed(2)}`;
+        document.getElementById('baseTotalResult')!.textContent = `$${baseTotal.toFixed(2)}`;
+        document.getElementById('profitResult')!.textContent = `$${profitAmount.toFixed(2)}`;
+        document.getElementById('suggestedPriceResult')!.textContent = `$${suggestedPrice.toFixed(2)}`;
+    });
+</script>
