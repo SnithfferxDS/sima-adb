@@ -1,7 +1,7 @@
 ---
 import { db, Group } from "astro:db";
 import Layout from "../../layouts/app.layout.astro";
-import Table from "../../components/table.astro";
+import Table from "../../components/Table.astro";
 
 const groups = await db.select().from(Group).orderBy(Group.id);
 ---
