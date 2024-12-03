@@ -10,6 +10,7 @@ export interface SessionData {
     userId: string;
     email: string;
     name: string;
+    signature: string;
 }
 
 export async function createSession(data: SessionData): Promise<string> {
@@ -27,7 +28,7 @@ export async function getSession(Astro: AstroGlobal): Promise<SessionData | null
 
     try {
         const { payload } = await jwtVerify(token, JWT_SECRET);
-        return payload as SessionData;
+        return payload as unknown as SessionData;
     } catch {
         return null;
     }

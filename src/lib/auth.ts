@@ -1,22 +1,6 @@
-import { db, User, eq } from 'astro:db';
+import {db, eq, User, Person, or} from 'astro:db';
 import bcrypt from 'bcryptjs';
 import crypto from 'crypto';
-
-export async function createUser(name: string, email: string, password: string) {
-    const hashedPassword = await bcrypt.hash(password, 10);
-    const verificationToken = crypto.randomBytes(32).toString('hex');
-
-    const user = await db.insert(User).values({
-        name:name,
-        email:email,
-        password: hashedPassword,
-        verified_token:verificationToken,
-        email_verified: false,
-        createdAt: new Date()
-    }).returning().get();
-
-    return { user, verificationToken };
-}
 
 export async function verifyUser(token: string) {
     const user = await db
@@ -32,18 +16,18 @@ export async function verifyUser(token: string) {
         .set({
             email_verified: true,
             verified_token: null,
-            updatedAt: new Date()
+            updated_at: new Date()
         })
         .where(eq(User.id, user.id));
 
     return user;
 }
 
-export async function authenticateUser(email: string, password: string) {
+export async function authenticateUser(email: string,userName: string, password: string) {
     const user = await db
         .select()
         .from(User)
-        .where(eq(User.email, email))
+        .where(or(eq(User.email, email),eq(User.name, userName)))
         .get();
 
     if (!user) return null;
@@ -71,7 +55,7 @@ export async function createPasswordReset(email: string) {
         .set({
             reset_token:resetToken,
             token_expiry:resetTokenExpiry,
-            updatedAt: new Date()
+            updated_at: new Date()
         })
         .where(eq(User.id, user.id));
 
@@ -95,9 +79,9 @@ export async function resetPassword(token: string, newPassword: string) {
         .update(User)
         .set({
             password: hashedPassword,
-            resetToken: null,
-            resetTokenExpiry: null,
-            updatedAt: new Date()
+            reset_token: null,
+            token_expiry: null,
+            updated_at: new Date()
         })
         .where(eq(User.id, user.id));
 
