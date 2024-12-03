@@ -37,7 +37,7 @@ const User = defineTable({
     password: column.text(),
     phone: column.text({ unique: true }),
     verified_token: column.text({ optional: true }),
-    email_verified: column.boolean({ default: false }),
+    email_verified: column.boolean({ optional: true,default: false }),
     reset_token: column.text({ optional: true }),
     token_expiry: column.date({ optional: true }),
     person: column.number({ references: () => Person.columns.id }),
