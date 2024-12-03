@@ -1,19 +1,23 @@
-import { db, Metadata, MetadataRelations, Group } from 'astro:db';
+import type { APIRoute } from 'astro';
+import { db, eq, Metadata, MetadataRelations, Group } from 'astro:db';
 
-if (Astro.request.method === 'POST') {
+export const POST: APIRoute = async ({ request }) => {
   try {
-    const formData = await Astro.request.formData();
+    const formData = await request.json();
     
     // Extract and validate form data
-    const name = formData.get('name');
-    const format = formData.get('format');
-    const groupId = formData.get('group_id');
-    const tooltip = formData.get('tooltip');
+    const name = formData.name;
+    const format = formData.format;
+    const groupId = formData.group_id;
+    const tooltip = formData.tooltip;
+    const categories = formData.categories;
+    const commonNames = formData.common_names;
+    const productTypes = formData.product_types;
 
     // Get relations data
-    const categories = formData.getAll('categories').map(id => parseInt(id as string));
-    const commonNames = formData.getAll('common_names').map(id => parseInt(id as string));
-    const productTypes = formData.getAll('product_types').map(id => parseInt(id as string));
+    // const categories = formData.getAll('categories').map(id => parseInt(id as string));
+    // const commonNames = formData.getAll('common_names').map(id => parseInt(id as string));
+    // const productTypes = formData.getAll('product_types').map(id => parseInt(id as string));
 
     // Validate required fields
     if (!name || typeof name !== 'string' || name.trim() === '') {
@@ -35,7 +39,7 @@ if (Astro.request.method === 'POST') {
       const group = await db
         .select()
         .from(Group)
-        .where(Group.id, '=', metadataValues.id_group)
+        .where(eq(Group.id, metadataValues.id_group))
         .get();
 
       if (!group) {
@@ -79,11 +83,9 @@ if (Astro.request.method === 'POST') {
       }
     }
 
-    return Astro.redirect('/metadata', 303);
+    return new Response(JSON.stringify({ message: 'Metadata created successfully' }), { status: 200 });
   } catch (error) {
     console.error('Error creating metadata:', error);
     return new Response('Error creating metadata', { status: 500 });
   }
 }
-
-return Astro.redirect('/metadata', 303);

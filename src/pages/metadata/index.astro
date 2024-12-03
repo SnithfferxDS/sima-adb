@@ -79,7 +79,7 @@ const relationsByMetadata = relations.reduce<Relations>((acc, rel) => {
 	}
 	
 	const category = rel.category ? categoryMap.get(rel.category) : null;
-	const commonName = rel.comun_name ? commonNameMap.get(rel.comun_name) : null;
+	const commonName = rel.common_name ? commonNameMap.get(rel.common_name) : null;
 	const productType = rel.product_type ? productTypeMap.get(rel.product_type) : null;
 
 	if (category) acc[index].categories.push(category);

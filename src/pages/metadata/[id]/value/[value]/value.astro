@@ -1,5 +1,5 @@
 ---
-import Layout from "../../../layouts/Layout.astro";
+import Layout from "../../../../../layouts/app.layout.astro";
 import { db, eq, Metadata, MetadataValue } from "astro:db";
 
 const { id } = Astro.params;
@@ -208,14 +208,14 @@ if (!metadata) {
 	const modal = document.getElementById("valueModal");
 	const addValueBtn = document.getElementById("addValueBtn");
 	const cancelBtn = document.getElementById("cancelBtn");
-	const valueForm = document.getElementById("valueForm");
+	const valueForm = document.getElementById("valueForm") as HTMLFormElement;
 	const modalTitle = document.getElementById("modalTitle");
-	const methodInput = document.querySelector('input[name="_method"]');
+	const methodInput = document.querySelector('input[name="_method"]') as HTMLSelectElement;
 
 	// Show modal for adding new value
 	addValueBtn?.addEventListener("click", () => {
 		modalTitle!.textContent = "Add Value";
-		valueForm!.reset();
+		valueForm!.onreset = null;
 		methodInput!.value = "POST";
 		modal?.classList.remove("hidden");
 	});

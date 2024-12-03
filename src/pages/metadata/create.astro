@@ -1,10 +1,10 @@
 ---
-import Layout from "../../layouts/Layout.astro";
+import Layout from "../../layouts/app.layout.astro";
 import MetadataForm from "../../components/MetadataForm.astro";
 import { db, Group, Category, CommonName, ProductType, eq } from "astro:db";
 
 const [groupLists, categories, commonNames, productTypes] = await Promise.all([
-	db.select().from(Group).orderBy(Group.name).orderBy(Group.name),
+	db.select().from(Group).orderBy(Group.name),
 	db
 		.select()
 		.from(Category)
@@ -13,12 +13,10 @@ const [groupLists, categories, commonNames, productTypes] = await Promise.all([
 	db
 		.select()
 		.from(CommonName)
-		.orderBy(CommonName.name)
 		.orderBy(CommonName.name),
 	db
 		.select()
 		.from(ProductType)
-		.orderBy(ProductType.name)
 		.orderBy(ProductType.name),
 ]);
 ---
