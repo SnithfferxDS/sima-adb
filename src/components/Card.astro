@@ -8,13 +8,20 @@ interface Props {
 const { href, title, body } = Astro.props;
 ---
 
-<li class="block hover:bg-gray-50">
-	<a href={href}>
-		<h2>
+<li
+	class="list-none flex p-[1px] bg-[#23262d] bg-none bg-[length:400%] rounded-lg bg-[position:100%] transition-[background-position] duration-600 ease-[cubic-bezier(0.22,1,0.36,1)] shadow-[inset_0_0_0_1px_rgba(255,255,255,0.1)]"
+>
+	<a
+		href={href}
+		class="w-full no-underline leading-relaxed p-[calc(1.5rem-1px)] rounded-lg text-white bg-[#23262d] opacity-80 hover:opacity-100 transition-opacity"
+	>
+		<h2
+			class="m-0 text-xl transition-colors duration-600 ease-[cubic-bezier(0.22,1,0.36,1)] group-hover:text-[rgb(var(--accent-light))]"
+		>
 			{title}
 			<span>&rarr;</span>
 		</h2>
-		<p>
+		<p class="mt-1 mb-0">
 			{body}
 		</p>
 	</a>
