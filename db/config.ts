@@ -78,19 +78,6 @@ const Person = defineTable({
 });
 
 const SidebarMenu = defineTable({
-  deprecated: true,
-  columns: {
-    id: column.number({ primaryKey: true }),
-    name: column.text(),
-    url: column.text(),
-    icon: column.text(),
-    submenu: column.json({ optional: true }),
-    created_at: column.date({ default: NOW }),
-    updated_at: column.date({ optional: true })
-  }
-});
-
-const SidebarMenu = defineTable({
   columns: {
     id: column.number({ primaryKey: true }),
     name: column.text(),
