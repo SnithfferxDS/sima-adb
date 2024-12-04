@@ -1,5 +1,5 @@
 ---
-import { url } from "../lib/utils/functions";
+// import { url } from "../lib/utils/functions";
 interface Route {
 	lable: string;
 	path: string;
@@ -21,7 +21,7 @@ const { routes, currentRoute, headerTitle } = Astro.props;
 		>
 			<li class="inline-flex items-center">
 				<a
-					href={url("/")}
+					href="/"
 					class="inline-flex items-center text-gray-700 hover:text-primary-700 dark:text-gray-400 dark:hover:text-gray-300"
 				>
 					<svg
@@ -49,7 +49,7 @@ const { routes, currentRoute, headerTitle } = Astro.props;
 						clip-rule="evenodd"></path>
 				</svg>
 				<a
-					href={url("/dashboard")}
+					href="/dashboard"
 					class="inline-flex items-center text-gray-700 hover:text-primary-700 dark:text-gray-400 dark:hover:text-gray-300"
 				>
 					<svg
@@ -114,7 +114,7 @@ const { routes, currentRoute, headerTitle } = Astro.props;
 									/>
 								</svg>
 								<a
-									href={url(route.path)}
+									href={route.path}
 									class="ml-1 text-gray-700 hover:text-primary-700 md:ml-2 dark:text-gray-400 dark:hover:text-gray-300"
 								>
 									{route.lable}

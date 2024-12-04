@@ -19,7 +19,7 @@ import { url, asset } from "../lib/utils/functions";
 				{APP_DESC}
 			</p>
 			<a
-				href={url("/auth/login")}
+				href="/auth/login"
 				class="inline-flex items-center justify-center px-5 py-3 mr-3 text-base font-medium text-center text-white rounded-lg bg-purple-700 hover:bg-purple-800 focus:ring-4 focus:ring-purple-300 dark:focus:ring-purple-900"
 			>
 				Comience aquí
@@ -35,7 +35,7 @@ import { url, asset } from "../lib/utils/functions";
 				>
 			</a>
 			<a
-				href={url("/dashboard")}
+				href="/dashboard"
 				class="inline-flex items-center justify-center px-5 py-3 text-base font-medium text-center text-gray-900 border border-gray-300 rounded-lg hover:bg-gray-100 focus:ring-4 focus:ring-gray-100 dark:text-white dark:border-gray-700 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
 			>
 				Dashboard
@@ -43,7 +43,7 @@ import { url, asset } from "../lib/utils/functions";
 		</div>
 		<div class="hidden md:mt-0 md:col-span-5 md:flex">
 			<img
-				src={asset("img/example.webp")}
+				src="/assets/img/example.webp"
 				alt={`${APP_NAME} v${APP_SHORT_VERSION} example`}
 			/>
 		</div>
