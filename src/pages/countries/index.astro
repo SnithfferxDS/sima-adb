@@ -1,46 +1,21 @@
 ---
 import Layout from "../../layouts/app.layout.astro";
-import Table from "../../components/Table.astro";
-import { db, eq, ProductType, Category } from "astro:db";
 import BreadCrumbs from "../../components/BreadCrumbs.astro";
 import Search from "../../components/Search.astro";
+import AstroTable from "../../components/Table.astro";
+import { db, Country } from "astro:db";
 
-const categories = await db
-	.select()
-	.from(Category)
-	.where(eq(Category.active, true))
-	.orderBy(Category.name);
+const countries = await db.select().from(Country).all();
 
 const breadcrumbs = [
 	{
-		lable: "Tipos de Producto",
-		path: "/product-types",
+		lable: "Paieses",
+		path: "/countries",
 	},
 ];
-
-const productTypes = await db.select().from(ProductType).all();
-
-const newCats = await Promise.all(
-	productTypes.map(async (productType) => {
-		const cats = Array.isArray(productType.categories)
-			? productType.categories
-			: JSON.parse(productType.categories as string);
-
-		const categorias = await Promise.all(
-			cats.map(async (cat: number) => {
-				const category = await db
-					.select({ name: Category.name })
-					.from(Category)
-					.where(eq(Category.id, cat));
-				return category[0]?.name;
-			}),
-		);
-		productType.categories = categorias;
-	}),
-);
 ---
 
-<Layout title="Product Types">
+<Layout title="Countries">
 	<div
 		class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg"
 	>
@@ -51,85 +26,20 @@ const newCats = await Promise.all(
 				<BreadCrumbs
 					routes={breadcrumbs}
 					currentRoute={Astro.url.pathname}
-					headerTitle="Tipos de Producto"
+					headerTitle="Paises"
 				/>
-				<div class="items-center justify-between block md:flex">
+				<div class="items-center justify-between flex">
 					<div class="flex items-center mb-4 sm:mb-0">
 						<Search
 							action="search"
-							id="product-types"
+							id="countriesearch"
+							placeholder="en paises"
 							method="get"
-							placeholder="en tipos de producto"
 						/>
-						{
-							/* <div class="flex items-center w-full sm:justify-end">
-							<div class="flex pl-2 space-x-1">
-								<a
-									href="#"
-									class="inline-flex justify-center p-1 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-								>
-									<svg
-										class="w-6 h-6"
-										fill="currentColor"
-										viewBox="0 0 20 20"
-										xmlns="http://www.w3.org/2000/svg"
-										><path
-											fill-rule="evenodd"
-											d="M11.49 3.17c-.38-1.56-2.6-1.56-2.98 0a1.532 1.532 0 01-2.286.948c-1.372-.836-2.942.734-2.106 2.106.54.886.061 2.042-.947 2.287-1.561.379-1.561 2.6 0 2.978a1.532 1.532 0 01.947 2.287c-.836 1.372.734 2.942 2.106 2.106a1.532 1.532 0 012.287.947c.379 1.561 2.6 1.561 2.978 0a1.533 1.533 0 012.287-.947c1.372.836 2.942-.734 2.106-2.106a1.533 1.533 0 01.947-2.287c1.561-.379 1.561-2.6 0-2.978a1.532 1.532 0 01-.947-2.287c.836-1.372-.734-2.942-2.106-2.106a1.532 1.532 0 01-2.287-.947zM10 13a3 3 0 100-6 3 3 0 000 6z"
-											clip-rule="evenodd"></path></svg
-									>
-								</a>
-								<a
-									href="#"
-									class="inline-flex justify-center p-1 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-								>
-									<svg
-										class="w-6 h-6"
-										fill="currentColor"
-										viewBox="0 0 20 20"
-										xmlns="http://www.w3.org/2000/svg"
-										><path
-											fill-rule="evenodd"
-											d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-											clip-rule="evenodd"></path></svg
-									>
-								</a>
-								<a
-									href="#"
-									class="inline-flex justify-center p-1 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-								>
-									<svg
-										class="w-6 h-6"
-										fill="currentColor"
-										viewBox="0 0 20 20"
-										xmlns="http://www.w3.org/2000/svg"
-										><path
-											fill-rule="evenodd"
-											d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7 4a1 1 0 11-2 0 1 1 0 012 0zm-1-9a1 1 0 00-1 1v4a1 1 0 102 0V6a1 1 0 00-1-1z"
-											clip-rule="evenodd"></path></svg
-									>
-								</a>
-								<a
-									href="#"
-									class="inline-flex justify-center p-1 text-gray-500 rounded cursor-pointer hover:text-gray-900 hover:bg-gray-100 dark:text-gray-400 dark:hover:bg-gray-700 dark:hover:text-white"
-								>
-									<svg
-										class="w-6 h-6"
-										fill="currentColor"
-										viewBox="0 0 20 20"
-										xmlns="http://www.w3.org/2000/svg"
-										><path
-											d="M10 6a2 2 0 110-4 2 2 0 010 4zM10 12a2 2 0 110-4 2 2 0 010 4zM10 18a2 2 0 110-4 2 2 0 010 4z"
-										></path></svg
-									>
-								</a>
-							</div>
-						</div> */
-						}
 					</div>
 
 					<div
-						class="flex items-center ml-auto mb-4 sm:mb-0 space-x-1 sm:space-x-2"
+						class="flex items-center mb-4 sm:mb-0 ml-auto space-x-1 sm:space-x-2"
 					>
 						<button
 							type="button"
@@ -214,22 +124,19 @@ const newCats = await Promise.all(
 				</div>
 			</div>
 		</div>
-
 		<div class="flex flex-col">
 			<div class="overflow-x-auto">
 				<div class="inline-block min-w-full align-middle">
-					<Table
-						resource="product-types"
-						data={productTypes}
+					<AstroTable
+						data={countries}
 						columns={[
-							{ name: "id", label: "ID", sortable: true },
-							{ name: "name", label: "Nombre", sortable: true },
-							{
-								name: "categories",
-								label: "Categorías",
-								sortable: false,
-							},
+							{ name: "id", label: "Id" },
+							{ name: "name", label: "Nombre" },
+							{ name: "tlc", label: "TLC" },
+							{ name: "impex", label: "IMPEX" },
+							{ name: "additional", label: "Adicional" },
 						]}
+						resource="countries"
 					/>
 				</div>
 			</div>
@@ -261,7 +168,7 @@ const newCats = await Promise.all(
 			id="drawer-label"
 			class="inline-flex items-center mb-6 text-sm font-semibold text-gray-500 uppercase dark:text-gray-400"
 		>
-			Nuevo Tipo de Producto
+			Nuevo País
 		</h5>
 		<button
 			type="button"
@@ -286,14 +193,14 @@ const newCats = await Promise.all(
 			<div class="space-y-4">
 				<div>
 					<label
-						for="type_name"
+						for="country_name"
 						class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
 						>Nombre</label
 					>
 					<input
 						type="text"
-						name="type_name"
-						id="type_name"
+						name="country_name"
+						id="country_name"
 						class="border
 						text-sm
 						rounded-lg
@@ -308,66 +215,107 @@ const newCats = await Promise.all(
 						dark:border-gray-600
 						dark:placeholder-gray-400
 						dark:text-white"
-						placeholder="Digite el tipo de producto"
+						placeholder="Digite el nombre de país"
 						required=""
 					/>
 				</div>
-				<div class="transition-all duration-200 ease-in-out">
+
+				<div>
 					<label
-						class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
-						>Categorías</label
+						for="country_tlc"
+						class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+						>TLC</label
 					>
-					<div
-						class="space-y-3
-						max-h-96
-						overflow-y-auto
-						p-3
-						border
-						rounded-md
-						bg-gray-50 border-gray-300
+					<input
+						type="number"
+						name="country_tlc"
+						id="country_tlc"
+						class="border
+						text-sm
+						rounded-lg
+						block
+						w-full p-2.5
+						bg-gray-50
+						border-gray-300
+						text-gray-900
 						focus:ring-primary-600
 						focus:border-primary-600
 						dark:bg-gray-700
-						dark:border-gray-600"
-					>
-						{
-							categories.map((category) => (
-								<label class="flex items-center group p-2 rounded hover:bg-gray-500/75 transition-colors">
-									<input
-										type="checkbox"
-										name="categories"
-										value={category.id}
-										id={category.id.toString()}
-										class="
-										rounded 
-										shadow-sm 
-										transition-shadow"
-									/>
-									<div class="ml-3">
-										<span
-											class="text-sm text-gray-900 dark:text-white
-										 font-medium"
-										>
-											{category.name}
-										</span>
-										{category.description && (
-											<p class="text-xs text-gray-300 mt-0.5">
-												{category.description}
-											</p>
-										)}
-									</div>
-								</label>
-							))
-						}
-						{
-							categories.length === 0 && (
-								<p class="text-sm text-gray-300 text-center py-2">
-									No categories available
-								</p>
-							)
-						}
-					</div>
+						dark:border-gray-600
+						dark:placeholder-gray-400
+						dark:text-white"
+						placeholder="Digite el nombre de país"
+						required=""
+						min="0"
+						step="any"
+						value="0"
+					/>
 				</div>
+
+				<div>
+					<label
+						for="country_impex"
+						class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+						>IMPEX</label
+					>
+					<input
+						type="number"
+						name="country_impex"
+						id="country_impex"
+						class="border
+						text-sm
+						rounded-lg
+						block
+						w-full p-2.5
+						bg-gray-50
+						border-gray-300
+						text-gray-900
+						focus:ring-primary-600
+						focus:border-primary-600
+						dark:bg-gray-700
+						dark:border-gray-600
+						dark:placeholder-gray-400
+						dark:text-white"
+						placeholder="Coloque el TLC del país"
+						required=""
+						min="0"
+						step="any"
+						value="0"
+					/>
+				</div>
+
+				<div>
+					<label
+						for="country_additional"
+						class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+						>Adicional</label
+					>
+					<input
+						type="number"
+						name="country_additional"
+						id="country_additional"
+						class="border
+						text-sm
+						rounded-lg
+						block
+						w-full p-2.5
+						bg-gray-50
+						border-gray-300
+						text-gray-900
+						focus:ring-primary-600
+						focus:border-primary-600
+						dark:bg-gray-700
+						dark:border-gray-600
+						dark:placeholder-gray-400
+						dark:text-white"
+						placeholder="Coloque el TLC del país"
+						required=""
+						min="0"
+						step="any"
+						value="0"
+					/>
+				</div>
+
 				<div
 					class="bottom-0 left-0 flex justify-center w-full pb-4 space-x-4 md:px-4 md:absolute"
 				>
@@ -403,33 +351,32 @@ const newCats = await Promise.all(
 		</form>
 	</div>
 </Layout>
+
 <script>
 	import { showSuccess, showError } from "../../lib/utils/notifications";
-	import { validateProductType } from "../../lib/utils/validation";
+	import { validateCountry } from "../../lib/utils/validation";
 
 	const form = document.getElementById("createForm");
 	form?.addEventListener("submit", async (e) => {
 		e.preventDefault();
 		const formData = new FormData(form as HTMLFormElement);
-		const categories = formData
-			.getAll("categories")
-			.map((id) => parseInt(id as string));
 
 		const data = {
-			name: formData.get("type_name") as string,
-			categories: categories,
+			name: formData.get("country_name") as string,
+			tlc: parseFloat(formData.get("country_tlc") as string),
+			impex: parseFloat(formData.get("country_impex") as string),
+			additional: parseFloat(
+				formData.get("country_additional") as string,
+			),
 		};
-		console.log(data);
-		const validation = validateProductType(data);
-		console.log("Validation");
-		console.log(validation);
+		const validation = validateCountry(data);
 		if (validation.errors) {
 			showError(Object.values(validation.errors).flat().join("\n"));
 			return;
 		}
 
 		try {
-			const response = await fetch("/api/product-types", {
+			const response = await fetch("/api/countries", {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -439,7 +386,7 @@ const newCats = await Promise.all(
 
 			if (response.ok) {
 				showSuccess("Product Type created successfully");
-				window.location.href = "/product-types";
+				window.location.href = "/countries";
 			} else {
 				const error = await response.json();
 				showError(error.message || "Failed to create product type");

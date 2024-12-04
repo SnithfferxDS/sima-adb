@@ -78,11 +78,24 @@ const Person = defineTable({
 });
 
 const SidebarMenu = defineTable({
+  deprecated: true,
   columns: {
     id: column.number({ primaryKey: true }),
     name: column.text(),
     url: column.text(),
     icon: column.text(),
+    submenu: column.json({ optional: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true })
+  }
+});
+
+const SidebarMenu = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true }),
+    name: column.text(),
+    url: column.text({ optional: true }),
+    icon: column.text({ optional: true }),
     submenu: column.json({ optional: true }),
     created_at: column.date({ default: NOW }),
     updated_at: column.date({ optional: true })
@@ -424,6 +437,32 @@ const ProductRelations = defineTable({
   },
 });
 
+const DaiCategoryProduct = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    category_id: column.number({
+      references: () => Category.columns.id,
+    }),
+    dai: column.number(),
+    licenses: column.number(),
+    eco_tax: column.number(),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  },
+});
+
+const Country = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    name: column.text(),
+    tlc: column.text(),
+    impex: column.number(),
+    additional: column.number(),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  },
+});
+
 // https://astro.build/db/config
 export default defineDb({
   tables: {
@@ -454,6 +493,8 @@ export default defineDb({
     MetadataValue,
     MetadataValueRelations,
     ProductRelations,
-    Image
+    Image,
+    DaiCategoryProduct,
+    Country,
   }
 });
