@@ -1,0 +1,262 @@
+---
+import Layout from "../../../../../layouts/app.layout.astro";
+import BreadCrumbs from "../../../../../components/BreadCrumbs.astro";
+import { db, SidebarMenu, eq } from "astro:db";
+import { showError, showSuccess } from "../../../../../lib/utils/notifications";
+
+if (Astro.request.method === "POST") {
+	const formData = await Astro.request.formData();
+	const data = {
+		title: formData.get("sidebar_submenu_name") as string,
+		url: formData.get("sidebar_submenu_url") as string,
+	};
+	const menu = Number(formData.get("sidebar_menu_id"));
+
+	if (data.title === "") {
+		showError("El nombre del elemento es requerido");
+		return;
+	}
+	if (data.url === "") {
+		showError("El url del elemento es requerido");
+		return;
+	}
+
+	try {
+		const response = await db
+			.update(SidebarMenu)
+			.set({
+				submenu: JSON.stringify(data),
+			})
+			.where(eq(SidebarMenu.id, menu));
+
+		if (response.rowsAffected === 1) {
+			showSuccess("Product Type created successfully");
+			window.location.href = "/admin/menu/sidebar";
+		} else {
+			const error = await response.toJSON();
+			showError(error.message || "Failed to create product type");
+		}
+	} catch (error) {
+		console.error("Error:", error);
+		showError("An unexpected error occurred");
+	}
+}
+
+const breadcrumbs = [
+	{
+		lable: "Admin",
+		path: "/admin",
+	},
+	{
+		lable: "menu",
+		path: "/admin/menu",
+	},
+	{
+		lable: "Sidebar",
+		path: "/admin/menu/sidebar",
+	},
+	{
+		lable: "Create",
+		path: "/admin/menu/sidebar/create",
+	},
+];
+const id = Number(Astro.params.id);
+const sidebarMenu = await db
+	.select()
+	.from(SidebarMenu)
+	.where(eq(SidebarMenu.id, id));
+---
+
+<Layout title={`Create | Submenu | Menu ${id} | Sidebar`}>
+	<div
+		class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg"
+	>
+		<div
+			class="p-4 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5"
+		>
+			<div class="w-full mb-1">
+				<BreadCrumbs
+					routes={breadcrumbs}
+					currentRoute={Astro.url.pathname}
+					headerTitle={`Create Submenu | Menu ${sidebarMenu[0].name} | Sidebar`}
+				/>
+				<div class="items-center justify-between flex">
+					<div class="flex items-center mb-4 sm:mb-0"></div>
+				</div>
+			</div>
+		</div>
+		<div class="flex flex-col">
+			<div class="overflow-x-auto">
+				<div class="inline-block min-w-full align-middle">
+					<form action="POST" id="createForm">
+						<input
+							type="hidden"
+							name="sidebar_menu_id"
+							value={id}
+						/>
+						<div class="space-y-4">
+							<div>
+								<label
+									for="sidebar_submenu_name"
+									class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+									>Name</label
+								>
+								<input
+									type="text"
+									name="sidebar_submenu_name"
+									id="sidebar_submenu_name"
+									class="border
+                                    text-sm
+                                    rounded-lg
+                                    block
+                                    w-full p-2.5
+                                    bg-gray-50
+                                    border-gray-300
+                                    text-gray-900
+                                    focus:ring-primary-600
+                                    focus:border-primary-600
+                                    dark:bg-gray-700
+                                    dark:border-gray-600
+                                    dark:placeholder-gray-400
+                                    dark:text-white"
+									placeholder="Digite el nombre del elemento"
+									required=""
+								/>
+							</div>
+
+							<div>
+								<label
+									for="sidebar_submenu_url"
+									class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+									>Link</label
+								>
+								<input
+									type="text"
+									name="sidebar_submenu_url"
+									id="sidebar_submenu_url"
+									class="border
+                                    text-sm
+                                    rounded-lg
+                                    block
+                                    w-full p-2.5
+                                    bg-gray-50
+                                    border-gray-300
+                                    text-gray-900
+                                    focus:ring-primary-600
+                                    focus:border-primary-600
+                                    dark:bg-gray-700
+                                    dark:border-gray-600
+                                    dark:placeholder-gray-400
+                                    dark:text-white"
+									placeholder="Digite el nombre del elemento"
+								/>
+							</div>
+
+							<table class="min-w-full">
+								<thead>
+									<tr>
+										<th
+											class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider"
+										>
+											Nombre
+										</th>
+										<th
+											class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider"
+										>
+											Url
+										</th>
+										<th
+											class="px-6 py-3 border-b border-gray-200 bg-gray-50 text-left text-xs leading-4 font-medium text-gray-500 uppercase tracking-wider"
+										>
+											Actions
+										</th>
+									</tr>
+								</thead>
+								<tbody>
+									{
+										(() => {
+											const submenus = JSON.parse(
+												(sidebarMenu[0]
+													?.submenu as string) ||
+													"null",
+											);
+
+											if (
+												Array.isArray(submenus) &&
+												submenus.length > 0
+											) {
+												return submenus.map(
+													(submenu) => (
+														<tr>
+															<td class="px-6 py-4 whitespace-nowrap">
+																<div class="flex items-center">
+																	<div class="ml-4">
+																		<div class="text-sm leading-5 font-medium text-gray-900">
+																			{
+																				submenu.title
+																			}
+																		</div>
+																	</div>
+																</div>
+															</td>
+															<td class="px-6 py-4 whitespace-nowrap">
+																<div class="flex items-center">
+																	<div class="ml-4">
+																		<div class="text-sm leading-5 font-medium text-gray-900">
+																			{
+																				submenu.url
+																			}
+																		</div>
+																	</div>
+																</div>
+															</td>
+															<td class="px-6 py-4 whitespace-nowrap">
+																<div class="flex items-center">
+																	<div class="ml-4">
+																		<button
+																			type="button"
+																			class="inline-flex items-center px-3 py-2 text-sm font-medium text-center text-white bg-primary-700 rounded-lg hover:bg-primary-800 focus:ring-4 focus:ring-primary-300 dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+																		>
+																			<svg
+																				class="w-4 h-4 mr-2"
+																				fill="currentColor"
+																				viewBox="0 0 20 20"
+																				xmlns="http://www.w3.org/2000/svg"
+																			>
+																				<path
+																					fill-rule="evenodd"
+																					d="M5 4a1 1 0 00-2 0v5.586l-1.293-1.293a1 1 0 00-1.414 1.414l3 3a1 1 0 001.414 0l3-3a1 1 0 00-1.414-1.414L5 11.586V4z"
+																					clip-rule="evenodd"
+																				/>
+																			</svg>
+																			Delete
+																		</button>
+																	</div>
+																</div>
+															</td>
+														</tr>
+													),
+												);
+											}
+										})()
+									}
+								</tbody>
+							</table>
+
+							<div
+								class="bottom-0 left-0 flex justify-center w-full pb-4 space-x-4 md:px-4 md:absolute"
+							>
+								<button
+									type="submit"
+									class="text-white w-full justify-center bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+								>
+									Agregar
+								</button>
+							</div>
+						</div>
+					</form>
+				</div>
+			</div>
+		</div>
+	</div></Layout
+>
