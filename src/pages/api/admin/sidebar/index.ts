@@ -22,7 +22,7 @@ import { db, SidebarMenu } from "astro:db";
 export const POST: APIRoute = async ({ request }) => {
     try {
         const { name, url, icon, parent_id, position } = await request.json();
-        console.log(name, url, icon, parent_id, position);
+        //console.log(name, url, icon, parent_id, position);
         let parent = parent_id > 0 ? parent_id : null;
 
         const sidebarMenu = await db.insert(SidebarMenu).values({
