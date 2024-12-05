@@ -1,63 +1,139 @@
 ---
 import Layout from "../../layouts/app.layout.astro";
 import Table from "../../components/Table.astro";
+import BreadCrumbs from "../../components/BreadCrumbs.astro";
 import { db, Supplier } from "astro:db";
 
 const suppliers = await db.select().from(Supplier).all();
+const breadcrumbs = [
+	{
+		lable: "Tiendas Proveedores",
+		path: "/suppliers",
+	},
+];
 ---
 
 <Layout title="Suppliers">
-	<div class="sm:flex sm:items-center pt-6">
-		<div class="flex sm:flex-auto justify-between items-center mb-6">
-			<h1 class="text-2xl font-semibold text-slate-900 dark:text-white">
-				Proveedores
-			</h1>
-			<a
-				href="/suppliers/create"
-				class="inline-flex items-center justify-center rounded-md border border-transparent px-4 py-2 text-sm font-medium shadow-sm focus:outline-none focus:ring-2 bg-purple-700 text-gray-50 hover:bg-purple-600 focus:ring-purple-500"
-			>
-				Agregar Proveedor
-			</a>
+	<div
+		class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg"
+	>
+		<div
+			class="p-4 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5"
+		>
+			<div class="w-full mb-1">
+				<BreadCrumbs
+					routes={breadcrumbs}
+					currentRoute={Astro.url.pathname}
+					headerTitle="Nombres Comunes"
+				/>
+				<div class="items-center justify-between flex">
+					<button
+						type="button"
+						data-refresh
+						class="inline-flex
+							items-center
+							justify-center
+							w-1/2
+							px-3
+							py-2
+							text-sm
+							font-medium
+							text-center
+							rounded-lg
+							focus:ring-4
+							sm:w-auto
+							text-white
+							bg-purple-700
+							hover:bg-purple-800
+							focus:ring-purple-300
+							dark:bg-purple-600
+							dark:hover:bg-purple-700
+							dark:focus:ring-purple-800"
+					>
+						<svg
+							class="w-5 h-5 sm:mr-2 sm:-ml-1"
+							fill="none"
+							stroke="currentColor"
+							stroke-width="1.5"
+							viewBox="0 0 24 24"
+							xmlns="http://www.w3.org/2000/svg"
+							aria-hidden="true"
+						>
+							<path
+								stroke-linecap="round"
+								stroke-linejoin="round"
+								d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+							></path>
+						</svg>
+						<span class="hidden md:block">Recargar</span>
+					</button>
+					<a
+						href="/suppliers/create"
+						class="inline-flex
+							items-center
+							justify-center
+							w-1/2
+							px-3
+							py-2
+							text-sm
+							font-medium
+							text-center
+							rounded-lg
+							focus:ring-4
+							sm:w-auto
+							text-white
+							bg-purple-700
+							hover:bg-purple-800
+							focus:ring-purple-300
+							dark:bg-purple-600
+							dark:hover:bg-purple-700
+							dark:focus:ring-purple-800"
+					>
+						<svg
+							class="w-5 h-5 sm:mr-2 sm:-ml-1"
+							fill="currentColor"
+							viewBox="0 0 20 20"
+							xmlns="http://www.w3.org/2000/svg"
+							><path
+								fill-rule="evenodd"
+								d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+								clip-rule="evenodd"></path></svg
+						>
+						<span class="hidden md:block">Agregar</span>
+					</a>
+				</div>
+			</div>
 		</div>
-	</div>
-
-	<div class="mt-8 flex flex-col">
-		<div class="-my-2 -mx-4 overflow-x-auto sm:-mx-6 lg:-mx-8">
-			<div
-				class="inline-block min-w-full py-2 align-middle md:px-6 lg:px-8"
-			>
-				<div
-					class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 md:rounded-lg"
-				>
+		<div class="flex flex-col">
+			<div class="overflow-x-auto">
+				<div class="inline-block min-w-full align-middle">
 					<Table
+						resource="suppliers"
 						data={suppliers}
 						columns={[
-							{
-								name: "name",
-								label: "Nombre",
-								sortable: true,
-								class: "text-gray-900",
-							},
+							{ name: "id", label: "ID", sortable: true },
+							{ name: "name", label: "Nombre", sortable: true },
 							{
 								name: "contact",
 								label: "Contacto",
 								sortable: true,
-								class: "text-gray-900",
 							},
 							{
 								name: "email",
 								label: "Email",
 								sortable: true,
-								class: "text-gray-900",
 							},
 							{
 								name: "phone",
 								label: "Teléfono",
 								sortable: true,
-								class: "text-gray-900",
+							},
+							{
+								name: "actions",
+								label: "Acciones",
+								sortable: false,
 							},
 						]}
-						resource="Proveedores"
 					/>
 				</div>
 			</div>
