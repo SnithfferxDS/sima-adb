@@ -61,7 +61,7 @@ const { categories, countries, stores } = Astro.props;
 						type="number"
 						id="price"
 						name="price"
-						step="0.01"
+						step="any"
 						required
 						class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 						value="1.00"
@@ -78,9 +78,9 @@ const { categories, countries, stores } = Astro.props;
 						type="number"
 						id="weight"
 						name="weight"
-						step="0.01"
+						step="any"
 						class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-						value="0.45359237"
+						value="0.454"
 					/>
 				</div>
 
@@ -94,7 +94,7 @@ const { categories, countries, stores } = Astro.props;
 						type="number"
 						id="shipping"
 						name="shipping"
-						step="0.01"
+						step="any"
 						class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 						value="0.00"
 					/>
@@ -108,13 +108,13 @@ const { categories, countries, stores } = Astro.props;
 
 			<div>
 				<label
-					for="supplier"
+					for="store"
 					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
 					>Tienda</label
 				>
 				<select
-					id="supplier"
-					name="supplier"
+					id="store"
+					name="store"
 					required
 					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 				>
@@ -372,10 +372,17 @@ const { categories, countries, stores } = Astro.props;
 		const weight = parseFloat(
 			(document.getElementById("weight") as HTMLInputElement).value,
 		);
-		const weightLbs = weight * quantity * 2.20462; // Convert kg to lbs
+		const weightLbs = Math.ceil(weight * quantity * 2.20462); // Convert kg to lbs
 		const shipping = parseFloat(
 			(document.getElementById("shipping") as HTMLInputElement).value,
 		);
+		const storeSelect = document.getElementById(
+			"store",
+		) as HTMLSelectElement;
+		const selectedStore = storeSelect.options[storeSelect.selectedIndex];
+		const storeId = selectedStore.dataset.id;
+		const storeTaxes = parseFloat(selectedStore.dataset.taxes || "0");
+		const storeDiscount = parseFloat(selectedStore.dataset.discount || "0");
 
 		const categorySelect = document.getElementById(
 			"category",
@@ -400,27 +407,30 @@ const { categories, countries, stores } = Astro.props;
 		const fuelCost = weightLbs * FUEL;
 		const transportCost = weightLbs * PER_LB;
 		const packageCost = fuelCost + transportCost + DOCS;
-
+		// calculate local taxes and store subtotal
+		let storeSubtotal = (price + shipping) * quantity;
+		let taxes = storeSubtotal * (storeTaxes / 100);
+		storeSubtotal += taxes;
+		let discount = storeSubtotal * (storeDiscount / 100);
+		storeSubtotal -= discount;
 		// Calculate import costs
-		const FOBprice = (price + shipping) * quantity;
-		const licensesAmount = FOBprice * (licenses / 100);
-		const additionalAmount = FOBprice * (additional / 100);
-		const impexAmount = FOBprice * (impex / 100);
-		const freight =
-			FOBprice + licensesAmount + impexAmount + additionalAmount;
+		let licensesAmount = storeSubtotal * (licenses / 100);
+		let additionalAmount = storeSubtotal * (additional / 100);
+		let impexAmount = storeSubtotal * (impex / 100);
+		let freight =
+			storeSubtotal + licensesAmount + impexAmount + additionalAmount;
 		const daiAmount = freight * (dai / 100);
 		const ecoTaxAmount = weightLbs * (ecoTax / 100);
 
 		// Calculate taxes and rent
 		const ImportTaxes = impexAmount + ecoTaxAmount + daiAmount;
 		const subtotal = (freight + packageCost + ImportTaxes) / quantity;
+		// Calculate total and profit
 		const profitAmount = subtotal * PROFIT_MARGIN;
+		// calculate local taxes
 		const rentAmount = (subtotal + profitAmount) * RENT;
 		const ivaAmount = (subtotal + profitAmount + rentAmount) * IVA;
-
-		// Calculate total and profit
-		//const baseTotal = subtotal + ivaAmount + rentAmount;
-		//const profitAmount = baseTotal * PROFIT_MARGIN;
+		// calculate suggested price
 		const suggestedPrice = subtotal + ivaAmount + rentAmount + profitAmount;
 
 		// Update results

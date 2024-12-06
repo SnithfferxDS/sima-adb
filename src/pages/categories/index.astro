@@ -604,9 +604,9 @@ const breadcrumbs = [
 			description: formData.get("description") as string,
 			parents: selectedOptions,
 			active: formData.get("active") === "on",
-			dai: parseInt(formData.get("dai") as string),
-			eco: parseInt(formData.get("eco") as string),
-			lic: parseInt(formData.get("lic") as string),
+			dai: parseFloat(formData.get("dai") as string),
+			eco: parseFloat(formData.get("eco") as string),
+			lic: parseFloat(formData.get("lic") as string),
 		};
 		try {
 			const response = await fetch("/api/categories", {
