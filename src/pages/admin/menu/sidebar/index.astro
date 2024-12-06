@@ -1,6 +1,5 @@
 ---
 import Layout from "../../../../layouts/app.layout.astro";
-import Table from "../../../../components/Table.astro";
 import BreadCrumbs from "../../../../components/BreadCrumbs.astro";
 import { db, SidebarMenu } from "astro:db";
 
@@ -18,8 +17,21 @@ const breadcrumbs = [
 		path: "/admin/menu/sidebar",
 	},
 ];
-
-const menues = await db.select().from(SidebarMenu).orderBy(SidebarMenu.name);
+interface SubmenuObject {
+	title: string;
+	url: string;
+}
+const menuItems = await db
+	.select()
+	.from(SidebarMenu)
+	.orderBy(SidebarMenu.position);
+const menuMap = new Map(menuItems.map((item) => [item.id, item]));
+/* await Promise.all(
+	menues.map(async (menu) => {
+		const submenu = JSON.parse(menu?.submenu as string);
+		return { ...menu, submenu };
+	}),
+); */
 ---
 
 <Layout title="Sidebar Menu">
@@ -127,20 +139,294 @@ const menues = await db.select().from(SidebarMenu).orderBy(SidebarMenu.name);
 		<div class="flex flex-col">
 			<div class="overflow-x-auto">
 				<div class="inline-block min-w-full align-middle">
-					<Table
-						resource="groups"
-						data={menues}
-						columns={[
-							{ name: "id", label: "ID", sortable: true },
-							{ name: "name", label: "Nombre", sortable: true },
-							{ name: "url", label: "URL", sortable: true },
+					<table class="min-w-full">
+						<thead>
+							<tr>
+								<th scope="col">
+									<span
+										class="px-3 py-3 flex items-center text-center font-medium text-gray-800 dark:text-gray-100 uppercase tracking-wider"
+									>
+										Nombre
+										<svg
+											class="w-4 h-4 ms-1"
+											aria-hidden="true"
+											xmlns="http://www.w3.org/2000/svg"
+											width="24"
+											height="24"
+											fill="none"
+											viewBox="0 0 24 24"
+										>
+											<path
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="m8 15 4 4 4-4m0-6-4-4-4 4"
+											></path>
+										</svg>
+									</span>
+								</th>
+								<th scope="col">
+									<span
+										class="px-3 py-3 flex items-center text-center font-medium text-gray-800 dark:text-gray-100 uppercase tracking-wider"
+									>
+										URL<svg
+											class="w-4 h-4 ms-1"
+											aria-hidden="true"
+											xmlns="http://www.w3.org/2000/svg"
+											width="24"
+											height="24"
+											fill="none"
+											viewBox="0 0 24 24"
+										>
+											<path
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="m8 15 4 4 4-4m0-6-4-4-4 4"
+											></path>
+										</svg>
+									</span>
+								</th>
+								<th scope="col">
+									<span
+										class="px-3 py-3 flex items-center text-center font-medium text-gray-800 dark:text-gray-100 uppercase tracking-wider"
+									>
+										Icono
+									</span>
+								</th>
+								<th scope="col">
+									<span
+										class="px-3 py-3 flex items-center text-center font-medium text-gray-800 dark:text-gray-100 uppercase tracking-wider"
+									>
+										Padre<svg
+											class="w-4 h-4 ms-1"
+											aria-hidden="true"
+											xmlns="http://www.w3.org/2000/svg"
+											width="24"
+											height="24"
+											fill="none"
+											viewBox="0 0 24 24"
+										>
+											<path
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="m8 15 4 4 4-4m0-6-4-4-4 4"
+											></path>
+										</svg>
+									</span>
+								</th>
+								<th scope="col">
+									<span
+										class="px-3 py-3 flex items-center text-center font-medium text-gray-800 dark:text-gray-100 uppercase tracking-wider"
+									>
+										Posición
+										<svg
+											class="w-4 h-4 ms-1"
+											aria-hidden="true"
+											xmlns="http://www.w3.org/2000/svg"
+											width="24"
+											height="24"
+											fill="none"
+											viewBox="0 0 24 24"
+										>
+											<path
+												stroke="currentColor"
+												stroke-linecap="round"
+												stroke-linejoin="round"
+												stroke-width="2"
+												d="m8 15 4 4 4-4m0-6-4-4-4 4"
+											></path>
+										</svg>
+									</span>
+								</th>
+								<th
+									scope="col"
+									class="relative py-3.5 pl-3 pr-4 sm:pr-6"
+								>
+									<span class="sr-only">Acciones</span>
+								</th>
+							</tr>
+						</thead>
+						<tbody class="divide-y divide-gray-200 bg-gray-300">
 							{
-								name: "submenu",
-								label: "Submenu",
-								sortable: true,
-							},
-						]}
-					/>
+								menuItems.map((menu) => (
+									<tr>
+										<td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+											<div class="flex items-center">
+												<div class="ml-4">
+													<div class="text-sm leading-5 font-medium text-gray-900">
+														{menu.name}
+													</div>
+												</div>
+											</div>
+										</td>
+										<td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+											<div class="flex items-center">
+												<div class="ml-4">
+													<div class="text-sm leading-5 font-medium text-gray-900">
+														{menu.url || ""}
+													</div>
+												</div>
+											</div>
+										</td>
+										<td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+											<div class="flex items-center">
+												<div class="ml-4">
+													<div class="text-sm leading-5 font-medium text-gray-900">
+														{menu.icon && (
+															<span class="material-symbols-outlined">
+																{menu.icon}
+															</span>
+														)}
+													</div>
+												</div>
+											</div>
+										</td>
+										<td class="px-6 py-4">
+											<div class="flex items-center">
+												<div class="ml-4">
+													<div class="text-sm leading-5 font-medium text-gray-900">
+														{menu.parent_id
+															? menuMap.get(
+																	menu.parent_id,
+																)?.name
+															: "-"}
+													</div>
+												</div>
+											</div>
+										</td>
+										<td class="px-6 py-4">
+											<div class="flex items-center">
+												<div class="ml-4">
+													<div class="text-sm leading-5 font-medium text-gray-900">
+														{menu.position}
+													</div>
+												</div>
+											</div>
+										</td>
+										<td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+											<div
+												class="inline-flex rounded-md shadow-sm"
+												role="group"
+											>
+												<a
+													href={`/admin/menu/sidebar/${menu.id}/edit`}
+													class="
+														px-1 
+														py-1
+														mr-1
+														text-sm 
+														font-medium 
+														rounded-s-lg 
+														focus:z-10 
+														focus:ring-2 
+														text-warning-400 
+														hover:bg-warning-800 
+														hover:text-warning-400
+														focus:ring-orange-600 
+														focus:text-warning-300"
+												>
+													<span class="sr-only">
+														Edit
+													</span>
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														class="w-6 h-6"
+														aria-hidden="true"
+														fill="currentColor"
+														viewBox="0 -960 960 960"
+													>
+														<path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h357l-80 80H200v560h560v-278l80-80v358q0 33-23.5 56.5T760-120H200Zm280-360ZM360-360v-170l367-367q12-12 27-18t30-6q16 0 30.5 6t26.5 18l56 57q11 12 17 26.5t6 29.5q0 15-5.5 29.5T897-728L530-360H360Zm481-424-56-56 56 56ZM440-440h56l232-232-28-28-29-28-231 231v57Zm260-260-29-28 29 28 28 28-28-28Z" />
+													</svg>
+												</a>
+												<a
+													href={`/admin/menu/sidebar/${menu.id}/details`}
+													class="
+													px-1 
+													py-1 
+													mr-1 
+													text-sm 
+													font-medium 
+													rounded-e-lg 
+													focus:z-10 
+													focus:ring-2 
+													text-success-200 
+													hover:bg-success-800 
+													hover:text-success-400 
+													focus:ring-success-700 
+													focus:text-success-300"
+												>
+													<span class="sr-only">
+														Details
+													</span>
+													<svg
+														class="w-6 h-6"
+														aria-hidden="true"
+														xmlns="http://www.w3.org/2000/svg"
+														width="24"
+														height="24"
+														fill="none"
+														viewBox="0 0 24 24"
+													>
+														<path
+															stroke="currentColor"
+															stroke-width="2"
+															d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z"
+														/>
+														<path
+															stroke="currentColor"
+															stroke-width="2"
+															d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+														/>
+													</svg>
+												</a>
+												<button
+													data-id={menu.id}
+													type="button"
+													class="
+														px-1 
+														py-1
+														text-sm 
+														font-medium 
+														rounded-e-lg 
+														focus:z-10 
+														focus:ring-2 
+														text-danger-400
+														hover:bg-danger-800 
+														focus:ring-orange-600 
+														focus:text-danger-300
+														delete-btn"
+												>
+													<span class="sr-only">
+														Delete
+													</span>
+													<svg
+														class="w-6 h-6"
+														aria-hidden="true"
+														xmlns="http://www.w3.org/2000/svg"
+														fill="none"
+														viewBox="0 0 24 24"
+													>
+														<path
+															stroke="currentColor"
+															stroke-linecap="round"
+															stroke-linejoin="round"
+															stroke-width="2"
+															d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+														/>
+													</svg>
+												</button>
+											</div>
+										</td>
+									</tr>
+								))
+							}
+						</tbody>
+					</table>
 				</div>
 			</div>
 		</div>
@@ -277,6 +563,68 @@ const menues = await db.select().from(SidebarMenu).orderBy(SidebarMenu.name);
 							placeholder="Digite el nombre del elemento"
 						/>
 					</div>
+
+					<div>
+						<label
+							for="sidebar_item_parent_id"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Menu Padre</label
+						>
+						<select
+							id="sidebar_item_parent_id"
+							name="sidebar_item_parent_id"
+							class="border
+                            text-sm
+                            rounded-lg
+                            block
+                            w-full p-2.5
+                            bg-gray-50
+                            border-gray-300
+                            text-gray-900
+                            focus:ring-primary-600
+                            focus:border-primary-600
+                            dark:bg-gray-700
+                            dark:border-gray-600
+                            dark:placeholder-gray-400
+                            dark:text-white"
+						>
+							<option value="">None (Top Level)</option>
+							{
+								menuItems.map((item) => (
+									<option value={item.id}>{item.name}</option>
+								))
+							}
+						</select>
+					</div>
+
+					<div>
+						<label
+							for="sidebar_item_position"
+							class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+							>Position</label
+						>
+						<input
+							type="number"
+							id="sidebar_item_position"
+							name="sidebar_item_position"
+							value="0"
+							class="border
+                            text-sm
+                            rounded-lg
+                            block
+                            w-full p-2.5
+                            bg-gray-50
+                            border-gray-300
+                            text-gray-900
+                            focus:ring-primary-600
+                            focus:border-primary-600
+                            dark:bg-gray-700
+                            dark:border-gray-600
+                            dark:placeholder-gray-400
+                            dark:text-white"
+						/>
+					</div>
+
 					<div
 						class="bottom-0 left-0 flex justify-center w-full pb-4 space-x-4 md:px-4 md:absolute"
 					>
@@ -312,48 +660,51 @@ const menues = await db.select().from(SidebarMenu).orderBy(SidebarMenu.name);
 			</form>
 		</div>
 	</div>
-	<script>
-		import {
-			showSuccess,
-			showError,
-		} from "../../../../lib/utils/notifications";
-		import { validateSidebarMenu } from "../../../../lib/utils/validation";
-
-		const form = document.getElementById("createForm");
-		form?.addEventListener("submit", async (e) => {
-			e.preventDefault();
-			const formData = new FormData(form as HTMLFormElement);
-			const data = {
-				name: formData.get("type_name") as string,
-				url: formData.get("type_url") as string,
-				icon: formData.get("type_icon") as string,
-			};
-			const validation = validateSidebarMenu(data);
-			if (validation.errors) {
-				showError(Object.values(validation.errors).flat().join("\n"));
-				return;
-			}
-
-			try {
-				const response = await fetch("/api/admin/sidebar", {
-					method: "POST",
-					headers: {
-						"Content-Type": "application/json",
-					},
-					body: JSON.stringify(data),
-				});
-
-				if (response.ok) {
-					showSuccess("Product Type created successfully");
-					window.location.href = "/admin/menu/sidebar";
-				} else {
-					const error = await response.json();
-					showError(error.message || "Failed to create product type");
-				}
-			} catch (error) {
-				console.error("Error:", error);
-				showError("An unexpected error occurred");
-			}
-		});
-	</script>
 </Layout>
+<script>
+	import {
+		showSuccess,
+		showError,
+	} from "../../../../lib/utils/notifications";
+	import { validateSidebarMenu } from "../../../../lib/utils/validation";
+
+	const form = document.getElementById("createForm");
+	form?.addEventListener("submit", async (e) => {
+		e.preventDefault();
+		const formData = new FormData(form as HTMLFormElement);
+		const data = {
+			name: formData.get("sidebar_item_name") as string,
+			url: formData.get("sidebar_item_url") as string,
+			icon: formData.get("sidebar_item_icon") as string,
+			parent_id: Number(formData.get("sidebar_item_parent_id") as string),
+			position: Number(formData.get("sidebar_item_position") as string),
+		};
+		const validation = validateSidebarMenu(data);
+		if (validation.errors) {
+			showError(Object.values(validation.errors).flat().join("\n"));
+			return;
+		}
+
+		try {
+			const response = await fetch("/api/admin/sidebar", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(data),
+			});
+
+			if (response.ok) {
+				showSuccess("Product Type created successfully");
+				window.location.href = "/admin/menu/sidebar";
+			} else {
+				console.log(response);
+				const error = await response.json();
+				showError(error.message || "Failed to create product type");
+			}
+		} catch (error) {
+			console.error("Error:", error);
+			showError("An unexpected error occurred");
+		}
+	});
+</script>

@@ -78,12 +78,18 @@ const Person = defineTable({
 });
 
 const SidebarMenu = defineTable({
+  deprecated: true,
   columns: {
     id: column.number({ primaryKey: true }),
     name: column.text(),
     url: column.text({ optional: true }),
     icon: column.text({ optional: true }),
-    submenu: column.json({ optional: true }),
+    submenu: column.json({ optional: true, deprecated:true }),
+    parent_id: column.number({ 
+      optional: true,
+      references: () => SidebarMenu.columns.id 
+    }),
+    position: column.number({ default: 0 }),
     created_at: column.date({ default: NOW }),
     updated_at: column.date({ optional: true })
   }
@@ -183,12 +189,17 @@ const Supplier = defineTable({
     email: column.text({ optional: true }),
     website: column.text({ optional: true }),
     contact: column.text({ optional: true }),
+    contact_phone: column.text({ optional: true }),
+    contact_email: column.text({ optional: true }),
     country: column.text({ optional: true }),
     state: column.text({ optional: true }),
     city: column.text({ optional: true }),
     street: column.text({ optional: true }),
     optional: column.text({ optional: true }),
     logo: column.text({ optional: true }),
+    taxes: column.number({ default: 0.0 }),
+    discount: column.number({ default: 0.0 }),
+    status: column.number({ references: () => Status.columns.id, default:1 }),
     created_at: column.date({ default: NOW }),
     updated_at: column.date({ optional: true }),
     deleted_at: column.date({ optional: true }),

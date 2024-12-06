@@ -1,254 +1,454 @@
 ---
 interface Props {
-    categories: Array<{
-        id: number;
-        name: string;
-        dai: number;
-        licenses: number;
-        eco_tax: number;
-    }>;
-    countries: Array<{
-        id: number;
-        name: string;
-        tlc: string;
-        impex: number;
-        additional: number;
-    }>;
+	categories: Array<{
+		id: number;
+		name: string;
+		dai: number;
+		licenses: number;
+		eco_tax: number;
+	}>;
+	countries: Array<{
+		id: number;
+		name: string;
+		tlc: string;
+		impex: number;
+		additional: number;
+	}>;
+	stores: Array<{
+		id: number;
+		name: string;
+		taxes: number;
+		discount: number;
+		status: number;
+	}>;
 }
 
-const { categories, countries } = Astro.props;
+const { categories, countries, stores } = Astro.props;
 ---
 
 <form id="freightCalculator" class="space-y-6">
-    <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
-        <!-- Product Information -->
-        <div class="space-y-4">
-            <h3 class="text-lg font-medium text-gray-200">Información de Producto</h3>
+	<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+		<!-- Product Information -->
+		<div class="space-y-4">
+			<h3 class="text-lg font-medium text-gray-200">
+				Información de Producto
+			</h3>
+			<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+				<div>
+					<label
+						for="quantity"
+						class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+						>Cantidad</label
+					>
+					<input
+						type="number"
+						id="quantity"
+						name="quantity"
+						step="1"
+						required
+						class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						value="1"
+					/>
+				</div>
 
-            <div>
-                <label for="price" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Precio (USD)</label>
-                <input
-                        type="number"
-                        id="price"
-                        name="price"
-                        step="0.01"
-                        required
-                        class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                >
-            </div>
+				<div>
+					<label
+						for="price"
+						class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+						>Precio (USD)</label
+					>
+					<input
+						type="number"
+						id="price"
+						name="price"
+						step="0.01"
+						required
+						class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						value="1.00"
+					/>
+				</div>
 
-            <div>
-                <label for="weight" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Peso (kg)</label>
-                <input
-                        type="number"
-                        id="weight"
-                        name="weight"
-                        step="0.01"
-                        required
-                        class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                >
-            </div>
+				<div>
+					<label
+						for="weight"
+						class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+						>Peso (kg)</label
+					>
+					<input
+						type="number"
+						id="weight"
+						name="weight"
+						step="0.01"
+						class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						value="0.45359237"
+					/>
+				</div>
 
-            <div>
-                <label for="shipping" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Envío (USD)</label>
-                <input
-                        type="number"
-                        id="shipping"
-                        name="shipping"
-                        step="0.01"
-                        required
-                        class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                >
-            </div>
-        </div>
+				<div>
+					<label
+						for="shipping"
+						class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+						>Envío (USD)</label
+					>
+					<input
+						type="number"
+						id="shipping"
+						name="shipping"
+						step="0.01"
+						class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						value="0.00"
+					/>
+				</div>
+			</div>
+		</div>
 
-        <!-- Category and Country -->
-        <div class="space-y-4">
-            <h3 class="text-lg font-medium text-gray-200">Import Details</h3>
+		<!-- Category and Country -->
+		<div class="space-y-4">
+			<h3 class="text-lg font-medium text-gray-200">Import Details</h3>
 
-            <div>
-                <label for="category" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">Categoría de Producto</label>
-                <select
-                        id="category"
-                        name="category"
-                        required
-                        class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                >
-                    <option value="">--- Selecione una categoría ---</option>
-                    {categories.map((category) => (
-                            <option
-                                    value={category.id}
-                                    data-dai={category.dai}
-                                    data-licenses={category.licenses}
-                                    data-eco-tax={category.eco_tax}
-                            >
-                                {category.name}
-                            </option>
-                    ))}
-                </select>
-            </div>
+			<div>
+				<label
+					for="supplier"
+					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					>Tienda</label
+				>
+				<select
+					id="supplier"
+					name="supplier"
+					required
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				>
+					<option value="">--- Selecione una tienda ---</option>
+					{
+						stores.map((store) => (
+							<option
+								value={store.id}
+								data-taxes={store.taxes}
+								data-discount={store.discount}
+							>
+								{store.name}
+							</option>
+						))
+					}
+				</select>
+			</div>
 
-            <div>
-                <label for="country" class="block mb-2 text-sm font-medium text-gray-900 dark:text-white">País de Origen</label>
-                <select
-                        id="country"
-                        name="country"
-                        required
-                        class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-                >
-                    <option value="">--- Selecione un país ---</option>
-                    {countries.map((country) => (
-                            <option
-                                    value={country.id}
-                                    data-tlc={country.tlc}
-                                    data-impex={country.impex}
-                                    data-additional={country.additional}
-                            >
-                                {country.name}
-                            </option>
-                    ))}
-                </select>
-            </div>
-        </div>
-    </div>
+			<div>
+				<label
+					for="category"
+					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					>Categoría de Producto</label
+				>
+				<select
+					id="category"
+					name="category"
+					required
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				>
+					<option value="">--- Selecione una categoría ---</option>
+					{
+						categories.map((category) => (
+							<option
+								value={category.id}
+								data-dai={category.dai}
+								data-licenses={category.licenses}
+								data-eco-tax={category.eco_tax}
+							>
+								{category.name}
+							</option>
+						))
+					}
+				</select>
+			</div>
 
-    <!-- Results Section -->
-    <div class="mt-8 p-6 bg-gray-50/25 rounded-lg">
-        <h3 class="text-lg font-medium text-primary-300 dark:text-primary mb-4">Calculation Results</h3>
-        <div class="grid grid-cols-2 gap-4">
-            <div>
-                <p class="text-sm text-gray-600 dark:text-gray-300">Fuel Cost:</p>
-                <p id="fuelResult" class="text-lg font-medium">$0.00</p>
-            </div>
-            <div>
-                <p class="text-sm text-gray-600 dark:text-gray-300">Transportation Cost:</p>
-                <p id="transportResult" class="text-lg font-medium">$0.00</p>
-            </div>
-            <div>
-                <p class="text-sm text-gray-600 dark:text-gray-300">Package Cost:</p>
-                <p id="packageResult" class="text-lg font-medium">$0.00</p>
-            </div>
-            <div>
-                <p class="text-sm text-gray-600 dark:text-gray-300">DAI:</p>
-                <p id="daiResult" class="text-lg font-medium">$0.00</p>
-            </div>
-            <div>
-                <p class="text-sm text-gray-600 dark:text-gray-300">Licenses:</p>
-                <p id="licensesResult" class="text-lg font-medium">$0.00</p>
-            </div>
-            <div>
-                <p class="text-sm text-gray-600 dark:text-gray-300">Eco Tax:</p>
-                <p id="ecoTaxResult" class="text-lg font-medium">$0.00</p>
-            </div>
-            <div>
-                <p class="text-sm text-gray-600 dark:text-gray-300">IMPEX:</p>
-                <p id="impexResult" class="text-lg font-medium">$0.00</p>
-            </div>
-            <div>
-                <p class="text-sm text-gray-600 dark:text-gray-300">Additional Charges:</p>
-                <p id="additionalResult" class="text-lg font-medium">$0.00</p>
-            </div>
-            <div>
-                <p class="text-sm text-gray-600 dark:text-gray-300">IVA:</p>
-                <p id="ivaResult" class="text-lg font-medium">$0.00</p>
-            </div>
-            <div>
-                <p class="text-sm text-gray-600 dark:text-gray-300">Rent:</p>
-                <p id="rentResult" class="text-lg font-medium">$0.00</p>
-            </div>
-            <div>
-                <p class="text-sm text-gray-600 dark:text-gray-300">Base Total:</p>
-                <p id="baseTotalResult" class="text-lg font-medium">$0.00</p>
-            </div>
-            <div>
-                <p class="text-sm text-gray-600 dark:text-gray-300">Profit (20%):</p>
-                <p id="profitResult" class="text-lg font-medium">$0.00</p>
-            </div>
-            <div class="col-span-2">
-                <p class="text-sm font-medium text-gray-800 dark:text-gray-200">Suggested Final Price:</p>
-                <p id="suggestedPriceResult" class="text-2xl font-bold text-purple-700">$0.00</p>
-            </div>
-        </div>
-    </div>
+			<div>
+				<label
+					for="country"
+					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					>País de Origen</label
+				>
+				<select
+					id="country"
+					name="country"
+					required
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				>
+					<option value="">--- Selecione un país ---</option>
+					{
+						countries.map((country) => (
+							<option
+								value={country.id}
+								data-tlc={country.tlc}
+								data-impex={country.impex}
+								data-additional={country.additional}
+							>
+								{country.name}
+							</option>
+						))
+					}
+				</select>
+			</div>
+		</div>
+	</div>
 
-    <div class="flex justify-end">
-        <button
-                type="submit"
-                class="bg-purple-600 text-white px-6 py-2 rounded-md hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
-        >
-            Calculate
-        </button>
-    </div>
+	<!-- Results Section -->
+	<div class="mt-8 p-6 bg-gray-50/25 rounded-lg">
+		<h3 class="text-lg font-medium text-primary-300 dark:text-primary mb-4">
+			Calculation Results
+		</h3>
+		<div class="grid grid-cols-2 gap-4">
+			<div>
+				<h3
+					class="text-lg font-medium text-primary-100 dark:text-primary-600 mb-4"
+				>
+					Aduana
+				</h3>
+				<div class="grid grid-cols-2 gap-6">
+					<div>
+						<p class="text-sm text-gray-600 dark:text-gray-300">
+							DAI:
+						</p>
+						<p id="daiResult" class="text-lg font-medium">$0.00</p>
+					</div>
+					<div>
+						<p class="text-sm text-gray-600 dark:text-gray-300">
+							Licenses:
+						</p>
+						<p id="licensesResult" class="text-lg font-medium">
+							$0.00
+						</p>
+					</div>
+					<div>
+						<p class="text-sm text-gray-600 dark:text-gray-300">
+							Eco Tax:
+						</p>
+						<p id="ecoTaxResult" class="text-lg font-medium">
+							$0.00
+						</p>
+					</div>
+					<div>
+						<p class="text-sm text-gray-600 dark:text-gray-300">
+							IMPEX:
+						</p>
+						<p id="impexResult" class="text-lg font-medium">
+							$0.00
+						</p>
+					</div>
+					<div>
+						<p class="text-sm text-gray-600 dark:text-gray-300">
+							Cargos Adicionales:
+						</p>
+						<p id="additionalResult" class="text-lg font-medium">
+							$0.00
+						</p>
+					</div>
+				</div>
+			</div>
+			<div>
+				<h3
+					class="text-lg font-medium text-primary-100 dark:text-primary-600 mb-4"
+				>
+					Broker
+				</h3>
+				<div class="grid grid-cols-2 gap-6">
+					<div>
+						<p class="text-sm text-gray-600 dark:text-gray-300">
+							Fuel Cost:
+						</p>
+						<p id="fuelResult" class="text-lg font-medium">$0.00</p>
+					</div>
+					<div>
+						<p class="text-sm text-gray-600 dark:text-gray-300">
+							Transportation Cost:
+						</p>
+						<p id="transportResult" class="text-lg font-medium">
+							$0.00
+						</p>
+					</div>
+					<div>
+						<p class="text-sm text-gray-600 dark:text-gray-300">
+							Package Cost:
+						</p>
+						<p id="packageResult" class="text-lg font-medium">
+							$0.00
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+		<hr class="my-4 border-spacing-2 border-warning-500" />
+		<div class="grid grid-cols-1 gap-4">
+			<div>
+				<h3
+					class="text-lg font-medium text-primary-100 dark:text-primary-600 mb-4"
+				>
+					DS
+				</h3>
+				<div class="grid grid-cols-4 gap-6">
+					<div>
+						<p class="text-sm text-gray-600 dark:text-gray-300">
+							Costo:
+						</p>
+						<p
+							id="baseTotalResult"
+							class="text-lg font-medium text-primary-700 dark:text-primary-500"
+						>
+							$0.00
+						</p>
+					</div>
+					<div>
+						<p class="text-sm text-gray-600 dark:text-gray-300">
+							IVA:
+						</p>
+						<p id="ivaResult" class="text-lg font-medium">$0.00</p>
+					</div>
+					{
+						/* <div>
+						<p class="text-sm text-gray-600 dark:text-gray-300">
+							Rent:
+						</p>
+						<p id="rentResult" class="text-lg font-medium">$0.00</p>
+					</div>*/
+					}
+					<div>
+						<p class="text-sm text-gray-600 dark:text-gray-300">
+							Profit (20%):
+						</p>
+						<p id="profitResult" class="text-lg font-medium">
+							$0.00
+						</p>
+					</div>
+					<div>
+						<p
+							class="text-sm font-medium text-gray-800 dark:text-gray-200"
+						>
+							Precio Sugerido:
+						</p>
+						<p
+							id="suggestedPriceResult"
+							class="text-2xl font-bold text-purple-600 dark:text-purple-900"
+						>
+							$0.00
+						</p>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+
+	<div class="flex justify-end">
+		<button
+			type="submit"
+			class="bg-purple-600 text-white px-6 py-2 rounded-md hover:bg-purple-600 focus:outline-none focus:ring-2 focus:ring-purple-500 focus:ring-offset-2"
+		>
+			Calculate
+		</button>
+	</div>
 </form>
 
 <script>
-    const form = document.getElementById('freightCalculator') as HTMLFormElement;
+	const form = document.getElementById(
+		"freightCalculator",
+	) as HTMLFormElement;
 
-    form?.addEventListener('submit', (e) => {
-        e.preventDefault();
+	form?.addEventListener("submit", (e) => {
+		e.preventDefault();
 
-        // Constants
-        const IVA = 0.13;
-        const RENT = 0.01;
-        const DOCS = 10;
-        const FUEL = 0.98;
-        const PER_LB = 3.65;
-        const PROFIT_MARGIN = 0.20;
+		// Constants
+		const IVA = 0.13;
+		const RENT = 0.01;
+		const DOCS = 6;
+		const FUEL = 0.65;
+		const PER_LB = 3.65;
+		const PROFIT_MARGIN = 0.2;
 
-        // Get form values
-        const price = parseFloat((document.getElementById('price') as HTMLInputElement).value);
-        const weight = parseFloat((document.getElementById('weight') as HTMLInputElement).value);
-        const weightLbs = weight * 2.20462; // Convert kg to lbs
-        const shipping = parseFloat((document.getElementById('shipping') as HTMLInputElement).value);
+		// Get form values
+		const price = parseFloat(
+			(document.getElementById("price") as HTMLInputElement).value,
+		);
+		const quantity = parseInt(
+			(document.getElementById("quantity") as HTMLInputElement).value,
+		);
+		const weight = parseFloat(
+			(document.getElementById("weight") as HTMLInputElement).value,
+		);
+		const weightLbs = weight * quantity * 2.20462; // Convert kg to lbs
+		const shipping = parseFloat(
+			(document.getElementById("shipping") as HTMLInputElement).value,
+		);
 
-        const categorySelect = document.getElementById('category') as HTMLSelectElement;
-        const selectedCategory = categorySelect.options[categorySelect.selectedIndex];
-        const dai = parseFloat(selectedCategory.dataset.dai || '0');
-        const licenses = parseFloat(selectedCategory.dataset.licenses || '0');
-        const ecoTax = parseFloat(selectedCategory.dataset.ecoTax || '0');
+		const categorySelect = document.getElementById(
+			"category",
+		) as HTMLSelectElement;
+		const selectedCategory =
+			categorySelect.options[categorySelect.selectedIndex];
+		const dai = parseFloat(selectedCategory.dataset.dai || "0");
+		const licenses = parseFloat(selectedCategory.dataset.licenses || "0");
+		const ecoTax = parseFloat(selectedCategory.dataset.ecoTax || "0");
 
-        const countrySelect = document.getElementById('country') as HTMLSelectElement;
-        const selectedCountry = countrySelect.options[countrySelect.selectedIndex];
-        const impex = parseFloat(selectedCountry.dataset.impex || '0');
-        const additional = parseFloat(selectedCountry.dataset.additional || '0');
+		const countrySelect = document.getElementById(
+			"country",
+		) as HTMLSelectElement;
+		const selectedCountry =
+			countrySelect.options[countrySelect.selectedIndex];
+		const impex = parseFloat(selectedCountry.dataset.impex || "0");
+		const additional = parseFloat(
+			selectedCountry.dataset.additional || "0",
+		);
 
-        // Calculate transportation costs
-        const fuelCost = weightLbs * FUEL;
-        const transportCost = weightLbs * PER_LB;
-        const packageCost = fuelCost + transportCost + DOCS;
+		// Calculate transportation costs
+		const fuelCost = weightLbs * FUEL;
+		const transportCost = weightLbs * PER_LB;
+		const packageCost = fuelCost + transportCost + DOCS;
 
-        // Calculate import costs
-        const baseValue = price + shipping;
-        const licensesAmount = (baseValue * licenses) / 100;
-        const impexAmount = (baseValue * impex) / 100;
-        const daiAmount = (baseValue * dai) / 100;
-        const ecoTaxAmount = weight * ecoTax;
-        const additionalAmount = (baseValue * additional) / 100;
+		// Calculate import costs
+		const FOBprice = (price + shipping) * quantity;
+		const licensesAmount = FOBprice * (licenses / 100);
+		const additionalAmount = FOBprice * (additional / 100);
+		const impexAmount = FOBprice * (impex / 100);
+		const freight =
+			FOBprice + licensesAmount + impexAmount + additionalAmount;
+		const daiAmount = freight * (dai / 100);
+		const ecoTaxAmount = weightLbs * (ecoTax / 100);
 
-        // Calculate taxes and rent
-        const subtotal = baseValue + packageCost + daiAmount + licensesAmount + ecoTaxAmount + impexAmount + additionalAmount;
-        const profitAmount = subtotal * PROFIT_MARGIN;
-        const rentAmount = (subtotal + profitAmount) * RENT;
-        const ivaAmount = ((subtotal + profitAmount) + rentAmount) * IVA;
+		// Calculate taxes and rent
+		const ImportTaxes = impexAmount + ecoTaxAmount + daiAmount;
+		const subtotal = (freight + packageCost + ImportTaxes) / quantity;
+		const profitAmount = subtotal * PROFIT_MARGIN;
+		const rentAmount = (subtotal + profitAmount) * RENT;
+		const ivaAmount = (subtotal + profitAmount + rentAmount) * IVA;
 
-        // Calculate total and profit
-        const baseTotal = subtotal + ivaAmount + rentAmount;
-        //const profitAmount = baseTotal * PROFIT_MARGIN;
-        const suggestedPrice = baseTotal + profitAmount;
+		// Calculate total and profit
+		//const baseTotal = subtotal + ivaAmount + rentAmount;
+		//const profitAmount = baseTotal * PROFIT_MARGIN;
+		const suggestedPrice = subtotal + ivaAmount + rentAmount + profitAmount;
 
-        // Update results
-        document.getElementById('fuelResult')!.textContent = `$${fuelCost.toFixed(2)}`;
-        document.getElementById('transportResult')!.textContent = `$${transportCost.toFixed(2)}`;
-        document.getElementById('packageResult')!.textContent = `$${packageCost.toFixed(2)}`;
-        document.getElementById('daiResult')!.textContent = `$${daiAmount.toFixed(2)}`;
-        document.getElementById('licensesResult')!.textContent = `$${licensesAmount.toFixed(2)}`;
-        document.getElementById('ecoTaxResult')!.textContent = `$${ecoTaxAmount.toFixed(2)}`;
-        document.getElementById('impexResult')!.textContent = `$${impexAmount.toFixed(2)}`;
-        document.getElementById('additionalResult')!.textContent = `$${additionalAmount.toFixed(2)}`;
-        document.getElementById('ivaResult')!.textContent = `$${ivaAmount.toFixed(2)}`;
-        document.getElementById('rentResult')!.textContent = `$${rentAmount.toFixed(2)}`;
-        document.getElementById('baseTotalResult')!.textContent = `$${baseTotal.toFixed(2)}`;
-        document.getElementById('profitResult')!.textContent = `$${profitAmount.toFixed(2)}`;
-        document.getElementById('suggestedPriceResult')!.textContent = `$${suggestedPrice.toFixed(2)}`;
-    });
+		// Update results
+		document.getElementById("fuelResult")!.textContent =
+			`$${(fuelCost / quantity).toFixed(2)}`;
+		document.getElementById("transportResult")!.textContent =
+			`$${(transportCost / quantity).toFixed(2)}`;
+		document.getElementById("packageResult")!.textContent =
+			`$${(packageCost / quantity).toFixed(2)}`;
+		document.getElementById("daiResult")!.textContent =
+			`$${(daiAmount / quantity).toFixed(2)}`;
+		document.getElementById("licensesResult")!.textContent =
+			`$${(licensesAmount / quantity).toFixed(2)}`;
+		document.getElementById("ecoTaxResult")!.textContent =
+			`$${ecoTaxAmount.toFixed(2)}`;
+		document.getElementById("impexResult")!.textContent =
+			`$${(impexAmount / quantity).toFixed(2)}`;
+		document.getElementById("additionalResult")!.textContent =
+			`$${(additionalAmount / quantity).toFixed(2)}`;
+		document.getElementById("ivaResult")!.textContent =
+			`$${ivaAmount.toFixed(2)}`;
+		/* document.getElementById("rentResult")!.textContent =
+			`$${rentAmount.toFixed(2)}`; */
+		document.getElementById("baseTotalResult")!.textContent =
+			`$${subtotal.toFixed(2)}`;
+		document.getElementById("profitResult")!.textContent =
+			`$${profitAmount.toFixed(2)}`;
+		document.getElementById("suggestedPriceResult")!.textContent =
+			`$${suggestedPrice.toFixed(2)}`;
+	});
 </script>

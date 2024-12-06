@@ -1,9 +1,29 @@
 ---
 import { db, SidebarMenu } from "astro:db";
 
-const sidebarMenu = await db.select().from(SidebarMenu).all();
+interface MenuItem {
+  id: number;
+  name: string;
+  url?: string;
+  icon?: string;
+  parent_id?: number;
+  position: number;
+}
 
-sidebarMenu.map((item) => {
+interface Props {
+  items: MenuItem[];
+}
+
+const sidebarMenu = await db.select({
+	id: SidebarMenu.id,
+	name: SidebarMenu.name,
+	url: SidebarMenu.url,
+	icon: SidebarMenu.icon,
+	parent_id: SidebarMenu.parent_id,
+	position: SidebarMenu.position,
+}).from(SidebarMenu).all();
+
+/* sidebarMenu.map((item) => {
 	if (item.submenu && typeof item.submenu === "string") {
 		item.submenu = JSON.parse(item.submenu);
 	} else {
@@ -24,7 +44,36 @@ interface Submenu {
 	url: string;
 	created_at: Date;
 	updated_at: Date | null;
+} */
+
+// Organize items into a hierarchy
+function buildMenuHierarchy(menuItems: MenuItem[]) {
+  const itemMap = new Map<number, MenuItem & { children: MenuItem[] }>();
+  const rootItems: (MenuItem & { children: MenuItem[] })[] = [];
+
+  // First pass: Create enhanced items with children arrays
+  menuItems.forEach(item => {
+    itemMap.set(item.id, { ...item, children: [] });
+  });
+
+  // Second pass: Organize into hierarchy
+  menuItems.forEach(item => {
+    const enhancedItem = itemMap.get(item.id)!;
+    if (item.parent_id && itemMap.has(item.parent_id)) {
+      itemMap.get(item.parent_id)!.children.push(enhancedItem);
+    } else {
+      rootItems.push(enhancedItem);
+    }
+  });
+
+  // Sort items by position
+  const sortByPosition = (a: MenuItem, b: MenuItem) => a.position - b.position;
+  rootItems.sort(sortByPosition);
+  rootItems.forEach(item => item.children.sort(sortByPosition));
+
+  return rootItems;
 }
+const menuHerarchy = buildMenuHierarchy(sidebarMenu);
 ---
 
 <aside
@@ -176,9 +225,9 @@ interface Submenu {
 						</a>
 					</li>
 					{
-						sidebarMenu.map((item) => (
+						menuHerarchy.map((item) => (
 							<li>
-								{(item.submenu as SubmenuItem[]).length > 0 ? (
+								{item.children.length > 0 ? (
 									<button
 										id={item.id.toString()}
 										type="button"
@@ -191,52 +240,54 @@ interface Submenu {
 											aria-controls={`${item.id}_${item.name}`}
 											data-collapse-toggle={`${item.id}_${item.name}`}
 										>
-											<span class="material-symbols-outlined">
-												{item.icon}
-											</span>
-											<span class="flex-1 ml-3 text-left whitespace-nowrap">
-												{item.name}
-											</span>
-											<svg
-												aria-hidden="true"
-												class="w-6 h-6"
-												fill="currentColor"
-												viewBox="0 0 20 20"
-												xmlns="http://www.w3.org/2000/svg"
-											>
-												<path
-													fill-rule="evenodd"
-													d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-													clip-rule="evenodd"
-												/>
-											</svg>
-										</button>
-										<ul
-											id={`${item.id}_${item.name}`}
-											class="hidden py-2 space-y-2"
+										<span class="material-symbols-outlined">
+											{item.icon}
+										</span>
+										<span class="flex-1 ml-3 text-left whitespace-nowrap">
+											{item.name}
+										</span>
+										<svg
+											aria-hidden="true"
+											class="w-6 h-6"
+											fill="currentColor"
+											viewBox="0 0 20 20"
+											xmlns="http://www.w3.org/2000/svg"
 										>
-											{(item.submenu as SubmenuItem[]).map((submenuItem,index) => (
-													<li>
-														<a
-															id={index.toString()}
-															href={
-																submenuItem.url
-															}
-															class="flex items-center p-2 pl-8 w-full 
-                                                        text-base font-normal rounded-lg transition 
-                                                        duration-75 group text-gray-100
-                                                        hover:bg-secondary-600
-                                                        focus:outline-secondary-700
-                                                        dark:hover:bg-secondary-500
-                            "
-														>
-														<svg class="w-4 h-4 text-gray-400" aria-hidden="true" xmlns="http://www.w3.org/2000/svg" width="24" height="24" fill="none" viewBox="0 0 24 24"><path stroke="currentColor" stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M16.153 19 21 12l-4.847-7H3l4.848 7L3 19h13.153Z"/></svg>
-														<span class="ml-3">{submenuItem.title}</span>
-														</a>
-													</li>
-												),
-											)}
-										</ul>
+											<path
+												fill-rule="evenodd"
+												d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
+												clip-rule="evenodd"
+											/>
+										</svg>
+									</button>
+									<ul
+										id={`${item.id}_${item.name}`}
+										class="hidden py-2 space-y-2"
+									>
+										{item.children.map((submenuItem,index) => (
+												<li>
+													<a
+														id={index.toString()}
+														href={
+															submenuItem.url
+														}
+														class="flex items-center p-2 pl-8 w-full 
+													text-base font-normal rounded-lg transition 
+													duration-75 group text-gray-100
+													hover:bg-secondary-600
+													focus:outline-secondary-700
+													dark:hover:bg-secondary-500
+						"
+													>
+													<span class="material-symbols-outlined">
+														{submenuItem.icon}
+													</span>
+													<span class="ml-3">{submenuItem.name}</span>
+													</a>
+												</li>
+											),
+										)}
+									</ul>
 								) : (
 									<a
 										id={item.id.toString()}

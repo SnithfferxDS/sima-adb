@@ -86,7 +86,8 @@ export const sidebarMenuSchema = z.object({
   name: z.string().min(1, 'Name is required').max(100),
   url: z.string().nullable(),
   icon: z.string().nullable(),
-  submenu: z.array(z.number()).nullable(), // Allow null for children
+  parent_id: z.number().nullable(),
+  position: z.number().default(0),
 });
 
 export type SidebarMenuFormData = z.infer<typeof sidebarMenuSchema>;

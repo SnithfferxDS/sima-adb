@@ -16,6 +16,8 @@ export const POST: APIRoute = async ({ request }) => {
       city: data.city,
       street: data.street,
       logo: data.logo,
+      taxes: data.taxes,
+      discount: data.discount,
       created_at: new Date(),
       updated_at: new Date(),
     });

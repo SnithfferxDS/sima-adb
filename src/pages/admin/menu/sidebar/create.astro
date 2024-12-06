@@ -1,0 +1,31 @@
+---
+import Layout from "../../../../layouts/app.layout.astro";
+import BreadCrumbs from "../../../../components/BreadCrumbs.astro";
+import { db, SidebarMenu } from "astro:db";
+
+const breadcrumbs = [
+	{
+		lable: "Admin",
+		path: "/admin",
+	},
+	{
+		lable: "menu",
+		path: "/admin/menu",
+	},
+	{
+		lable: "Sidebar",
+		path: "/admin/menu/sidebar",
+	},
+	{
+		lable: "Create",
+		path: "/admin/menu/sidebar/create",
+	},
+];
+
+const sidebarMenu = await db.insert(SidebarMenu).values({
+	name: "",
+	url: "",
+	icon: "",
+	submenu: "",
+});
+---
