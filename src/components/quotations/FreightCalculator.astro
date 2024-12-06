@@ -61,7 +61,7 @@ const { categories, countries, stores } = Astro.props;
 						type="number"
 						id="price"
 						name="price"
-						step="0.01"
+						step="any"
 						required
 						class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 						value="1.00"
@@ -78,9 +78,9 @@ const { categories, countries, stores } = Astro.props;
 						type="number"
 						id="weight"
 						name="weight"
-						step="0.01"
+						step="any"
 						class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-						value="0.45359237"
+						value="0.454"
 					/>
 				</div>
 
@@ -94,7 +94,7 @@ const { categories, countries, stores } = Astro.props;
 						type="number"
 						id="shipping"
 						name="shipping"
-						step="0.01"
+						step="any"
 						class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 						value="0.00"
 					/>
@@ -372,7 +372,7 @@ const { categories, countries, stores } = Astro.props;
 		const weight = parseFloat(
 			(document.getElementById("weight") as HTMLInputElement).value,
 		);
-		const weightLbs = weight * quantity * 2.20462; // Convert kg to lbs
+		const weightLbs = Math.ceil(weight * quantity * 2.20462); // Convert kg to lbs
 		const shipping = parseFloat(
 			(document.getElementById("shipping") as HTMLInputElement).value,
 		);
