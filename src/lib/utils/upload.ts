@@ -17,3 +17,16 @@ export async function uploadFile(file: File): Promise<string | null> {
     return null;
   }
 }
+
+// save file in local storage
+export async function saveFile(file: File): Promise<string | null> {
+  try {
+    const fileUrl = URL.createObjectURL(file);
+    const fileName = file.name;
+    localStorage.setItem(fileName, fileUrl);
+    return fileUrl;
+  } catch (error) {
+    showError('Failed to save file');
+    return null;
+  }
+}

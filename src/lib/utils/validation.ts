@@ -102,3 +102,21 @@ export function validateSidebarMenu(data: unknown) {
     return { data: null, errors: { _form: ['An unexpected error occurred'] } };
   }
 }
+
+export const groupSchema = z.object({
+  name: z.string().min(1, 'Name is required').max(100),
+  position: z.string().optional(),
+  is_allow_desc: z.boolean().nullable(), // Allow null for parent_id
+  active: z.boolean().default(true),
+});
+
+export function validateGroup(data: unknown) {
+  try {
+    return { data: groupSchema.parse(data), errors: null };
+  } catch (error) {
+    if (error instanceof z.ZodError) {
+      return { data: null, errors: error.flatten().fieldErrors };
+    }
+    return { data: null, errors: { _form: ['An unexpected error occurred'] } };
+  }
+}

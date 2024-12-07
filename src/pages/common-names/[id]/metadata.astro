@@ -1,0 +1,24 @@
+---
+import { db, eq } from "astro:db";
+import { Metadata as Metadatos, CommonName, MetadataRelations } from "astro:db";
+
+const id = Number(Astro.params.id);
+const [commonName] = await db
+	.select()
+	.from(CommonName)
+	.where(eq(CommonName.id, id))
+	.all();
+
+const metadataRelations = await Promise.all(
+	JSON.parse(commonName.categories as string)?.map(
+		async (category: number) => {
+			const metadata = await db
+				.select()
+				.from(MetadataRelations)
+				.where(eq(MetadataRelations.common_name, id))
+				.all();
+			return metadata;
+		},
+	) || [],
+);
+---

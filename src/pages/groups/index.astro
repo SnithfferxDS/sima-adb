@@ -2,39 +2,551 @@
 import { db, Group } from "astro:db";
 import Layout from "../../layouts/app.layout.astro";
 import Table from "../../components/Table.astro";
+import BreadCrumbs from "../../components/BreadCrumbs.astro";
+import Search from "../../components/Search.astro";
 
 const groups = await db.select().from(Group).orderBy(Group.id);
+
+const breadcrumbs = [
+	{
+		lable: "Groups",
+		path: "/groups",
+	},
+];
 ---
 
 <Layout title="Groups">
 	<div
 		class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg"
 	>
-		<div class="p-4 flex justify-between items-center border-b">
-			<h1 class="text-2xl font-bold text-gray-800">Groups</h1>
-			<a
-				href="/groups/new"
-				class="bg-primary hover:bg-primary-600 text-white px-4 py-2 rounded transition-colors"
-			>
-				Add New
-			</a>
+		<div
+			class="p-4 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5"
+		>
+			<div class="w-full mb-1">
+				<BreadCrumbs
+					routes={breadcrumbs}
+					currentRoute={Astro.url.pathname}
+					headerTitle="Grupos"
+				/>
+				<div class="items-center justify-between flex">
+					<div class="flex items-center mb-4 sm:mb-0">
+						<Search
+							action="search"
+							id="groupsSearch"
+							placeholder="en grupos"
+							method="get"
+						/>
+					</div>
+
+					<div
+						class="flex items-center mb-4 sm:mb-0 ml-auto space-x-1 sm:space-x-2"
+					>
+						<button
+							type="button"
+							data-refresh
+							class="inline-flex
+							items-center
+							justify-center
+							w-1/2
+							px-3
+							py-2
+							text-sm
+							font-medium
+							text-center
+							rounded-lg
+							focus:ring-4
+							sm:w-auto
+							text-white
+							bg-purple-700
+							hover:bg-purple-800
+							focus:ring-purple-300
+							dark:bg-purple-600
+							dark:hover:bg-purple-700
+							dark:focus:ring-purple-800"
+						>
+							<svg
+								class="w-5 h-5 sm:mr-2 sm:-ml-1"
+								fill="none"
+								stroke="currentColor"
+								stroke-width="1.5"
+								viewBox="0 0 24 24"
+								xmlns="http://www.w3.org/2000/svg"
+								aria-hidden="true"
+							>
+								<path
+									stroke-linecap="round"
+									stroke-linejoin="round"
+									d="M16.023 9.348h4.992v-.001M2.985 19.644v-4.992m0 0h4.992m-4.993 0l3.181 3.183a8.25 8.25 0 0013.803-3.7M4.031 9.865a8.25 8.25 0 0113.803-3.7l3.181 3.182m0-4.991v4.99"
+								></path>
+							</svg>
+							<span class="hidden md:block">Recargar</span>
+						</button>
+						<button
+							class="inline-flex
+							items-center
+							justify-center
+							w-1/2
+							px-3
+							py-2
+							text-sm
+							font-medium
+							text-center
+							rounded-lg
+							focus:ring-4
+							sm:w-auto
+							text-white
+							bg-purple-700
+							hover:bg-purple-800
+							focus:ring-purple-300
+							dark:bg-purple-600
+							dark:hover:bg-purple-700
+							dark:focus:ring-purple-800"
+							data-drawer-target="drawer-create-default"
+							data-drawer-show="drawer-create-default"
+							aria-controls="drawer-create-default"
+							data-drawer-placement="right"
+						>
+							<svg
+								class="w-5 h-5 sm:mr-2 sm:-ml-1"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								xmlns="http://www.w3.org/2000/svg"
+								><path
+									fill-rule="evenodd"
+									d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+									clip-rule="evenodd"></path></svg
+							>
+							<span class="hidden md:block">Agregar</span>
+						</button>
+					</div>
+				</div>
+			</div>
 		</div>
-		<div class="overflow-x-auto">
-			<Table
-				resource="groups"
-				data={groups}
-				columns={[
-					{ name: "id", label: "ID", sortable: true },
-					{ name: "name", label: "Nombre", sortable: true },
-					{ name: "possition", label: "Posición", sortable: true },
-					{ name: "active", label: "Estado", sortable: true },
-					{
-						name: "is_allow_desc",
-						label: "En Descripción",
-						sortable: true,
-					},
-				]}
-			/>
+		<div class="flex flex-col">
+			<div class="overflow-x-auto">
+				<div class="inline-block min-w-full align-middle">
+					<table
+						class="min-w-full divide-y table-fixed rounded-md divide-gray-300 text-primary-300 dark:text-white"
+						id="default-table"
+					>
+						<thead class="bg-gray-800/75 text-white">
+							<tr>
+								{
+									[
+										{
+											name: "name",
+											label: "Nombre",
+											sortable: true,
+										},
+										{
+											name: "position",
+											label: "Posición",
+											sortable: true,
+										},
+										{
+											name: "active",
+											label: "Estado",
+											sortable: true,
+										},
+										{
+											name: "is_allow_desc",
+											label: "En Descripción",
+											sortable: true,
+										},
+									].map((column) => (
+										<th scope="col">
+											<span class="px-3 py-3 flex items-center text-center font-medium text-gray-800 dark:text-gray-100 uppercase tracking-wider">
+												{column.label}
+												<svg
+													class="w-4 h-4 ms-1"
+													aria-hidden="true"
+													xmlns="http://www.w3.org/2000/svg"
+													width="24"
+													height="24"
+													fill="none"
+													viewBox="0 0 24 24"
+												>
+													<path
+														stroke="currentColor"
+														stroke-linecap="round"
+														stroke-linejoin="round"
+														stroke-width="2"
+														d="m8 15 4 4 4-4m0-6-4-4-4 4"
+													/>
+												</svg>
+											</span>
+										</th>
+									))
+								}
+								<th
+									scope="col"
+									class="relative py-3.5 pl-3 pr-4 sm:pr-6"
+								>
+									<span class="sr-only">Acciones</span>
+								</th>
+							</tr>
+						</thead>
+						<tbody class="divide-y divide-gray-200 bg-gray-300">
+							{
+								groups.map((group) => (
+									<tr>
+										<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-900 dark:text-secondary-800">
+											{group.name}
+										</td>
+										<td class="px-6 py-4 whitespace-nowrap text-sm text-gray-600 dark:text-secondary-800">
+											{group.position}
+										</td>
+										<td class="px-6 py-4 whitespace-nowrap">
+											<span
+												class={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full transition-colors ${
+													group.active
+														? "bg-green-100 text-green-800"
+														: "bg-red-100 text-red-800"
+												}`}
+											>
+												{group.active
+													? "Active"
+													: "Inactive"}
+											</span>
+										</td>
+										<td class="px-6 py-4 whitespace-nowrap">
+											<span
+												class={`px-2 inline-flex text-xs leading-5 font-semibold rounded-full transition-colors ${
+													group.is_allow_desc
+														? "bg-green-100 text-green-800"
+														: "bg-red-100 text-red-800"
+												}`}
+											>
+												{group.is_allow_desc
+													? "Yes"
+													: "No"}
+											</span>
+										</td>
+										<td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
+											<div
+												class="inline-flex rounded-md shadow-sm"
+												role="group"
+											>
+												<a
+													href={`/${Astro.props.resource}/${group.id}/edit`}
+													class="
+													px-1 
+													py-1
+													mr-1
+													text-sm 
+													font-medium 
+													rounded-s-lg 
+													focus:z-10 
+													focus:ring-2 
+													text-warning-400 
+													hover:bg-warning-800 
+													hover:text-warning-400
+													focus:ring-orange-600 
+													focus:text-warning-300"
+												>
+													<span class="sr-only">
+														Edit
+													</span>
+													<svg
+														xmlns="http://www.w3.org/2000/svg"
+														class="w-6 h-6"
+														aria-hidden="true"
+														fill="currentColor"
+														viewBox="0 -960 960 960"
+													>
+														<path d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h357l-80 80H200v560h560v-278l80-80v358q0 33-23.5 56.5T760-120H200Zm280-360ZM360-360v-170l367-367q12-12 27-18t30-6q16 0 30.5 6t26.5 18l56 57q11 12 17 26.5t6 29.5q0 15-5.5 29.5T897-728L530-360H360Zm481-424-56-56 56 56ZM440-440h56l232-232-28-28-29-28-231 231v57Zm260-260-29-28 29 28 28 28-28-28Z" />
+													</svg>
+												</a>
+												<a
+													href={`/${Astro.props.resource}/${group.id}/details`}
+													class="
+													px-1 
+													py-1 
+													mr-1 
+													text-sm 
+													font-medium 
+													focus:z-10 
+													focus:ring-2 
+													text-success-200 dark:text-success-500
+													hover:bg-success-800 
+													hover:text-success-400 
+													focus:ring-success-700 
+													focus:text-success-300 
+													dark:hover:bg-success-700 
+													dark:focus:ring-success-800 
+													dark:focus:text-success-300"
+												>
+													<span class="sr-only">
+														Details
+													</span>
+													<svg
+														class="w-6 h-6"
+														aria-hidden="true"
+														xmlns="http://www.w3.org/2000/svg"
+														width="24"
+														height="24"
+														fill="none"
+														viewBox="0 0 24 24"
+													>
+														<path
+															stroke="currentColor"
+															stroke-width="2"
+															d="M21 12c0 1.2-4.03 6-9 6s-9-4.8-9-6c0-1.2 4.03-6 9-6s9 4.8 9 6Z"
+														/>
+														<path
+															stroke="currentColor"
+															stroke-width="2"
+															d="M15 12a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z"
+														/>
+													</svg>
+												</a>
+												<button
+													data-id={group.id}
+													type="button"
+													class="
+													px-1 
+													py-1
+													text-sm 
+													font-medium 
+													rounded-e-lg 
+													focus:z-10 
+													focus:ring-2 
+													text-danger-400
+													hover:bg-danger-800 
+													focus:ring-orange-600 
+													focus:text-danger-300
+													delete-btn"
+												>
+													<span class="sr-only">
+														Delete
+													</span>
+													<svg
+														class="w-6 h-6"
+														aria-hidden="true"
+														xmlns="http://www.w3.org/2000/svg"
+														fill="none"
+														viewBox="0 0 24 24"
+													>
+														<path
+															stroke="currentColor"
+															stroke-linecap="round"
+															stroke-linejoin="round"
+															stroke-width="2"
+															d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"
+														/>
+													</svg>
+												</button>
+											</div>
+										</td>
+									</tr>
+								))
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
 		</div>
 	</div>
+	<!-- Create new group -->
+	<div
+		id="drawer-create-default"
+		class="fixed
+		top-0
+		right-0
+		z-40
+		w-full
+		h-screen
+		max-w-xs
+		p-6
+		overflow-y-auto
+		transition-transform
+		translate-x-full
+		rounded-l-md
+		bg-primary-800/50
+		dark:bg-primary-700/50
+		shadow-purple-500/50"
+		tabindex="-1"
+		aria-labelledby="drawer-label"
+		aria-hidden="true"
+	>
+		<h5
+			id="drawer-label"
+			class="inline-flex items-center mb-6 text-sm font-semibold text-gray-500 uppercase dark:text-gray-400"
+		>
+			Nuevo Elemento
+		</h5>
+		<button
+			type="button"
+			data-drawer-dismiss="drawer-create-default"
+			aria-controls="drawer-create-default"
+			class="text-gray-400 bg-transparent hover:bg-danger-200 hover:text-danger-900 rounded-lg text-sm p-1.5 absolute top-2.5 right-2.5 inline-flex items-center dark:hover:bg-danger-600 dark:hover:text-white"
+		>
+			<svg
+				aria-hidden="true"
+				class="w-5 h-5 -ml-1 sm:mr-1"
+				fill="none"
+				stroke="currentColor"
+				viewBox="0 0 24 24"
+				xmlns="http://www.w3.org/2000/svg"
+				><path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					stroke-width="2"
+					d="M6 18L18 6M6 6l12 12"></path></svg
+			>
+			Cancelar
+		</button>
+		<form id="createForm" class="max-w-lg rounded-lg shadow p-6">
+			<div class="mb-4">
+				<label
+					for="name"
+					class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
+					>Name</label
+				>
+				<input
+					type="text"
+					name="name"
+					id="name"
+					value=""
+					required
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					placeholder="Enter group name"
+				/>
+			</div>
+
+			<div class="mb-4">
+				<label
+					for="possition"
+					class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
+					>Posición (Opcional)</label
+				>
+				<input
+					type="number"
+					name="possition"
+					id="possition"
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm text-center rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					step="1"
+					value="1"
+				/>
+			</div>
+
+			<div class="mb-4">
+				<label
+					for="active"
+					class="relative inline-flex items-center cursor-pointer"
+				>
+					<input
+						id="active"
+						name="active"
+						type="checkbox"
+						value=""
+						class="sr-only peer"
+						checked
+					/>
+
+					<div
+						class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-600 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-500 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-secondary-700 after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-800"
+					>
+					</div>
+					<span
+						class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+						>Active</span
+					>
+				</label>
+			</div>
+
+			<div class="mb-4">
+				<label
+					for="active_desc"
+					class="relative inline-flex items-center cursor-pointer"
+				>
+					<input
+						id="active_desc"
+						name="active_desc"
+						type="checkbox"
+						value=""
+						class="sr-only peer"
+						checked
+					/>
+
+					<div
+						class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-primary-600 dark:peer-focus:ring-primary-800 rounded-full peer dark:bg-gray-500 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-secondary-700 after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-primary-800"
+					>
+					</div>
+					<span
+						class="ms-3 text-sm font-medium text-gray-900 dark:text-gray-300"
+						>En Descripción</span
+					>
+				</label>
+			</div>
+
+			<div class="flex justify-end space-x-4">
+				<a
+					href="/groups"
+					class="px-4 py-2 text-gray-200 bg-danger-400 rounded-md hover:bg-danger-500"
+				>
+					Cancel
+				</a>
+				<button
+					type="submit"
+					class="px-4 py-2 text-white bg-primary-500 rounded-md hover:bg-primary-600"
+				>
+					Create
+				</button>
+			</div>
+		</form>
+	</div>
 </Layout>
+<script>
+	import { showSuccess, showError } from "../../lib/utils/notifications";
+	import { validateGroup } from "../../lib/utils/validation";
+	import { DataTable } from "simple-datatables";
+
+	const dataTable = new DataTable("#default-table", {
+		searchable: true,
+		sortable: true,
+		perPage: 15,
+		perPageSelect: [10, 15, 20, 50, 100],
+		scrollY: "45vh",
+	});
+
+	const form = document.getElementById("createForm");
+	form?.addEventListener("submit", async (e) => {
+		e.preventDefault();
+		const formData = new FormData(form as HTMLFormElement);
+
+		const data = {
+			name: formData.get("name") as string,
+			position: formData.get("possition") as string,
+			is_allow_desc: formData.get("active_desc") === "on",
+			active: formData.get("active") === "on",
+		};
+
+		const validation = validateGroup(data);
+		if (validation.errors) {
+			showError(Object.values(validation.errors).flat().join("\n"));
+			return;
+		}
+
+		try {
+			const response = await fetch("/api/groups", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(data),
+			});
+
+			if (response.ok) {
+				showSuccess("Group created successfully");
+				window.location.href = "/groups";
+			} else {
+				const error = await response.json();
+				showError(error.message || "Failed to create group");
+			}
+		} catch (error) {
+			console.error("Error:", error);
+			showError("An unexpected error occurred");
+		}
+	});
+</script>
