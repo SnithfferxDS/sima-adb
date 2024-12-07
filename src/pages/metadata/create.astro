@@ -4,6 +4,11 @@ import MetadataForm from "../../components/metadata/MetadataForm.astro";
 import { db, Group, Category, CommonName, ProductType, eq } from "astro:db";
 import BreadCrumbs from "../../components/BreadCrumbs.astro";
 
+/* if (Astro.request.method === "POST") {
+	const formData = await Astro.request.formData();
+	console.log(formData);
+} */
+
 const [groupLists, categories, commonNames, productTypes] = await Promise.all([
 	db.select().from(Group).orderBy(Group.name),
 	db
@@ -45,7 +50,7 @@ const breadcrumbs = [
 			<div class="overflow-x-auto">
 				<div class="p-6 mx-auto align-middle">
 					<MetadataForm
-						action="/metadata/create"
+						action="/api/metadata"
 						submitText="Create"
 						groups={groupLists}
 						categories={categories}
