@@ -1,6 +1,4 @@
 ---
-import { db, SidebarMenu } from "astro:db";
-
 interface MenuItem {
   id: number;
   name: string;
@@ -14,14 +12,7 @@ interface Props {
   items: MenuItem[];
 }
 
-const sidebarMenu = await db.select({
-	id: SidebarMenu.id,
-	name: SidebarMenu.name,
-	url: SidebarMenu.url,
-	icon: SidebarMenu.icon,
-	parent_id: SidebarMenu.parent_id,
-	position: SidebarMenu.position,
-}).from(SidebarMenu).all();
+const { items } = Astro.props;
 
 /* sidebarMenu.map((item) => {
 	if (item.submenu && typeof item.submenu === "string") {
@@ -73,7 +64,7 @@ function buildMenuHierarchy(menuItems: MenuItem[]) {
 
   return rootItems;
 }
-const menuHerarchy = buildMenuHierarchy(sidebarMenu);
+const menuHerarchy = buildMenuHierarchy(items);
 ---
 
 <aside
