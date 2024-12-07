@@ -15,12 +15,12 @@ interface Categoria {
 	id: number;
 	name: string;
 }
- interface NombreComun {
+interface NombreComun {
 	id: number;
 	name: string;
 }
 
- interface TipoProducto {
+interface TipoProducto {
 	id: number;
 	name: string;
 }
@@ -28,7 +28,7 @@ interface Categoria {
 interface Valor {
 	id: number;
 	metadata_id: number;
-	metadata_value:string;
+	metadata_value: string;
 }
 
 // Add these interfaces at the top of the file
@@ -37,7 +37,7 @@ interface Relations {
 		categories: Categoria[];
 		commonNames: NombreComun[];
 		productTypes: TipoProducto[];
-	}
+	};
 }
 
 interface Values {
@@ -77,15 +77,19 @@ const relationsByMetadata = relations.reduce<Relations>((acc, rel) => {
 			productTypes: [],
 		};
 	}
-	
+
 	const category = rel.category ? categoryMap.get(rel.category) : null;
-	const commonName = rel.common_name ? commonNameMap.get(rel.common_name) : null;
-	const productType = rel.product_type ? productTypeMap.get(rel.product_type) : null;
+	const commonName = rel.common_name
+		? commonNameMap.get(rel.common_name)
+		: null;
+	const productType = rel.product_type
+		? productTypeMap.get(rel.product_type)
+		: null;
 
 	if (category) acc[index].categories.push(category);
 	if (commonName) acc[index].commonNames.push(commonName);
 	if (productType) acc[index].productTypes.push(productType);
-	
+
 	return acc;
 }, {});
 
@@ -106,7 +110,7 @@ const valuesByMetadata = values.reduce<Values>((acc, val) => {
 		<div class="p-4 flex justify-between items-center border-b">
 			<h1 class="text-2xl font-bold text-gray-800">Metadata</h1>
 			<a
-				href="/metadata/new"
+				href="/metadata/create"
 				class="bg-primary hover:bg-primary-600 text-white px-4 py-2 rounded transition-colors"
 			>
 				Add New

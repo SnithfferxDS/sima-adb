@@ -1,0 +1,281 @@
+---
+import { Category, CommonName, ProductType } from "astro:db";
+
+interface Props {
+	metadata?: {
+		id?: number;
+		name: string;
+		allow_description?: boolean;
+		is_feature: boolean;
+		format?: string;
+		tooltip?: string;
+		id_group: number;
+	};
+	groups?: Array<{
+		id: number;
+		name: string;
+	}>;
+	categories?: Array<{
+		id: number;
+		name: string;
+	}>;
+	commonNames?: Array<{
+		id: number;
+		name: string;
+	}>;
+	productTypes?: Array<{
+		id: number;
+		name: string;
+	}>;
+	selectedRelations?: {
+		categories?: number[];
+		commonNames?: number[];
+		productTypes?: number[];
+	};
+	action: string;
+	submitText: string;
+}
+
+const {
+	metadata,
+	action,
+	submitText,
+	groups = [],
+	categories = [],
+	commonNames = [],
+	productTypes = [],
+	selectedRelations = {},
+} = Astro.props;
+---
+
+<form
+	id="createForm"
+	class="bg-gray-50/50 dark:bg-gray-700/50 rounded-lg shadow p-6"
+	method="POST"
+	action={action}
+	enctype="multipart/form-data"
+>
+	<div class="grid grid-cols-3 gap-6">
+		<div class="transition-all duration-200 ease-in-out">
+			<label
+				for="name"
+				class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
+				>Name</label
+			>
+			<input
+				type="text"
+				name="name"
+				id="name"
+				value={metadata?.name || ""}
+				required
+				class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				placeholder="Enter metadata type"
+			/>
+		</div>
+		<div class="transition-all duration-200 ease-in-out">
+			<label
+				for="format"
+				class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
+				>Format</label
+			>
+			<input
+				type="text"
+				name="format"
+				id="format"
+				value={metadata?.format || ""}
+				class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				placeholder="Enter metadata format"
+			/>
+		</div>
+		<div class="transition-all duration-200 ease-in-out">
+			<label
+				for="tooltip"
+				class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
+				>Tooltip</label
+			>
+			<input
+				type="text"
+				name="tooltip"
+				id="tooltip"
+				value={metadata?.tooltip || ""}
+				class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				placeholder="Enter metadata tooltip"
+			/>
+		</div>
+		<!-- Relations Sections -->
+		<div class="space-y-6 border-t pt-6 col-span-3">
+			<h3
+				class="text-lg font-medium text-primary-100 dark:text-primary-900"
+			>
+				Relations
+			</h3>
+			<div class="grid grid-cols-3 gap-6">
+				<!-- Categories -->
+				<div class="transition-all duration-200 ease-in-out">
+					<label
+						class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
+						>Categories</label
+					>
+					<div
+						class="max-h-40 overflow-y-auto border rounded-md p-2 space-y-2"
+					>
+						{
+							categories.map((category) => (
+								<label class="flex items-center space-x-2">
+									<input
+										type="checkbox"
+										name="categories"
+										value={category.id}
+										checked={selectedRelations.categories?.includes(
+											category.id,
+										)}
+										class="rounded border-gray-300 text-primary-600"
+									/>
+									<span class="text-sm">{category.name}</span>
+								</label>
+							))
+						}
+					</div>
+				</div>
+
+				<!-- Common Names -->
+				<div class="transition-all duration-200 ease-in-out">
+					<label
+						class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
+						>Common Names</label
+					>
+					<div
+						class="max-h-40 overflow-y-auto border rounded-md p-2 space-y-2"
+					>
+						{
+							commonNames.map((commonName) => (
+								<label class="flex items-center space-x-2">
+									<input
+										type="checkbox"
+										name="common_names"
+										value={commonName.id}
+										checked={selectedRelations.commonNames?.includes(
+											commonName.id,
+										)}
+										class="rounded border-gray-300 text-primary-600"
+									/>
+									<span class="text-sm">
+										{commonName.name}
+									</span>
+								</label>
+							))
+						}
+					</div>
+				</div>
+
+				<!-- Product Types -->
+				<div class="transition-all duration-200 ease-in-out">
+					<label
+						class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
+						>Product Types</label
+					>
+					<div
+						class="max-h-40 overflow-y-auto border rounded-md p-2 space-y-2"
+					>
+						{
+							productTypes.map((productType) => (
+								<label class="flex items-center space-x-2">
+									<input
+										type="checkbox"
+										name="product_types"
+										value={productType.id}
+										checked={selectedRelations.productTypes?.includes(
+											productType.id,
+										)}
+										class="rounded border-gray-300 text-primary-600"
+									/>
+									<span class="text-sm">
+										{productType.name}
+									</span>
+								</label>
+							))
+						}
+					</div>
+				</div>
+			</div>
+		</div>
+
+		<label class="flex items-center group p-2 rounded transition-colors">
+			<input
+				type="checkbox"
+				name="description"
+				checked={metadata?.allow_description == true}
+				class="rounded border-gray-300 text-primary-700 shadow-sm
+            focus:border-primary-700 focus:ring-primary-800 transition-shadow
+            group-hover:border-primary-600"
+			/>
+			<div class="ml-3">
+				<span
+					class="text-sm text-primary-600 dark:text-primary-900 font-medium"
+				>
+					En descripción
+				</span>
+			</div>
+		</label>
+
+		<label class="flex items-center group p-2 rounded transition-colors">
+			<input
+				type="checkbox"
+				name="is_feature"
+				checked={metadata?.is_feature == true}
+				class="rounded border-gray-300 text-primary-700 shadow-sm
+            focus:border-primary-700 focus:ring-primary-800 transition-shadow
+            group-hover:border-primary-600"
+			/>
+			<div class="ml-3">
+				<span
+					class="text-sm text-primary-600 dark:text-primary-900 font-medium"
+				>
+					Es Caracteristica
+				</span>
+			</div>
+		</label>
+
+		<div class="transition-all duration-200 ease-in-out">
+			<label
+				for="group_id"
+				class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+				>Grupo</label
+			>
+			<select
+				name="group_id"
+				id="group_id"
+				class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm text-center rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+			>
+				<option value="">None</option>
+				{
+					groups.map((group) => (
+						<option
+							value={group.id}
+							selected={metadata?.id_group === group.id}
+						>
+							{group.name}
+						</option>
+					))
+				}
+			</select>
+		</div>
+	</div>
+
+	<div class="flex justify-end space-x-3 pt-2">
+		<a
+			href="/metadata"
+			class="bg-gray-100 text-gray-700 px-4 py-2 rounded hover:bg-gray-200
+        transition-colors focus:outline-none focus:ring-2 focus:ring-gray-400"
+		>
+			Cancel
+		</a>
+		<button
+			type="submit"
+			class="bg-primary text-white px-4 py-2 rounded hover:bg-primary-600
+        transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
+		>
+			{submitText}
+		</button>
+	</div>
+</form>
