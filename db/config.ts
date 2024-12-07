@@ -355,18 +355,9 @@ const MetadataRelations = defineTable({
   columns: {
     id: column.number({ primaryKey: true }),
     metadata_id: column.number(),
-    common_name: column.number({
-      optional: true,
-      references: () => CommonName.columns.id,
-    }),
-    category: column.number({
-      optional: true,
-      references: () => Category.columns.id,
-    }),
-    product_type: column.number({
-      optional: true,
-      references: () => ProductType.columns.id,
-    }),
+    common_name: column.json({optional: true}),
+    category: column.json({optional: true}),
+    product_type: column.number({optional: true,}),
     created_at: column.date({ default: NOW }),
     updated_at: column.date({ optional: true }),
   },
