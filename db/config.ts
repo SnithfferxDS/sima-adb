@@ -152,7 +152,7 @@ const Metadata = defineTable({
     is_feature: column.boolean({ optional: true, default: false }),
     format: column.text({ optional: true }),
     tooltip: column.text({ optional: true }),
-    id_common_name: column.number({ optional:true, references: () => CommonName.columns.id }),
+    id_common_name: column.number({deprecated:true, optional:true, references: () => CommonName.columns.id }),
     id_group: column.number({ optional:true, references: () => Group.columns.id }),
     created_at: column.date({ default: NOW }),
     updated_at: column.date({ optional: true })
