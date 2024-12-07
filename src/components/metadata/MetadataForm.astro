@@ -51,8 +51,7 @@ const {
 <form
 	id="createForm"
 	class="bg-gray-50/50 dark:bg-gray-700/50 rounded-lg shadow p-6"
-	method="POST"
-	action={action}
+	data-action={action}
 	enctype="multipart/form-data"
 >
 	<div class="grid grid-cols-3 gap-6">
@@ -93,14 +92,13 @@ const {
 				class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
 				>Tooltip</label
 			>
-			<input
-				type="text"
+			<textarea
 				name="tooltip"
 				id="tooltip"
 				value={metadata?.tooltip || ""}
 				class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 				placeholder="Enter metadata tooltip"
-			/>
+				rows="3"></textarea>
 		</div>
 		<!-- Relations Sections -->
 		<div class="space-y-6 border-t pt-6 col-span-3">
@@ -279,3 +277,71 @@ const {
 		</button>
 	</div>
 </form>
+<script>
+	import { showError, showSuccess } from "../../lib/utils/notifications";
+
+	const form = document.getElementById("createForm");
+	form?.addEventListener("submit", async (e) => {
+		e.preventDefault();
+		const formData = new FormData(form as HTMLFormElement);
+		const name = formData.get("name");
+		const format = formData.get("format");
+		const groupId = formData.get("group_id");
+		const tooltip = formData.get("tooltip");
+		const categories = formData
+			.getAll("categories")
+			.map((id) => parseInt(id as string));
+		const commonNames = formData
+			.getAll("common_names")
+			.map((id) => parseInt(id as string));
+		const productTypes = formData
+			.getAll("product_types")
+			.map((id) => parseInt(id as string));
+		if (!name || typeof name !== "string" || name.trim() === "") {
+			showError("Name is required");
+			return;
+		}
+		if (!tooltip || typeof tooltip !== "string" || tooltip.trim() === "") {
+			showError("Tooltip is required");
+			return;
+		}
+		try {
+			// prepare metadata object with validated data
+			const metadataValues = {
+				name: name.trim(),
+				allow_description: formData.has("description") || false,
+				is_feature: formData.has("is_feature") || false,
+				format:
+					format && typeof format === "string" ? format.trim() : null,
+				id_group:
+					groupId && typeof groupId === "string"
+						? parseInt(groupId)
+						: null,
+				tooltip:
+					tooltip && typeof tooltip === "string"
+						? tooltip.trim()
+						: null,
+				categories: categories,
+				common_names: commonNames,
+				product_types: productTypes,
+			};
+			const response = await fetch("/api/metadata", {
+				method: "POST",
+				headers: {
+					"Content-Type": "application/json",
+				},
+				body: JSON.stringify(metadataValues),
+			});
+			if (response.ok) {
+				showSuccess("Metadata created successfully");
+				window.location.href = "/metadata";
+			} else {
+				const error = await response.json();
+				showError(error.message || "Error creating metadata");
+			}
+		} catch (error) {
+			console.error("Error creating metadata:", error);
+			showError("Error creating metadata");
+		}
+	});
+</script>
