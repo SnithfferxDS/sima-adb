@@ -1,0 +1,408 @@
+---
+import Layout from "../../../layouts/app.layout.astro";
+import BreadCrumbs from "../../../components/BreadCrumbs.astro";
+import { db, eq, inArray } from "astro:db";
+import {
+	Metadata,
+	MetadataRelations,
+	Group,
+	Category,
+	CommonName,
+	ProductType,
+	MetadataValue,
+} from "astro:db";
+
+const { id } = Astro.params;
+
+// Fetch metadata and its relations
+const metadata = await db
+	.select()
+	.from(Metadata)
+	.where(eq(Metadata.id, parseInt(id!)))
+	.get();
+
+if (!metadata) {
+	return Astro.redirect("/metadata");
+}
+
+// Fetch all related data
+const [relations, values, group] = await Promise.all([
+	db
+		.select()
+		.from(MetadataRelations)
+		.where(eq(MetadataRelations.metadata_id, parseInt(id!))),
+	db
+		.select()
+		.from(MetadataValue)
+		.where(eq(MetadataValue.metadata_id, parseInt(id!))),
+	metadata.id_group
+		? db.select().from(Group).where(eq(Group.id, metadata.id_group)).get()
+		: null,
+]);
+
+// Fetch related entities
+const categoryIds = relations.map((r) => r.category).filter(Boolean);
+const commonNameIds = relations.map((r) => r.common_name).filter(Boolean);
+const productTypeIds = relations.map((r) => r.product_type).filter(Boolean);
+
+const [categories, commonNames, productTypes] = await Promise.all([
+	categoryIds.length > 0
+		? db
+				.select()
+				.from(Category)
+				//(c) => c.id.in(categoryIds)
+				.where(inArray(Category.id, categoryIds))
+		: [],
+	commonNameIds.length > 0
+		? db
+				.select()
+				.from(CommonName)
+				//.where((cn) => cn.id.in(commonNameIds))
+				.where(inArray(CommonName.id, commonNameIds))
+		: [],
+	productTypeIds.length > 0
+		? db
+				.select()
+				.from(ProductType)
+				//.where((pt) => pt.id.in(productTypeIds))
+				.where(inArray(ProductType.id, productTypeIds))
+		: [],
+]);
+
+const breadcrumbs = [
+	{
+		lable: "Metadata",
+		path: "/metadata",
+	},
+	{
+		lable: metadata.name,
+		path: `/metadata/${id}`,
+	},
+];
+---
+
+<Layout title={`Metadata Details - ${metadata.name}`}>
+	<div
+		class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg"
+	>
+		<div
+			class="p-4 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5"
+		>
+			<div class="w-full mb-1">
+				<BreadCrumbs
+					routes={breadcrumbs}
+					currentRoute={Astro.url.pathname}
+					headerTitle="Metadata"
+				/>
+			</div>
+		</div>
+		<div class="flex flex-col">
+			<div class="overflow-x-auto">
+				<div class="inline-block min-w-full align-middle">
+					<div class="max-w-full p-4 mx-auto space-y-6">
+						<!-- Header with actions -->
+						<div class="flex justify-between items-center">
+							<h1
+								class="text-2xl font-bold text-gray-900 dark:text-gray-100"
+							>
+								{metadata.name}
+							</h1>
+							<div class="space-x-4">
+								<a
+									href={`/metadata/${id}/edit`}
+									class="inline-flex items-center px-4 py-2 bg-purple-700 text-white rounded-md hover:bg-purple-600 transition-colors"
+								>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										class="w-6 h-6 sm:mr-2 sm:-ml-1"
+										aria-hidden="true"
+										fill="currentColor"
+										viewBox="0 -960 960 960"
+									>
+										<path
+											d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h357l-80 80H200v560h560v-278l80-80v358q0 33-23.5 56.5T760-120H200Zm280-360ZM360-360v-170l367-367q12-12 27-18t30-6q16 0 30.5 6t26.5 18l56 57q11 12 17 26.5t6 29.5q0 15-5.5 29.5T897-728L530-360H360Zm481-424-56-56 56 56ZM440-440h56l232-232-28-28-29-28-231 231v57Zm260-260-29-28 29 28 28 28-28-28Z"
+										></path>
+									</svg>
+									<span class="hidden md:block">Editar</span>
+								</a>
+								<a
+									href={`/metadata/${id}/values`}
+									class="inline-flex items-center px-4 py-2 bg-yellow-600 text-white rounded-md hover:bg-yellow-500 transition-colors"
+								>
+									<span
+										class="material-symbols-outlined sm:mr-2 sm:-ml-1"
+									>
+										brand_family
+									</span>
+									<span class="hidden md:block"
+										>Administrar Valores</span
+									>
+								</a>
+							</div>
+						</div>
+
+						<!-- Basic Information -->
+						<div
+							class="bg-gray-50/25 shadow rounded-lg overflow-hidden dark:bg-gray-700/25"
+						>
+							<div class="px-4 py-5 sm:p-6">
+								<h3
+									class="text-lg font-medium text-secondary-100 dark:text-secondary-800 mb-4"
+								>
+									Basic Information
+								</h3>
+								<dl
+									class="grid grid-cols-1 gap-x-4 gap-y-6 sm:grid-cols-2"
+								>
+									<div>
+										<dt
+											class="text-sm font-medium text-gray-900 dark:text-gray-300"
+										>
+											Name
+										</dt>
+										<dd class="mt-1 text-sm text-gray-100">
+											{metadata.name}
+										</dd>
+									</div>
+									<div>
+										<dt
+											class="text-sm font-medium text-gray-300"
+										>
+											Group
+										</dt>
+										<dd class="mt-1 text-sm text-gray-100">
+											{group?.name || "None"}
+										</dd>
+									</div>
+									<div>
+										<dt
+											class="text-sm font-medium text-gray-300"
+										>
+											Format
+										</dt>
+										<dd class="mt-1 text-sm text-gray-100">
+											{metadata.format || "None"}
+										</dd>
+									</div>
+									<div>
+										<dt
+											class="text-sm font-medium text-gray-300"
+										>
+											Tooltip
+										</dt>
+										<dd class="mt-1 text-sm text-gray-100">
+											{metadata.tooltip || "None"}
+										</dd>
+									</div>
+									<div>
+										<dt
+											class="text-sm font-medium text-gray-300"
+										>
+											Description Allowed
+										</dt>
+										<dd class="mt-1">
+											<span
+												class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+													metadata.allow_description
+														? "bg-green-100 text-green-700"
+														: "bg-red-100 text-red-700"
+												}`}
+											>
+												{
+													metadata.allow_description
+														? "Yes"
+														: "No"
+												}
+											</span>
+										</dd>
+									</div>
+									<div>
+										<dt
+											class="text-sm font-medium text-gray-300"
+										>
+											Is Feature
+										</dt>
+										<dd class="mt-1">
+											<span
+												class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+													metadata.is_feature
+														? "bg-green-100 text-green-700"
+														: "bg-red-100 text-red-700"
+												}`}
+											>
+												{
+													metadata.is_feature
+														? "Yes"
+														: "No"
+												}
+											</span>
+										</dd>
+									</div>
+								</dl>
+							</div>
+						</div>
+
+						<!-- Relations -->
+						<div
+							class="bg-gray-50/50 shadow rounded-lg overflow-hidden dark:bg-gray-700/25"
+						>
+							<div class="px-4 py-5 sm:p-6">
+								<h3
+									class="text-lg font-medium text-secondary-100 dark:text-secondary-800 mb-4"
+								>
+									Relations
+								</h3>
+								<div class="space-y-4">
+									{
+										categories.length > 0 && (
+											<div>
+												<h4 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+													Categories
+												</h4>
+												<div class="flex flex-wrap gap-2">
+													{categories.map(
+														(category) => (
+															<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-100 text-blue-800">
+																{category.name}
+															</span>
+														),
+													)}
+												</div>
+											</div>
+										)
+									}
+
+									{
+										commonNames.length > 0 && (
+											<div>
+												<h4 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+													Common Names
+												</h4>
+												<div class="flex flex-wrap gap-2">
+													{commonNames.map(
+														(commonName) => (
+															<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-purple-100 text-purple-800">
+																{
+																	commonName.name
+																}
+															</span>
+														),
+													)}
+												</div>
+											</div>
+										)
+									}
+
+									{
+										productTypes.length > 0 && (
+											<div>
+												<h4 class="text-sm font-medium text-gray-600 dark:text-gray-400 mb-2">
+													Product Types
+												</h4>
+												<div class="flex flex-wrap gap-2">
+													{productTypes.map(
+														(productType) => (
+															<span class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-yellow-100 text-yellow-800">
+																{
+																	productType.name
+																}
+															</span>
+														),
+													)}
+												</div>
+											</div>
+										)
+									}
+								</div>
+							</div>
+						</div>
+
+						<!-- Values -->
+						<div
+							class="bg-gray-50/50 shadow rounded-lg overflow-hidden dark:bg-gray-700/25"
+						>
+							<div class="px-4 py-5 sm:p-6">
+								<div
+									class="flex justify-between items-center mb-4"
+								>
+									<h3
+										class="text-lg font-medium text-gray-900"
+									>
+										Values
+									</h3>
+									<span
+										class="px-2.5 py-0.5 rounded-full text-xs font-medium bg-gray-100 text-gray-800"
+									>
+										{values.length} total
+									</span>
+								</div>
+								{
+									values.length > 0 ? (
+										<div class="overflow-hidden shadow ring-1 ring-black ring-opacity-5 sm:rounded-lg">
+											<table class="min-w-full divide-y divide-gray-300">
+												<thead class="bg-gray-700">
+													<tr>
+														<th class="py-3.5 pl-4 pr-3 text-left text-sm font-semibold text-gray-100">
+															Value
+														</th>
+														<th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-100">
+															Status
+														</th>
+														<th class="px-3 py-3.5 text-left text-sm font-semibold text-gray-100">
+															Description
+														</th>
+													</tr>
+												</thead>
+												<tbody class="divide-y divide-gray-200 bg-white/50">
+													{values.map((value) => (
+														<tr>
+															<td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm text-gray-900 dark:text-gray-100">
+																{
+																	value.metadata_value
+																}
+															</td>
+															<td class="whitespace-nowrap px-3 py-4 text-sm">
+																<span
+																	class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+																		value.active
+																			? "bg-green-100 text-green-800"
+																			: "bg-red-100 text-red-800"
+																	}`}
+																>
+																	{value.active
+																		? "Active"
+																		: "Inactive"}
+																</span>
+															</td>
+															<td class="whitespace-nowrap px-3 py-4 text-sm">
+																<span
+																	class={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium ${
+																		value.allow_description
+																			? "bg-green-100 text-green-800"
+																			: "bg-red-100 text-red-800"
+																	}`}
+																>
+																	{value.allow_description
+																		? "Allowed"
+																		: "Not Allowed"}
+																</span>
+															</td>
+														</tr>
+													))}
+												</tbody>
+											</table>
+										</div>
+									) : (
+										<p class="text-sm text-gray-500">
+											No values defined yet.
+										</p>
+									)
+								}
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</Layout>
