@@ -91,74 +91,126 @@ export const POST: APIRoute = async ({ request }) => {
 }
 
 export const GET: APIRoute = async ({ request }) => {
+  console.log("Form Data", request);
   try {
     const formData = await request.json();
-    const {id, common_names, product_type} = formData;
-
-    // Validate ID
-    if (!id || typeof id !== 'string' || id.trim() === '') {
-      if (!common_names || typeof common_names !== 'string' || common_names.trim() === '') {
-        if (!product_type || typeof product_type !== 'string' || product_type.trim() === '') {
-          return new Response('A Metadata, or Common Name, or Product Type identifier is required', { status: 400 });
+    /* if (formData.action == "common") {
+      const { id, common_name, cateories } = formData;
+      if (!id || typeof id !== 'string' || id.trim() === '') {
+        if (!common_name || typeof common_name !== 'string' || common_name.trim() === '') {
+          if (!cateories || typeof cateories !== 'string' || cateories.trim() === '') {
+            return new Response('A Metadata, or Common Name, or Product Type identifier is required', { status: 400 });
+          }
+          //return new Response('A Metadata, or Common Name identifier is required', { status: 400 });
         }
-        //return new Response('A Metadata, or Common Name identifier is required', { status: 400 });
+        //return new Response('A Metadata identifier is required', { status: 400 });
       }
-      //return new Response('A Metadata identifier is required', { status: 400 });
-    }
-    const metadata = [];
-    // Get metadata by ID
-    if (id) {
-        const metadataById = await db
-        .select()
-        .from(Metadata)
-        .where(eq(Metadata.id, Number(id)))
-        .get();
-        if (metadataById) {
-            metadata.push(metadataById);
-        }
-    }
-
-    if (common_names) {
-        const commonNames = await db
+      const metadata = [];
+      // Get metadata by ID
+      if (id) {
+          const metadataById = await db
           .select()
-          .from(CommonName)
-          .where(eq(CommonName.id, Number(common_names)))
+          .from(Metadata)
+          .where(eq(Metadata.id, Number(id)))
           .get();
-        if (commonNames) {
-            const metadataByCommonName = await db.select().from(MetadataRelations).where(eq(MetadataRelations.common_name, Number(common_names))).all();
-            if (metadataByCommonName) {
-                metadata.push(...metadataByCommonName);
-            }
-            let categories = JSON.parse(commonNames.categories as string);
-            const metadataByCategories = await Promise.all(
-                    categories?.map(async (category: number) => {
-                    const metadata = await db
-                        .select()
-                        .from(MetadataRelations)
-                        .where(eq(MetadataRelations.category, category))
-                        .all();
-                    return metadata;
-                }) || [],
-            );
-            if (metadataByCategories) {
-                metadata.push(...metadataByCategories);
-            }
-        }
-        }
-      
-      if (product_type) {
-          const metadataByProductTypes = await  db
-                  .select()
-                  .from(MetadataRelations)
-                  .where(eq(MetadataRelations.product_type, Number(product_type)))
-              .all();
-          if (metadataByProductTypes) {
-              metadata.push(...metadataByProductTypes);
+          if (metadataById) {
+              metadata.push(metadataById);
           }
       }
+  
+      // Get common name by ID
+      if (common_name) {
+          const commonNameById = await db
+            .select()
+            .from(CommonName)
+            .where(eq(CommonName.id, Number(common_name)))
+            .get();
+          if (commonNameById) {
+              metadata.push(commonNameById);
+          }
+      }
+  
+      return new Response(JSON.stringify({success: true, metadata }), { status: 200 });
+    } else {
+      const { id, common_name, cateories, product_type } = formData;
+      if (!id || typeof id !== 'string' || id.trim() === '') {
+        if (!common_name || typeof common_name !== 'string' || common_name.trim() === '') {
+          if (!cateories || typeof cateories !== 'string' || cateories.trim() === '') {
+            if (!product_type || typeof product_type !== 'string' || product_type.trim() === '') {
+              return new Response('A Metadata, or Common Name, or Product Type identifier is required', { status: 400 });
+            }
+            //return new Response('A Metadata, or Common Name identifier is required', { status: 400 });
+          }
+          //return new Response('A Metadata identifier is required', { status: 400 });
+        }
+        //return new Response('A Metadata identifier is required', { status: 400 });
+      }  
+      // Validate ID
+      if (!id || typeof id !== 'string' || id.trim() === '') {
+        if (!common_names || typeof common_names !== 'string' || common_names.trim() === '') {
+          if (!product_type || typeof product_type !== 'string' || product_type.trim() === '') {
+            return new Response('A Metadata, or Common Name, or Product Type identifier is required', { status: 400 });
+          }
+          //return new Response('A Metadata, or Common Name identifier is required', { status: 400 });
+        }
+        //return new Response('A Metadata identifier is required', { status: 400 });
+      }
+      const metadata = [];
+      // Get metadata by ID
+      if (id) {
+          const metadataById = await db
+          .select()
+          .from(Metadata)
+          .where(eq(Metadata.id, Number(id)))
+          .get();
+          if (metadataById) {
+              metadata.push(metadataById);
+          }
+      }
+  
+      if (common_name) {
+          const commonNames = await db
+            .select()
+            .from(CommonName)
+            .where(eq(CommonName.id, Number(common_names)))
+            .get();
+          if (commonNames) {
+              const metadataByCommonName = await db.select().from(MetadataRelations).where(eq(MetadataRelations.common_name, Number(common_names))).all();
+              if (metadataByCommonName) {
+                  metadata.push(...metadataByCommonName);
+              }
+              let categories = JSON.parse(commonNames.categories as string);
+              const metadataByCategories = await Promise.all(
+                      categories?.map(async (category: number) => {
+                      const metadata = await db
+                          .select()
+                          .from(MetadataRelations)
+                          .where(eq(MetadataRelations.category, category))
+                          .all();
+                      return metadata;
+                  }) || [],
+              );
+              if (metadataByCategories) {
+                  metadata.push(...metadataByCategories);
+              }
+          }
+          }
+        
+        if (product_type) {
+            const metadataByProductTypes = await  db
+                    .select()
+                    .from(MetadataRelations)
+                    .where(eq(MetadataRelations.product_type, Number(product_type)))
+                .all();
+            if (metadataByProductTypes) {
+                metadata.push(...metadataByProductTypes);
+            }
+        }
+
+    }  */ 
 
 
-    return new Response(JSON.stringify({success: true, metadata }), { status: 200 });
+    return new Response(JSON.stringify({ success: true })); //Response(JSON.stringify({success: true, metadata }), { status: 200 });
   } catch (error) {
     console.error("Error:", error);
     return new Response(JSON.stringify({ error: "Error al obtener metadatos" }), {

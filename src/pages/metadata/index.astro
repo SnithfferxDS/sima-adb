@@ -223,7 +223,7 @@ const breadcrumbs = [
 									);
 
 									return (
-										<tr class="hover:bg-gray-50">
+										<tr class="hover:bg-gray-50/20">
 											<td class="px-6 py-4 whitespace-nowrap text-sm">
 												{metadata.name}
 											</td>
@@ -251,7 +251,7 @@ const breadcrumbs = [
 											<td class="px-6 py-4 whitespace-nowrap text-sm">
 												<a
 													href={`/metadata/${metadata.id}/values`}
-													class="text-primary hover:text-primary-600 transition-colors flex items-center gap-2"
+													class="text-primary hover:text-primary-600 transition-colors flex items-center gap-2 dark:text-secondary-600 dark:hover:text-secondary-500"
 												>
 													<span>Manage Values</span>
 													<span class="bg-gray-100 text-gray-600 px-2 py-0.5 rounded-full text-xs">
