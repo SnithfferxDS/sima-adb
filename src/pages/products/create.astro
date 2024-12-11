@@ -6,6 +6,7 @@ import UploadFile from "../../components/FileUpload.astro";
 import { db, Brand, Category, CommonName, ProductType } from "astro:db";
 import BreadCrumbs from "../../components/BreadCrumbs.astro";
 import type { CommonNames } from "../../types/entities";
+import MetadataDescription from "../../components/MetadataDescription.astro";
 
 const Categories = await db
 	.select({ id: Category.id, name: Category.name })
@@ -66,6 +67,12 @@ const breadcrumbs = [
 			<div class="overflow-x-auto">
 				<div class="inline-block min-w-full align-middle">
 					<form id="createForm" class="space-y-6">
+						<input
+							type="hidden"
+							name="productId"
+							id="productId"
+							value=""
+						/>
 						<section class="flex flex-col">
 							<div class="overflow-x-auto">
 								<div
@@ -730,6 +737,7 @@ const breadcrumbs = [
 													<div class="col-span-1">
 														<ProductVariantForm />
 													</div>
+
 													<div class="col-span-12">
 														{
 															/* <span
@@ -884,6 +892,9 @@ const breadcrumbs = [
 													class="text-center text-2xl"
 												>
 													Seleccione un Nombre Común
+													<MetadataDescription
+														productId=""
+													/>
 												</h1>
 											</div>
 
@@ -1031,6 +1042,7 @@ const breadcrumbs = [
 															>
 														</select>
 													</div>
+
 													<div class="mb-4">
 														<label
 															for="weight"
@@ -1077,6 +1089,7 @@ const breadcrumbs = [
 															/>
 														</div>
 													</div>
+
 													<div
 														class="mb-4 text-center my-8"
 													>
@@ -1126,6 +1139,7 @@ const breadcrumbs = [
 															</span>
 														</label>
 													</div>
+
 													<div
 														class="mb-4 text-center my-8"
 													>
@@ -1143,26 +1157,26 @@ const breadcrumbs = [
 																class="relative
 																w-11
 																h-6
-																bg-gray-100/35
 																peer
 																peer-focus:outline-none
 																peer-focus:ring-4
-																peer-focus:ring-gray-300
 																peer-checked:after:translate-x-full
-																peer-checked:after:border-white
-																peer-checked:bg-secondary-600
 																rounded-full
 																rtl:peer-checked:after:-translate-x-full
 																after:content-['']
 																after:absolute after:top-[2px]
 																after:start-[2px]
-																after:bg-white
-																after:border-gray-300
 																after:border
 																after:rounded-full
 																after:w-5
 																after:h-5
 																after:transition-all
+																bg-gray-100/35
+																peer-focus:ring-gray-300
+																peer-checked:after:border-white
+																peer-checked:bg-secondary-600
+																after:bg-white
+																after:border-gray-300
 																dark:peer-focus:ring-gray-800
 																dark:bg-gray-500/35
 																dark:border-gray-600"
@@ -1175,6 +1189,7 @@ const breadcrumbs = [
 															</span>
 														</label>
 													</div>
+
 													<div
 														class="mb-4 col-span-2 lg:col-span-3"
 													>
@@ -1285,7 +1300,6 @@ const breadcrumbs = [
 																	<input
 																		type="number"
 																		name="height"
-																		"
 																		id="height"
 																		class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 																		placeholder="0.00"
@@ -1524,6 +1538,9 @@ const breadcrumbs = [
 				const eanInput = document.getElementById(
 					"productEAN",
 				) as HTMLInputElement;
+				const productIdInput = document.getElementById(
+					"productId",
+				) as HTMLInputElement;
 
 				// Function to update product name
 				const updateProductName = () => {
@@ -1541,11 +1558,19 @@ const breadcrumbs = [
 
 				const getDescriptionByCommonName = async () => {
 					updateProductName();
-					const description = commonNameSelect.dataset.description;
+					const productId = productIdInput.value;
+					const commonNameId = commonNameSelect.value;
+					const description =
+						commonNameSelect.options[Number(commonNameId)].dataset
+							.description;
+					const categories =
+						commonNameSelect.options[Number(commonNameId)].dataset
+							.categories;
+					console.log("Categories", categories);
 					if (description) {
 						try {
 							const response = await fetch(
-								`/api/metadata/index.js?common_names=${commonNameSelect.value}`,
+								`/api/metadata?action=common&id=${productId}&common_name=${commonNameId}&categories=${categories}`,
 							);
 							if (response.ok) {
 								console.log(response);
@@ -1554,7 +1579,45 @@ const breadcrumbs = [
 							console.error("Error:", error);
 						}
 					}
+
+					if (!commonNameId) {
+						typeSelect.disabled = true;
+						//categorySelect.innerHTML ='<option value="">Select Category</option>';
+						typeSelect.innerHTML =
+							'<option value="">Select Product Type</option>';
+						return;
+					}
+
+					async function fetchData(url: string) {
+						try {
+							const response = await fetch(url);
+							if (!response.ok) {
+								throw new Error(
+									`HTTP error! status: ${response.status}`,
+								);
+							}
+							const data = await response.json();
+							return data;
+						} catch (error) {
+							console.error("Error fetching data:", error);
+							return [];
+						}
+					}
+
+					//categorySelect.innerHTML ='<option value="">Select Category</option>';
+					// categories.forEach((category: any) => {
+					// 	const option = document.createElement("option");
+					// 	option.value = category.id;
+					// 	option.textContent = category.name;
+					// 	categorySelect.appendChild(option);
+					// });
+
+					// categorySelect.disabled = false;
+					typeSelect.disabled = true;
+					typeSelect.innerHTML =
+						'<option value="">Select Product Type</option>';
 				};
+
 				const getDescriptionByType = async () => {
 					updateProductName();
 					const description = commonNameSelect.dataset.description;
@@ -1691,6 +1754,89 @@ const breadcrumbs = [
 						showError("Error al crear producto");
 					}
 				});
+			</script>
+			<script>
+				// const commonNameSelect = document.getElementById(
+				// 	"common_name_id",
+				// ) as HTMLSelectElement;
+				// const categorySelect = document.getElementById(
+				// 	"category_id",
+				// ) as HTMLSelectElement;
+				// const productTypeSelect = document.getElementById(
+				// 	"product_type_id",
+				// ) as HTMLSelectElement;
+
+				// async function fetchData(url: string) {
+				// 	try {
+				// 		const response = await fetch(url);
+				// 		if (!response.ok) {
+				// 			throw new Error(
+				// 				`HTTP error! status: ${response.status}`,
+				// 			);
+				// 		}
+				// 		const data = await response.json();
+				// 		return data;
+				// 	} catch (error) {
+				// 		console.error("Error fetching data:", error);
+				// 		return [];
+				// 	}
+				// }
+
+				// commonNameSelect?.addEventListener("change", async () => {
+				// 	const commonNameId = commonNameSelect.value;
+				// 	if (!commonNameId) {
+				// 		categorySelect.disabled = true;
+				// 		productTypeSelect.disabled = true;
+				// 		categorySelect.innerHTML =
+				// 			'<option value="">Select Category</option>';
+				// 		productTypeSelect.innerHTML =
+				// 			'<option value="">Select Product Type</option>';
+				// 		return;
+				// 	}
+
+				// 	const categories = await fetchData(
+				// 		`/api/categories?commonNameId=${commonNameId}`,
+				// 	);
+
+				// 	categorySelect.innerHTML =
+				// 		'<option value="">Select Category</option>';
+				// 	categories.forEach((category: any) => {
+				// 		const option = document.createElement("option");
+				// 		option.value = category.id;
+				// 		option.textContent = category.name;
+				// 		categorySelect.appendChild(option);
+				// 	});
+
+				// 	categorySelect.disabled = false;
+				// 	productTypeSelect.disabled = true;
+				// 	productTypeSelect.innerHTML =
+				// 		'<option value="">Select Product Type</option>';
+				// });
+
+				// categorySelect?.addEventListener("change", async () => {
+				// 	const categoryId = categorySelect.value;
+				// 	if (!categoryId) {
+				// 		productTypeSelect.disabled = true;
+				// 		productTypeSelect.innerHTML =
+				// 			'<option value="">Select Product Type</option>';
+				// 		return;
+				// 	}
+
+				// 	const productTypes = await fetchData(
+				// 		`/api/product-types?categoryId=${categoryId}`,
+				// 	);
+
+				// 	productTypeSelect.innerHTML =
+				// 		'<option value="">Select Product Type</option>';
+				// 	productTypes.forEach((productType: any) => {
+				// 		const option = document.createElement("option");
+				// 		option.value = productType.id;
+				// 		option.textContent = productType.name;
+				// 		productTypeSelect.appendChild(option);
+				// 	});
+
+				// 	productTypeSelect.disabled = false;
+				// });
 			</script>
 		</div>
 	</div>
