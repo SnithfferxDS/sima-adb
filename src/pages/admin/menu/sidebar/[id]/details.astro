@@ -1,0 +1,77 @@
+---
+import Layout from "../../../../../layouts/app.layout.astro";
+import BreadCrumbs from "../../../../../components/BreadCrumbs.astro";
+import { db, eq, SidebarMenu } from "astro:db";
+import { showError, showSuccess } from "../../../../../lib/utils/notifications";
+import { ne } from "astro:db";
+
+const { id } = Astro.params;
+const sidebarMenu = await db
+	.select()
+	.from(SidebarMenu)
+	.where(eq(SidebarMenu.id, Number(id)));
+const menuItems = await db
+	.select()
+	.from(SidebarMenu)
+	.where(ne(SidebarMenu.parent_id, Number(id)))
+	.orderBy(SidebarMenu.name);
+
+if (!sidebarMenu) {
+	showError("El elemento no existe");
+	return;
+}
+
+const breadcrumbs = [
+	{
+		lable: "Admin",
+		path: "/admin",
+	},
+	{
+		lable: "menu",
+		path: "/admin/menu",
+	},
+	{
+		lable: "Sidebar",
+		path: "/admin/menu/sidebar",
+	},
+	{
+		lable: "Edit",
+		path: "/admin/menu/sidebar/details",
+	},
+];
+---
+
+<Layout title={`Details | Sidebar | Menu ${sidebarMenu[0].name}`}>
+	<div
+		class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg"
+	>
+		<div
+			class="p-4 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5"
+		>
+			<div class="w-full mb-1">
+				<BreadCrumbs
+					routes={breadcrumbs}
+					currentRoute={Astro.url.pathname}
+					headerTitle={`Detalles del Menu ${sidebarMenu[0].name} | Sidebar`}
+				/>
+				<div class="items-center justify-between flex">
+					<div class="flex items-center mb-4 sm:mb-0"></div>
+				</div>
+			</div>
+			<div class="flex justify-end space-x-4">
+				<a
+					href="/admin/menu/sidebar"
+					class="px-4 py-2 text-gray-100 bg-danger-400 rounded-md hover:bg-danger-500"
+				>
+					Cancel
+				</a>
+				<button
+					type="submit"
+					class="px-4 py-2 text-white bg-primary-500 rounded-md hover:bg-primary-600"
+				>
+					Guardar
+				</button>
+			</div>
+		</div>
+	</div>
+</Layout>

@@ -9,11 +9,11 @@ const { id } = Astro.params;
 const sidebarMenu = await db
 	.select()
 	.from(SidebarMenu)
-	.where(eq(SidebarMenu.id, id));
+	.where(eq(SidebarMenu.id, Number(id)));
 const menuItems = await db
 	.select()
 	.from(SidebarMenu)
-	.where(ne(SidebarMenu.parent_id, id))
+	.where(ne(SidebarMenu.parent_id, Number(id)))
 	.orderBy(SidebarMenu.name);
 
 if (!sidebarMenu) {
@@ -63,7 +63,7 @@ const breadcrumbs = [
 	<div class="flex flex-col">
 		<div class="overflow-x-auto">
 			<div class="inline-block min-w-full align-middle">
-				<form action="POST" id="createForm">
+				<form action="POST" id="createForm" class="max-w-lg bg-gray-50/50 dark:bg-gray-700/50 rounded-lg shadow p-6">
 					<input type="hidden" name="sidebar_menu_id" value={id} />
 					<div class="space-y-4">
 						<div>
@@ -77,20 +77,21 @@ const breadcrumbs = [
 								name="sidebar_item_name"
 								id="sidebar_item_name"
 								class="border
-                            text-sm
-                            rounded-lg
-                            block
-                            w-full p-2.5
-                            bg-gray-50
-                            border-gray-300
-                            text-gray-900
-                            focus:ring-primary-600
-                            focus:border-primary-600
-                            dark:bg-gray-700
-                            dark:border-gray-600
-                            dark:placeholder-gray-400
-                            dark:text-white"
+								text-sm
+								rounded-lg
+								block
+								w-full p-2.5
+								bg-gray-50
+								border-gray-300
+								text-gray-900
+								focus:ring-primary-600
+								focus:border-primary-600
+								dark:bg-gray-700
+								dark:border-gray-600
+								dark:placeholder-gray-400
+								dark:text-white"
 								placeholder="Digite el nombre del elemento"
+								value={sidebarMenu[0].name}
 								required=""
 							/>
 						</div>
@@ -106,19 +107,20 @@ const breadcrumbs = [
 								name="sidebar_item_url"
 								id="sidebar_item_url"
 								class="border
-                            text-sm
-                            rounded-lg
-                            block
-                            w-full p-2.5
-                            bg-gray-50
-                            border-gray-300
-                            text-gray-900
-                            focus:ring-primary-600
-                            focus:border-primary-600
-                            dark:bg-gray-700
-                            dark:border-gray-600
-                            dark:placeholder-gray-400
-                            dark:text-white"
+								text-sm
+								rounded-lg
+								block
+								w-full p-2.5
+								bg-gray-50
+								border-gray-300
+								text-gray-900
+								focus:ring-primary-600
+								focus:border-primary-600
+								dark:bg-gray-700
+								dark:border-gray-600
+								dark:placeholder-gray-400
+								dark:text-white"
+								value={sidebarMenu[0].url}
 								placeholder="Digite el nombre del elemento"
 							/>
 						</div>
@@ -134,19 +136,20 @@ const breadcrumbs = [
 								name="sidebar_item_icon"
 								id="sidebar_item_icon"
 								class="border
-                            text-sm
-                            rounded-lg
-                            block
-                            w-full p-2.5
-                            bg-gray-50
-                            border-gray-300
-                            text-gray-900
-                            focus:ring-primary-600
-                            focus:border-primary-600
-                            dark:bg-gray-700
-                            dark:border-gray-600
-                            dark:placeholder-gray-400
-                            dark:text-white"
+								text-sm
+								rounded-lg
+								block
+								w-full p-2.5
+								bg-gray-50
+								border-gray-300
+								text-gray-900
+								focus:ring-primary-600
+								focus:border-primary-600
+								dark:bg-gray-700
+								dark:border-gray-600
+								dark:placeholder-gray-400
+								dark:text-white"
+								value={sidebarMenu[0].icon}
 								placeholder="Digite el nombre del elemento"
 							/>
 						</div>
@@ -161,24 +164,24 @@ const breadcrumbs = [
 								id="sidebar_item_parent_id"
 								name="sidebar_item_parent_id"
 								class="border
-                            text-sm
-                            rounded-lg
-                            block
-                            w-full p-2.5
-                            bg-gray-50
-                            border-gray-300
-                            text-gray-900
-                            focus:ring-primary-600
-                            focus:border-primary-600
-                            dark:bg-gray-700
-                            dark:border-gray-600
-                            dark:placeholder-gray-400
-                            dark:text-white"
+								text-sm
+								rounded-lg
+								block
+								w-full p-2.5
+								bg-gray-50
+								border-gray-300
+								text-gray-900
+								focus:ring-primary-600
+								focus:border-primary-600
+								dark:bg-gray-700
+								dark:border-gray-600
+								dark:placeholder-gray-400
+								dark:text-white"
 							>
 								<option value="">None (Top Level)</option>
 								{
 									menuItems.map((item) => (
-										<option value={item.id}>
+										<option value={item.id} selected={item.id === sidebarMenu[0].parent_id}>
 											{item.name}
 										</option>
 									))
@@ -196,51 +199,37 @@ const breadcrumbs = [
 								type="number"
 								id="sidebar_item_position"
 								name="sidebar_item_position"
-								value="0"
 								class="border
-                            text-sm
-                            rounded-lg
-                            block
-                            w-full p-2.5
-                            bg-gray-50
-                            border-gray-300
-                            text-gray-900
-                            focus:ring-primary-600
-                            focus:border-primary-600
-                            dark:bg-gray-700
-                            dark:border-gray-600
-                            dark:placeholder-gray-400
-                            dark:text-white"
+								text-sm
+								rounded-lg
+								block
+								w-full p-2.5
+								bg-gray-50
+								border-gray-300
+								text-gray-900
+								focus:ring-primary-600
+								focus:border-primary-600
+								dark:bg-gray-700
+								dark:border-gray-600
+								dark:placeholder-gray-400
+								dark:text-white"
+								value={sidebarMenu[0].position}
 							/>
 						</div>
-
-						<div
-							class="bottom-0 left-0 flex justify-center w-full pb-4 space-x-4 md:px-4 md:absolute"
-						>
+						<div class="flex justify-end space-x-4">
+							<a
+								href="/categories"
+								class="px-4 py-2 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm text-center
+								text-gray-100 bg-danger-400 hover:bg-danger-500"
+							>
+								Cancel
+							</a>
 							<button
 								type="submit"
-								class="text-white w-full justify-center bg-primary-700 hover:bg-primary-800 focus:ring-4 focus:outline-none focus:ring-primary-300 font-medium rounded-lg text-sm px-5 py-2.5 text-center dark:bg-primary-600 dark:hover:bg-primary-700 dark:focus:ring-primary-800"
+								class="px-4 py-2 focus:ring-4 focus:outline-none font-medium rounded-lg text-sm text-center
+								text-gray-100 bg-primary-600 hover:bg-primary-700 focus:ring-primary-700"
 							>
-								Agregar
-							</button>
-							<button
-								type="button"
-								class="text-gray-900 bg-white hover:bg-gray-100 focus:ring-4 focus:outline-none focus:ring-primary-300 border border-gray-200 font-medium inline-flex items-center rounded-lg text-sm px-5 py-2.5 text-center dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700 dark:focus:ring-gray-700"
-								data-modal-target="delete-product-modal"
-								data-modal-toggle="delete-product-modal"
-							>
-								<svg
-									class="w-4 h-4 mr-2"
-									fill="currentColor"
-									viewBox="0 0 20 20"
-									xmlns="http://www.w3.org/2000/svg"
-								>
-									<path
-										fill-rule="evenodd"
-										d="M9 2a1 1 0 00-.894.553L7.382 4H4a1 1 0 000 2v10a2 2 0 002 2h8a2 2 0 002-2V6a1 1 0 100-2h-3.382l-.724-1.447A1 1 0 0011 2H9zM7 8a1 1 0 012 0v6a1 1 0 11-2 0V8zm5-1a1 1 0 00-1 1v6a1 1 0 102 0V8a1 1 0 00-1-1z"
-										clip-rule="evenodd"></path>
-								</svg>
-								Delete
+								Guardar
 							</button>
 						</div>
 					</div>
@@ -261,11 +250,12 @@ const breadcrumbs = [
 		e.preventDefault();
 		const formData = new FormData(form as HTMLFormElement);
 		const data = {
+			id: Number(formData.get("sidebar_menu_id") as string),
 			name: formData.get("sidebar_item_name") as string,
 			url: formData.get("sidebar_item_url") as string,
 			icon: formData.get("sidebar_item_icon") as string,
-			parent_id: formData.get("sidebar_item_parent_id") as string,
-			position: formData.get("sidebar_item_position") as string,
+			parent_id: Number(formData.get("sidebar_item_parent_id") as string),
+			position: Number(formData.get("sidebar_item_position") as string),
 		};
 		const validation = validateSidebarMenu(data);
 		if (validation.errors) {
@@ -275,7 +265,7 @@ const breadcrumbs = [
 
 		try {
 			const response = await fetch("/api/admin/sidebar", {
-				method: "POST",
+				method: "PUT",
 				headers: {
 					"Content-Type": "application/json",
 				},

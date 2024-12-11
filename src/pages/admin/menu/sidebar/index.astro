@@ -316,18 +316,18 @@ const menuMap = new Map(menuItems.map((item) => [item.id, item]));
 												<a
 													href={`/admin/menu/sidebar/${menu.id}/edit`}
 													class="
-														px-1 
+														px-1
 														py-1
 														mr-1
-														text-sm 
-														font-medium 
-														rounded-s-lg 
-														focus:z-10 
-														focus:ring-2 
-														text-warning-400 
-														hover:bg-warning-800 
+														text-sm
+														font-medium
+														rounded-s-lg
+														focus:z-10
+														focus:ring-2
+														text-warning-400
+														hover:bg-warning-800
 														hover:text-warning-400
-														focus:ring-orange-600 
+														focus:ring-orange-600
 														focus:text-warning-300"
 												>
 													<span class="sr-only">
@@ -346,18 +346,18 @@ const menuMap = new Map(menuItems.map((item) => [item.id, item]));
 												<a
 													href={`/admin/menu/sidebar/${menu.id}/details`}
 													class="
-													px-1 
-													py-1 
-													mr-1 
-													text-sm 
-													font-medium 
-													rounded-e-lg 
-													focus:z-10 
-													focus:ring-2 
-													text-success-200 
-													hover:bg-success-800 
-													hover:text-success-400 
-													focus:ring-success-700 
+													px-1
+													py-1
+													mr-1
+													text-sm
+													font-medium
+													rounded-e-lg
+													focus:z-10
+													focus:ring-2
+													text-success-200
+													hover:bg-success-800
+													hover:text-success-400
+													focus:ring-success-700
 													focus:text-success-300"
 												>
 													<span class="sr-only">
@@ -388,16 +388,16 @@ const menuMap = new Map(menuItems.map((item) => [item.id, item]));
 													data-id={menu.id}
 													type="button"
 													class="
-														px-1 
+														px-1
 														py-1
-														text-sm 
-														font-medium 
-														rounded-e-lg 
-														focus:z-10 
-														focus:ring-2 
+														text-sm
+														font-medium
+														rounded-e-lg
+														focus:z-10
+														focus:ring-2
 														text-danger-400
-														hover:bg-danger-800 
-														focus:ring-orange-600 
+														hover:bg-danger-800
+														focus:ring-orange-600
 														focus:text-danger-300
 														delete-btn"
 												>
@@ -662,7 +662,8 @@ const menuMap = new Map(menuItems.map((item) => [item.id, item]));
 	</div>
 </Layout>
 <script>
-	import {
+	import Swal from "sweetalert2";
+import {
 		showSuccess,
 		showError,
 	} from "../../../../lib/utils/notifications";
@@ -706,5 +707,40 @@ const menuMap = new Map(menuItems.map((item) => [item.id, item]));
 			console.error("Error:", error);
 			showError("An unexpected error occurred");
 		}
+	});
+
+	const deleteButtons = document.querySelectorAll(".delete-btn");
+	deleteButtons.forEach((button) => {
+		button.addEventListener("click", () => {
+			Swal.fire({
+				title: "¿Estás seguro?",
+				text: "¡Esto no se puede deshacer!",
+				icon: "warning",
+				showCancelButton: true,
+				confirmButtonColor: "#3085d6",
+				cancelButtonColor: "#d33",
+				confirmButtonText: "Se, ¡quémelo!",
+			}).then(async (result) => {
+				if (result.isConfirmed) {
+					const id = button.getAttribute("data-id");
+					try {
+						const response = await fetch(`/api/admin/sidebar/`, {
+							method: "DELETE",
+							headers: {
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify({
+								id: id,
+							}),
+						});
+						if (response.ok) {
+							window.location.reload();
+						}
+					} catch (error) {
+						console.error("Error:", error);
+					}
+				}
+			});
+		});
 	});
 </script>
