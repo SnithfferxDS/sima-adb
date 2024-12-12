@@ -50,3 +50,38 @@ export const POST: APIRoute = async ({ request }) => {
     );
   }
 };
+
+// export const GET: APIRoute = async ({ url }) => {
+//   try {
+//     const commonNameId = url.searchParams.get('commonNameId');
+    
+//     if (!commonNameId) {
+//       return new Response(JSON.stringify({ error: 'Common Name ID is required' }), {
+//         status: 400,
+//         headers: {
+//           'Content-Type': 'application/json'
+//         }
+//       });
+//     }
+
+//     const categories = await db.select()
+//       .from(Category)
+//       .where(eq(Category.active, true))
+//       .orderBy(Category.name);
+
+//     return new Response(JSON.stringify(categories), {
+//       status: 200,
+//       headers: {
+//         'Content-Type': 'application/json'
+//       }
+//     });
+//   } catch (error) {
+//     console.error('Error fetching categories:', error);
+//     return new Response(JSON.stringify({ error: 'Internal server error' }), {
+//       status: 500,
+//       headers: {
+//         'Content-Type': 'application/json'
+//       }
+//     });
+//   }
+// };
