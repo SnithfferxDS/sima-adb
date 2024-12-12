@@ -139,8 +139,11 @@ const menuMap = new Map(menuItems.map((item) => [item.id, item]));
 		<div class="flex flex-col">
 			<div class="overflow-x-auto">
 				<div class="inline-block min-w-full align-middle">
-					<table class="min-w-full">
-						<thead>
+					<table
+						class="min-w-full divide-y table-fixed rounded-md divide-gray-300 text-primary-300 dark:text-white"
+						id="default-table"
+					>
+						<thead class="bg-gray-800/75 text-white">
 							<tr>
 								<th scope="col">
 									<span
@@ -258,7 +261,7 @@ const menuMap = new Map(menuItems.map((item) => [item.id, item]));
 										<td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
 											<div class="flex items-center">
 												<div class="ml-4">
-													<div class="text-sm leading-5 font-medium text-gray-900">
+													<div class="text-sm leading-5 font-medium text-gray-900 dark:text-gray-100">
 														{menu.name}
 													</div>
 												</div>
@@ -267,7 +270,7 @@ const menuMap = new Map(menuItems.map((item) => [item.id, item]));
 										<td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
 											<div class="flex items-center">
 												<div class="ml-4">
-													<div class="text-sm leading-5 font-medium text-gray-900">
+													<div class="text-sm leading-5 font-medium text-gray-900 dark:text-gray-100">
 														{menu.url || ""}
 													</div>
 												</div>
@@ -276,7 +279,7 @@ const menuMap = new Map(menuItems.map((item) => [item.id, item]));
 										<td class="px-6 py-4 whitespace-nowrap text-center text-sm font-medium">
 											<div class="flex items-center">
 												<div class="ml-4">
-													<div class="text-sm leading-5 font-medium text-gray-900">
+													<div class="text-sm leading-5 font-medium text-gray-900 dark:text-gray-100">
 														{menu.icon && (
 															<span class="material-symbols-outlined">
 																{menu.icon}
@@ -289,7 +292,7 @@ const menuMap = new Map(menuItems.map((item) => [item.id, item]));
 										<td class="px-6 py-4">
 											<div class="flex items-center">
 												<div class="ml-4">
-													<div class="text-sm leading-5 font-medium text-gray-900">
+													<div class="text-sm leading-5 font-medium text-gray-900 dark:text-gray-100">
 														{menu.parent_id
 															? menuMap.get(
 																	menu.parent_id,
@@ -302,7 +305,7 @@ const menuMap = new Map(menuItems.map((item) => [item.id, item]));
 										<td class="px-6 py-4">
 											<div class="flex items-center">
 												<div class="ml-4">
-													<div class="text-sm leading-5 font-medium text-gray-900">
+													<div class="text-sm leading-5 font-medium text-gray-900 dark:text-gray-100">
 														{menu.position}
 													</div>
 												</div>
@@ -324,11 +327,12 @@ const menuMap = new Map(menuItems.map((item) => [item.id, item]));
 														rounded-s-lg
 														focus:z-10
 														focus:ring-2
-														text-warning-400
-														hover:bg-warning-800
+														text-warning-500 
+														dark:text-warning-600 
+														hover:bg-warning-800 
 														hover:text-warning-400
-														focus:ring-orange-600
-														focus:text-warning-300"
+														focus:ring-warning-600 
+														focus:text-warning-600"
 												>
 													<span class="sr-only">
 														Edit
@@ -351,14 +355,15 @@ const menuMap = new Map(menuItems.map((item) => [item.id, item]));
 													mr-1
 													text-sm
 													font-medium
-													rounded-e-lg
-													focus:z-10
-													focus:ring-2
-													text-success-200
-													hover:bg-success-800
-													hover:text-success-400
-													focus:ring-success-700
-													focus:text-success-300"
+													rounded-lg 
+													focus:z-10 
+													focus:ring-2 
+													text-green-500 
+													dark:text-green-600
+													hover:bg-success-800 
+													hover:text-green-400 
+													focus:ring-green-600
+													focus:text-green-600"
 												>
 													<span class="sr-only">
 														Details
@@ -663,11 +668,20 @@ const menuMap = new Map(menuItems.map((item) => [item.id, item]));
 </Layout>
 <script>
 	import Swal from "sweetalert2";
-import {
+	import {
 		showSuccess,
 		showError,
 	} from "../../../../lib/utils/notifications";
 	import { validateSidebarMenu } from "../../../../lib/utils/validation";
+	import { DataTable } from "simple-datatables";
+
+	const dataTable = new DataTable("#default-table", {
+		searchable: true,
+		sortable: true,
+		perPage: 15,
+		perPageSelect: [10, 15, 20, 50, 100],
+		scrollY: "45vh",
+	});
 
 	const form = document.getElementById("createForm");
 	form?.addEventListener("submit", async (e) => {
