@@ -375,7 +375,7 @@ const breadcrumbs = [
 																		selected=""
 																		>--
 																		Seleccionar
-																		Maca --</option
+																		Marca --</option
 																	>
 																	{
 																		Brands.map(
@@ -1566,11 +1566,22 @@ const breadcrumbs = [
 					const categories =
 						commonNameSelect.options[Number(commonNameId)].dataset
 							.categories;
-					console.log("Categories", categories);
 					if (description) {
 						try {
 							const response = await fetch(
-								`/api/metadata?action=common&id=${productId}&common_name=${commonNameId}&categories=${categories}`,
+								"/api/metadata/description",
+								{
+									method: "POST",
+									headers: {
+										"Content-Type": "application/json",
+									},
+									body: JSON.stringify({
+										action: "common",
+										id: productId,
+										common_name: commonNameId,
+										categories: categories,
+									}),
+								},
 							);
 							if (response.ok) {
 								console.log(response);
