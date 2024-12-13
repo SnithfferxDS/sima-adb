@@ -52,35 +52,12 @@ export const POST: APIRoute = async ({ request }) => {
 
     // Create relations
     if (metadata) {
-      const relations = [];
-
-      // Add category relations
-      for (const categoryId of categories) {
-        relations.push({
-          metadata_id: metadata.id,
-          category: categoryId
-        });
-      }
-
-      // Add common name relations
-      for (const commonNameId of commonNames) {
-        relations.push({
-          metadata_id: metadata.id,
-          comun_name: commonNameId
-        });
-      }
-
-      // Add product type relations
-      for (const productTypeId of productTypes) {
-        relations.push({
-          metadata_id: metadata.id,
-          product_type: productTypeId
-        });
-      }
-
-      if (relations.length > 0) {
-        await db.insert(MetadataRelations).values(relations);
-      }
+      const relations = await db.insert(MetadataRelations).values({
+        metadata_id: metadata.id,
+        common_names: JSON.stringify(commonNames),
+        categories: JSON.stringify(categories),
+        product_types: JSON.stringify(productTypes)
+      });
     }
 
     return new Response(JSON.stringify({ message: 'Metadata created successfully' }), { status: 200 });

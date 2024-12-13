@@ -16,14 +16,25 @@ interface MetadataItem {
     id_group: number,
 }
 
-const metadata: MetadataItem[] = [];
+interface MetaRelationItem {
+    id: number;
+    metadata_id: number;
+    common_names: string|unknown;
+    categories: string|unknown;
+    product_types: string|unknown;
+}
 
 export const POST:APIRoute = async ({ request }) => {
     try {
         const formData = await request.json();
-        console.log(formData);
+        /* {"action":"common","id":"","common_name":"2","categories":"[\"1\",\"3\"]"} */
+        // Ids of the metadata
+        const metadata:MetadataItem[] = [];
+        const relations = await db.select()
+            .from(MetadataRelations)
+            .all();
         if (formData.action == "common") {
-            const { id, common_name, categories } = formData;
+            const {id, common_name, categories } = formData;
             if (!id || typeof id !== 'string' || id.trim() === '') {
                 if (!common_name || typeof common_name !== 'string' || common_name.trim() === '') {
                     if (!categories || typeof categories !== 'string' || categories.trim() === '') {
@@ -33,50 +44,29 @@ export const POST:APIRoute = async ({ request }) => {
                 }
                 //return new Response('A Metadata identifier is required', { status: 400 });
             }
-            
-            // Get metadata by ID
-            if (id) {
-                const metadataById = await db
-                .select()
-                .from(MetadataRelations)
-                .where(eq(Metadata.metadata_id, Number(id)))
-                .get();
-                if (metadataById) {
-                    metadata.push(metadataById as MetadataItem);
+                     
+            relations.forEach(relation => {
+                const commonNames = JSON.parse(relation.common_names as string);
+                const categoriesR = JSON.parse(relation.categories as string);
+                if (commonNames) {
+                    if (commonNames.includes(common_name)) {
+                        metadata.push(...relation);
+                    }
                 }
-            }
-            
-            // Get common name by ID
-            if (common_name) {
-                const commonNameById = await db
-                .select()
-                .from(MetadataRelations)
-                .where(inArray(Number(common_name), MetadataRelations.common_name))
-                .get();
-                if (commonNameById) {
-                    metadata.push(commonNameById as MetadataItem);
+                if (categoriesR) {
+                    for (let x = 0; x < categoriesR.lenght; x++) {
+                        let category = Number(categoriesR[x]);
+                        for (let i = 0; i < categories.length; i++) {
+                            let categoryId = Number(categories[i]);
+                            if (categoryId === category) {
+                                metadata.push(...relation);
+                            }
+                        }
+                    };
                 }
-            }
+            });
+            console.log(metadata);
             
-            // Get metadata by category
-            if (categories) {
-                let categoriesArray = JSON.parse(categories as string);
-                const metadataByCategory = await Promise.all(
-                    categoriesArray?.map(async (category: number) => {
-                        const metadata = await db
-                            .select()
-                            .from(MetadataRelations)
-                            .where(eq(MetadataRelations.category, category))
-                            .all();
-                        return metadata;
-                    }) || [],
-                );
-                if (metadataByCategory) {
-                    metadata.push(metadataByCategory as MetadataItem[]);
-                }
-            }
-            
-            return new Response(JSON.stringify({success: true, metadata }), { status: 200 });
         } else {
             const { id, common_name, categories, product_type } = formData;
             if (!id || typeof id !== 'string' || id.trim() === '') {
@@ -90,116 +80,89 @@ export const POST:APIRoute = async ({ request }) => {
                     //return new Response('A Metadata identifier is required', { status: 400 });
                 }
                 //return new Response('A Metadata identifier is required', { status: 400 });
-            }  
-            // Validate ID
-            if (!id || typeof id !== 'string' || id.trim() === '') {
-                if (!common_names || typeof common_names !== 'string' || common_names.trim() === '') {
-                    if (!product_type || typeof product_type !== 'string' || product_type.trim() === '') {
-                        return new Response('A Metadata, or Common Name, or Product Type identifier is required', { status: 400 });
-                    }
-                    //return new Response('A Metadata, or Common Name identifier is required', { status: 400 });
-                }
-                //return new Response('A Metadata identifier is required', { status: 400 });
             }
-            // const metadata = [];
-            // Get metadata by ID
-            if (id) {
-                const metadataById = await db
-                    .select()
-                    .from(Metadata)
-                    .where(eq(Metadata.id, Number(id)))
-                    .get();
-                if (metadataById) {
-                    metadata.push(metadataById as MetadataItem);
-                }
-            }
-                    
+             // Get metadata by common name
             if (common_name) {
-                const commonNames = await db
-                    .select()
-                    .from(CommonName)
-                    .where(eq(CommonName.id, Number(common_name)))
-                    .get();
-                if (commonNames) {
-                    const metadataByCommonName = await db
-                        .select()
+                const metadataByCommonName = await db
+                    .select({metadata_id: MetadataRelations.metadata_id})
+                    .from(MetadataRelations)
+                    .where(eq(MetadataRelations.common_name, Number(common_name)))
+                    .all();
+                if (metadataByCommonName) {
+                    metadata.push(...metadataByCommonName);
+                }
+                console.log(metadata);
+                
+                // Get metadata by category
+                if (categories) {
+                    let categoriesArray = JSON.parse(categories as string);
+                    const metadataByCategory = await db
+                        .select({metadata_id: MetadataRelations.metadata_id})
                         .from(MetadataRelations)
-                        .where(eq(MetadataRelations.common_name, Number(common_name)))
+                        .where(inArray(MetadataRelations.category, categoriesArray))
                         .all();
-                    if (metadataByCommonName) {
-                        metadata.push(...metadataByCommonName as MetadataItem[]);
-                    }
-                    let categories = JSON.parse(commonNames.categories as string);
-                    const metadataByCategories = await Promise.all(
-                        categories?.map(async (category: number) => {
-                            const metadata = await db
-                                .select()
-                                .from(MetadataRelations)
-                                .where(eq(MetadataRelations.category, category))
-                                .all();
-                                return metadata;
-                        }) || [],
-                    );
-                    if (metadataByCategories) {
-                        metadata.push(...metadataByCategories as MetadataItem[]);
+                    if (metadataByCategory) {
+                        metadata.push(...metadataByCategory);
                     }
                 }
+                console.log(metadata);
             }
 
             if (product_type) {
                 const metadataByProductTypes = await  db
-                    .select()
+                    .select({metadata_id: MetadataRelations.metadata_id})
                     .from(MetadataRelations)
                     .where(eq(MetadataRelations.product_type, Number(product_type)))
                     .all();
                 if (metadataByProductTypes) {
-                    metadata.push(...metadataByProductTypes as MetadataItem[]);
+                    metadata.push(...metadataByProductTypes);
                 }
+                console.log(metadata);
             }
 
         }
 
-        if (metadataIds.length === 0) {
-      return new Response(JSON.stringify([]), {
+        if (metadata.length === 0) {
+            return new Response(JSON.stringify([]), {
+                status: 200,
+                headers: { 'Content-Type': 'application/json' }
+            });
+        }
+
+        // Get metadata with their groups
+        const metadatas = await db.select()
+            .from(Metadata)
+            .where(inArray(Metadata.id,metadata))
+            .orderBy(Metadata.name);
+
+        // Get groups for the metadata
+        const groupIds = [...new Set(metadatas.map(m => m.id_group).filter(Boolean))];
+        const groups = groupIds.length > 0 
+        ? await db.select()
+            .from(Group)
+            .where(inArray(Group.id,groupIds))
+        : [];
+
+        // Organize metadata by group
+        const groupedMetadata = groups.map(group => ({
+            ...group,
+            metadata: metadatas.filter(m => m.id_group === group.id)
+        }));
+
+        // Add ungrouped metadata
+        const ungroupedMetadata = metadatas.filter(m => !m.id_group);
+        if (ungroupedMetadata.length > 0) {
+            groupedMetadata.push({
+                id: 0,
+                name: 'Other',
+                metadata: ungroupedMetadata
+            });
+        }
+
+        return new Response(JSON.stringify(groupedMetadata), {
         status: 200,
         headers: { 'Content-Type': 'application/json' }
-      });
-    }
-
-    // Get metadata with their groups
-    const metadata = await db.select()
-      .from(Metadata)
-      .where(inArray(Metadata.id,metadataIds))
-      .orderBy(Metadata.name);
-
-    // Get groups for the metadata
-    const groupIds = [...new Set(metadata.map(m => m.id_group).filter(Boolean))];
-    const groups = groupIds.length > 0 
-      ? await db.select()
-          .from(Group)
-          .where(inArray(Group.id,groupIds))
-      : [];
-
-    // Organize metadata by group
-    const groupedMetadata = groups.map(group => ({
-      ...group,
-      metadata: metadata.filter(m => m.id_group === group.id)
-    }));
-
-    // Add ungrouped metadata
-    const ungroupedMetadata = metadata.filter(m => !m.id_group);
-    if (ungroupedMetadata.length > 0) {
-      groupedMetadata.push({
-        id: 0,
-        name: 'Other',
-        metadata: ungroupedMetadata
-      });
-    }
-
-    return new Response(JSON.stringify(groupedMetadata), {
-      status: 200,
-      headers: { 'Content-Type': 'application/json' }
-    });
+        });
     } catch (error) {
         console.error("Error:", error);
         return new Response(JSON.stringify({ error: "Error al obtener metadatos" }), {

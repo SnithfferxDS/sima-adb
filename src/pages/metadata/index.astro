@@ -79,12 +79,12 @@ const relationsByMetadata = relations.reduce<Relations>((acc, rel) => {
 		};
 	}
 
-	const category = rel.category ? categoryMap.get(rel.category) : null;
-	const commonName = rel.common_name
-		? commonNameMap.get(rel.common_name)
+	const category = rel.categories ? categoryMap.get(rel.categories) : null;
+	const commonName = rel.common_names
+		? commonNameMap.get(rel.common_names)
 		: null;
-	const productType = rel.product_type
-		? productTypeMap.get(rel.product_type)
+	const productType = rel.product_types
+		? productTypeMap.get(rel.product_types)
 		: null;
 
 	if (category) acc[index].categories.push(category);
