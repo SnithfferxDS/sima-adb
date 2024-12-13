@@ -1,0 +1,25 @@
+{
+    "sqltools.connections": [
+        {
+            "mysqlOptions": {
+                "authProtocol": "default"
+            },
+            "previewLimit": 50,
+            "server": "localhost",
+            "port": 3306,
+            "driver": "MySQL",
+            "name": "Localds",
+            "database": "inventario",
+            "username": "root",
+            "password": "kuko"
+        },
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "turso sima",
+            "group": "turso",
+            "database": "${workspaceFolder:sima-adb}/.astro/content.db"
+        }
+    ],
+    "sqltools.useNodeRuntime": true
+}

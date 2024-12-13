@@ -12,7 +12,7 @@ export const GET: APIRoute = async ({ url }) => {
     // Get metadata IDs related to this product type
     const relations = await db.select()
       .from(MetadataRelations)
-      .where(eq(MetadataRelations.product_type, parseInt(productTypeId)));
+      .where(eq(MetadataRelations.product_types, parseInt(productTypeId)));
 
     const metadataIds = relations.map(rel => rel.metadata_id);
 

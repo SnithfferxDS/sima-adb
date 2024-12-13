@@ -78,13 +78,11 @@ const Person = defineTable({
 });
 
 const SidebarMenu = defineTable({
-  deprecated: true,
   columns: {
     id: column.number({ primaryKey: true }),
     name: column.text(),
     url: column.text({ optional: true }),
     icon: column.text({ optional: true }),
-    submenu: column.json({ optional: true, deprecated:true }),
     parent_id: column.number({ 
       optional: true,
       references: () => SidebarMenu.columns.id 
@@ -152,7 +150,6 @@ const Metadata = defineTable({
     is_feature: column.boolean({ optional: true, default: false }),
     format: column.text({ optional: true }),
     tooltip: column.text({ optional: true }),
-    id_common_name: column.number({deprecated:true, optional:true, references: () => CommonName.columns.id }),
     id_group: column.number({ optional:true, references: () => Group.columns.id }),
     created_at: column.date({ default: NOW }),
     updated_at: column.date({ optional: true })
@@ -355,9 +352,12 @@ const MetadataRelations = defineTable({
   columns: {
     id: column.number({ primaryKey: true }),
     metadata_id: column.number(),
-    common_name: column.json({optional: true}),
-    category: column.json({optional: true}),
-    product_type: column.number({optional: true,}),
+    common_name: column.json({ deprecated:true, optional: true}),
+    common_names: column.json({optional: true}),
+    category: column.json({ deprecated:true, optional: true}),
+    categories: column.json({ deprecated:true, optional: true }),
+    product_type: column.number({ deprecated:true, optional: true }),
+    product_types: column.json({ optional: true }),
     created_at: column.date({ default: NOW }),
     updated_at: column.date({ optional: true }),
   },
