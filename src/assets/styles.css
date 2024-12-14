@@ -1,0 +1,93 @@
+  .datatable-wrapper .datatable-table thead {
+		font-size: 0.75rem;
+		color: #fff;
+		background-color: #021a3f;
+	}
+	.datatable-wrapper .datatable-top .datatable-dropdown {
+		color: #021a3f;
+		font-size: 0.875rem;
+	}
+	.datatable-wrapper .datatable-bottom .datatable-info {
+		color: #021a3f;
+		font-size: 0.875rem;
+	}
+	.datatable-wrapper
+		.datatable-bottom
+		.datatable-pagination
+		.datatable-pagination-list-item-link {
+		display: flex;
+		align-items: center;
+		color: #021a3f;
+		font-weight: 500;
+		padding-left: 0.75rem;
+		padding-right: 0.75rem;
+		height: 2rem;
+		font-size: 0.875rem;
+		border-top: 1px solid #d1d5db;
+		border-bottom: 1px solid #d1d5db;
+		border-right: 1px solid #d1d5db;
+	}
+	.datatable-wrapper
+		.datatable-bottom
+		.datatable-pagination
+		.datatable-pagination-list-item:first-of-type
+		.datatable-pagination-list-item-link,
+
+	.datatable-wrapper
+		.datatable-bottom
+		.datatable-pagination
+		.datatable-pagination-list-item:last-of-type
+		.datatable-pagination-list-item-link {
+		color: #021a3f;
+		background: transparent;
+	}
+
+	.datatable-wrapper
+		.datatable-bottom
+		.datatable-pagination
+		.datatable-page-list {
+		color: #021a3f;
+		font-size: 0.875rem;
+	}
+
+	.datatable-wrapper
+		.datatable-bottom
+		.datatable-pagination
+		.datatable-page-list
+		.datatable-page-list-item-link {
+		color: #021a3f;
+	}
+
+	.datatable-wrapper
+		.datatable-bottom
+		.datatable-pagination
+		.datatable-page-list
+		.datatable-page-list-item-link.active {
+		color: #fff;
+	}
+	.datatable-wrapper
+		.datatable-bottom
+		.datatable-pagination
+		.datatable-page-list
+		.datatable-page-list-item-link:hover {
+		color: #fff;
+	}
+
+  .datatable-active {
+    background-color: rgb(255, 255, 255,.5);
+  }
+
+  .dark .datatable-active {
+    background-color: rgb(20, 20, 20, 0.5);
+  }
+
+  .dark .datatable-wrapper .datatable-bottom .datatable-pagination .datatable-pagination-list-item:first-of-type .datatable-pagination-list-item-link, 
+  .dark .datatable-wrapper .datatable-bottom .datatable-pagination .datatable-pagination-list-item:last-of-type .datatable-pagination-list-item-link {
+      color: #9CA3AF;
+      background: transparent;
+  }
+  
+	.dark .datatable-wrapper .datatable-table thead {
+		color: #fff;
+		background-color: #021a3f;
+	}
