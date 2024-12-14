@@ -191,11 +191,10 @@ const breadcrumbs = [
 												aria-labelledby="productGeneral-tab"
 											>
 												<div
-													class="grid grid-cols-12 gap-1 md:gap-4"
+													class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4"
 												>
-													<div
-														class="col-span-12 md:col-span-4 mb-2"
-													>
+													<!-- Image -->
+													<div class="col-span-1">
 														<div
 															class="rounded-lg shadow"
 														>
@@ -258,14 +257,15 @@ const breadcrumbs = [
 															}
 														</div>
 													</div>
+													<!-- General -->
 													<div
-														class="col-span-12 sm:col-span-8"
+														class="col-span-1 lg:col-span-2 flex items-center"
 													>
 														<div
-															class="grid grid-cols-6 gap-4"
+															class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-0 sm:gap-4"
 														>
 															<div
-																class="col-span-6 sm:col-span-3"
+																class="col-span-1 sm:col-span-1 md:col-span-2"
 															>
 																<label
 																	for="productCommonName"
@@ -315,7 +315,7 @@ const breadcrumbs = [
 																</select>
 															</div>
 															<div
-																class="col-span-6 sm:col-span-3"
+																class="col-span-1 sm:col-span-1 md:col-span-1"
 															>
 																<label
 																	for="productType"
@@ -358,7 +358,7 @@ const breadcrumbs = [
 																</select>
 															</div>
 															<div
-																class="col-span-6 sm:col-span-3"
+																class="col-span-1 sm:col-span-1 md:col-span-1"
 															>
 																<label
 																	for="productBrand"
@@ -397,81 +397,7 @@ const breadcrumbs = [
 																</select>
 															</div>
 															<div
-																class="col-span-6 sm:col-span-3"
-															>
-																<label
-																	for="productMPN"
-																	class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-																	>MPN</label
-																>
-																<div
-																	class="relative"
-																>
-																	<div
-																		class="absolute inset-y-0 end-0 flex items-center"
-																	>
-																		<button
-																			data-tooltip-target="tooltip-gen-mpn"
-																			type="button"
-																			class="text-white
-																			end-2.5
-																			bottom-2.5
-																			focus:ring-4
-																			focus:outline-none
-																			font-medium
-																			rounded-lg
-																			text-sm px-3 py-2.5
-																			text-center
-																			bg-primary-600
-																			hover:bg-primary-700
-																			focus:ring-primary-700
-																			dark:bg-primary-600
-																			dark:hover:bg-primary-700
-																			dark:focus:ring-primary-700"
-																			id="productMPNGenButton"
-																		>
-																			<svg
-																				xmlns="http://www.w3.org/2000/svg"
-																				height="24px"
-																				viewBox="0 -960 960 960"
-																				width="24px"
-																				fill="#e8eaed"
-																				><path
-																					d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-400H160v400Zm140-40-56-56 103-104-104-104 57-56 160 160-160 160Zm180 0v-80h240v80H480Z"
-																				>
-																				</path></svg
-																			>
-																			<span
-																				class="sr-only"
-																				>Generar
-																				MPN</span
-																			>
-																		</button>
-																		<div
-																			id="tooltip-gen-mpn"
-																			role="tooltip"
-																			class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
-																		>
-																			Generar
-																			MPN
-																			<div
-																				class="tooltip-arrow"
-																				data-popper-arrow
-																			>
-																			</div>
-																		</div>
-																	</div>
-																	<input
-																		type="text"
-																		name="productMPN"
-																		id="productMPN"
-																		class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-																		placeholder="MPN del Producto"
-																	/>
-																</div>
-															</div>
-															<div
-																class="col-span-6 sm:col-span-3"
+																class="col-span-1 sm:col-span-1 md:col-span-1"
 															>
 																<label
 																	for="productSKU"
@@ -545,7 +471,210 @@ const breadcrumbs = [
 																</div>
 															</div>
 															<div
-																class="col-span-12 sm:col-span-6"
+																class="col-span-1 sm:col-span-1 md:col-span-1"
+															>
+																<label
+																	for="productMPN"
+																	class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+																	>MPN</label
+																>
+																<div
+																	class="relative"
+																>
+																	<div
+																		class="absolute inset-y-0 end-0 flex items-center"
+																	>
+																		<button
+																			data-tooltip-target="tooltip-gen-mpn"
+																			type="button"
+																			class="text-white
+																			end-2.5
+																			bottom-2.5
+																			focus:ring-4
+																			focus:outline-none
+																			font-medium
+																			rounded-lg
+																			text-sm px-3 py-2.5
+																			text-center
+																			bg-primary-600
+																			hover:bg-primary-700
+																			focus:ring-primary-700
+																			dark:bg-primary-600
+																			dark:hover:bg-primary-700
+																			dark:focus:ring-primary-700"
+																			id="productMPNGenButton"
+																		>
+																			<svg
+																				xmlns="http://www.w3.org/2000/svg"
+																				height="24px"
+																				viewBox="0 -960 960 960"
+																				width="24px"
+																				fill="#e8eaed"
+																				><path
+																					d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-400H160v400Zm140-40-56-56 103-104-104-104 57-56 160 160-160 160Zm180 0v-80h240v80H480Z"
+																				>
+																				</path></svg
+																			>
+																			<span
+																				class="sr-only"
+																				>Generar
+																				MPN</span
+																			>
+																		</button>
+																		<div
+																			id="tooltip-gen-mpn"
+																			role="tooltip"
+																			class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
+																		>
+																			Generar
+																			MPN
+																			<div
+																				class="tooltip-arrow"
+																				data-popper-arrow
+																			>
+																			</div>
+																		</div>
+																	</div>
+																	<input
+																		type="text"
+																		name="productMPN"
+																		id="productMPN"
+																		class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+																		placeholder="MPN del Producto"
+																	/>
+																</div>
+															</div>
+															<div
+																class="col-span-1 sm:col-span-1 md:col-span-1"
+															>
+																<label
+																	for="productUPC"
+																	class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+																	>UPC</label
+																>
+																<div
+																	class="relative"
+																>
+																	<div
+																		class="absolute inset-y-0 end-0 flex items-center"
+																	>
+																		<button
+																			data-tooltip-target="tooltip-gen-upc"
+																			type="button"
+																			class="text-white
+																	end-2.5
+																	bottom-2.5
+																	bg-primary-700
+																	hover:bg-primary-800
+																	focus:ring-4
+																	focus:outline-none
+																	focus:ring-primary-300
+																	font-medium
+																	rounded-lg
+																	text-sm px-3 py-2.5
+																	text-center
+																	dark:bg-primary-600
+																	dark:hover:bg-primary-700
+																	dark:focus:ring-primary-800"
+																			id="productUPCGenButton"
+																		>
+																			<svg
+																				xmlns="http://www.w3.org/2000/svg"
+																				height="24px"
+																				viewBox="0 -960 960 960"
+																				width="24px"
+																				fill="#e8eaed"
+																				><path
+																					d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-400H160v400Zm140-40-56-56 103-104-104-104 57-56 160 160-160 160Zm180 0v-80h240v80H480Z"
+																				>
+																				</path></svg
+																			>
+																			<span
+																				class="sr-only"
+																				>Generar
+																				UPC</span
+																			>
+																		</button>
+																		<div
+																			id="tooltip-gen-upc"
+																			role="tooltip"
+																			class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
+																		>
+																			Generar
+																			UPC
+																			<div
+																				class="tooltip-arrow"
+																				data-popper-arrow
+																			>
+																			</div>
+																		</div>
+																	</div>
+																	<input
+																		type="text"
+																		name="productUPC"
+																		id="productUPC"
+																		class="shadow-sm
+                                                                bg-gray-50
+                                                                border
+                                                                text-sm
+                                                                rounded-lg
+                                                                block
+                                                                w-full
+                                                                p-2.5 ps-10
+                                                                border-gray-300
+                                                                text-gray-900
+                                                                focus:ring-primary-600
+                                                                focus:border-primary-600
+                                                                dark:bg-gray-600
+                                                                dark:border-gray-500
+                                                                dark:placeholder-gray-400
+                                                                dark:text-white
+                                                                dark:focus:ring-primary-500
+                                                                dark:focus:border-primary-500"
+																		placeholder="UPC de Producto"
+																		required=""
+																	/>
+																</div>
+																<p
+																	id="productUPC-valid"
+																	class="mt-2 text-sm text-green-600 dark:text-green-500 hidden"
+																>
+																	<span
+																		class="font-medium"
+																		>¡Bien!</span
+																	> ¡El UPC no
+																	existe!
+																</p>
+
+																<p
+																	id="productUPC-invalid"
+																	class="mt-2 text-sm text-red-600 dark:text-red-500 hidden"
+																>
+																	<span
+																		class="font-medium"
+																		>Oops!</span
+																	> ¡El UPC ya
+																	existe!
+																</p>
+															</div>
+															<div
+																class="col-span-1 sm:col-span-1 md:col-span-1"
+															>
+																<label
+																	for="productEAN"
+																	class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+																	>EAN</label
+																>
+																<input
+																	type="text"
+																	name="productEAN"
+																	id="productEAN"
+																	class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+																	placeholder="EAN del Producto"
+																/>
+															</div>
+															<div
+																class="col-span-1 sm:col-span-2 md:col-span-3"
 															>
 																<label
 																	for="productName"
@@ -564,131 +693,7 @@ const breadcrumbs = [
 														</div>
 													</div>
 													<div
-														class="col-span-12 sm:col-span-4"
-													>
-														<label
-															for="productUPC"
-															class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-															>UPC</label
-														>
-														<div class="relative">
-															<div
-																class="absolute inset-y-0 end-0 flex items-center"
-															>
-																<button
-																	data-tooltip-target="tooltip-gen-upc"
-																	type="button"
-																	class="text-white
-																	end-2.5
-																	bottom-2.5
-																	bg-primary-700
-																	hover:bg-primary-800
-																	focus:ring-4
-																	focus:outline-none
-																	focus:ring-primary-300
-																	font-medium
-																	rounded-lg
-																	text-sm px-3 py-2.5
-																	text-center
-																	dark:bg-primary-600
-																	dark:hover:bg-primary-700
-																	dark:focus:ring-primary-800"
-																	id="productUPCGenButton"
-																>
-																	<svg
-																		xmlns="http://www.w3.org/2000/svg"
-																		height="24px"
-																		viewBox="0 -960 960 960"
-																		width="24px"
-																		fill="#e8eaed"
-																		><path
-																			d="M160-160q-33 0-56.5-23.5T80-240v-480q0-33 23.5-56.5T160-800h640q33 0 56.5 23.5T880-720v480q0 33-23.5 56.5T800-160H160Zm0-80h640v-400H160v400Zm140-40-56-56 103-104-104-104 57-56 160 160-160 160Zm180 0v-80h240v80H480Z"
-																		>
-																		</path></svg
-																	>
-																	<span
-																		class="sr-only"
-																		>Generar
-																		UPC</span
-																	>
-																</button>
-																<div
-																	id="tooltip-gen-upc"
-																	role="tooltip"
-																	class="absolute z-10 invisible inline-block px-3 py-2 text-sm font-medium text-white transition-opacity duration-300 bg-gray-900 rounded-lg shadow-sm opacity-0 tooltip dark:bg-gray-700"
-																>
-																	Generar UPC
-																	<div
-																		class="tooltip-arrow"
-																		data-popper-arrow
-																	>
-																	</div>
-																</div>
-															</div>
-															<input
-																type="text"
-																name="productUPC"
-																id="productUPC"
-																class="shadow-sm
-                                                                bg-gray-50
-                                                                border
-                                                                text-sm
-                                                                rounded-lg
-                                                                block
-                                                                w-full
-                                                                p-2.5 ps-10
-                                                                border-gray-300
-                                                                text-gray-900
-                                                                focus:ring-primary-600
-                                                                focus:border-primary-600
-                                                                dark:bg-gray-600
-                                                                dark:border-gray-500
-                                                                dark:placeholder-gray-400
-                                                                dark:text-white
-                                                                dark:focus:ring-primary-500
-                                                                dark:focus:border-primary-500"
-																placeholder="UPC de Producto"
-																required=""
-															/>
-														</div>
-														<p
-															id="productUPC-valid"
-															class="mt-2 text-sm text-green-600 dark:text-green-500 hidden"
-														>
-															<span
-																class="font-medium"
-																>¡Bien!</span
-															> ¡El UPC no existe!
-														</p>
-
-														<p
-															id="productUPC-invalid"
-															class="mt-2 text-sm text-red-600 dark:text-red-500 hidden"
-														>
-															<span
-																class="font-medium"
-																>Oops!</span
-															> ¡El UPC ya existe!
-														</p>
-													</div>
-													<div
-														class="col-span-12 sm:col-span-4"
-													>
-														<label
-															for="productEAN"
-															class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-															>EAN</label
-														>
-														<input
-															type="text"
-															name="productEAN"
-															id="productEAN"
-															class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-															placeholder="EAN del Producto"
-														/>
-													</div>
-													<div
-														class="col-span-12 sm:col-span-2 flex items-center"
+														class="col-span-1 flex items-center"
 													>
 														<label
 															class="inline-flex items-center mb-2 cursor-pointer"
@@ -712,7 +717,7 @@ const breadcrumbs = [
 														</label>
 													</div>
 													<div
-														class="col-span-6 sm:col-span-2"
+														class="col-span-1 flex items-center"
 													>
 														<button
 															id="btnAddProduct"
@@ -1591,14 +1596,6 @@ const breadcrumbs = [
 						}
 					}
 
-					if (!commonNameId) {
-						typeSelect.disabled = true;
-						//categorySelect.innerHTML ='<option value="">Select Category</option>';
-						typeSelect.innerHTML =
-							'<option value="">Select Product Type</option>';
-						return;
-					}
-
 					async function fetchData(url: string) {
 						try {
 							const response = await fetch(url);
@@ -1622,9 +1619,6 @@ const breadcrumbs = [
 					// 	option.textContent = category.name;
 					// 	categorySelect.appendChild(option);
 					// });
-
-					// categorySelect.disabled = false;
-					typeSelect.disabled = true;
 					typeSelect.innerHTML =
 						'<option value="">Select Product Type</option>';
 				};
