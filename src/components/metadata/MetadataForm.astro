@@ -309,8 +309,8 @@ const {
 			// prepare metadata object with validated data
 			const metadataValues = {
 				name: name.trim(),
-				allow_description: formData.has("description") || false,
-				is_feature: formData.has("is_feature") || false,
+				allow_description: formData.get("description") === "on",
+				is_feature: formData.get("is_feature") === "on",
 				format:
 					format && typeof format === "string" ? format.trim() : null,
 				id_group:

@@ -355,7 +355,7 @@ const MetadataRelations = defineTable({
     common_name: column.json({ deprecated:true, optional: true}),
     common_names: column.json({optional: true}),
     category: column.json({ deprecated:true, optional: true}),
-    categories: column.json({ deprecated:true, optional: true }),
+    categories: column.json({ optional: true }),
     product_type: column.number({ deprecated:true, optional: true }),
     product_types: column.json({ optional: true }),
     created_at: column.date({ default: NOW }),
