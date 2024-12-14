@@ -94,20 +94,20 @@ const menuHerarchy = buildMenuHierarchy(items);
         flex-1
         min-h-0
         pt-6
-        border-r shadow-lg shadow-purple-500/75
-		text-gray-800
+        border-r shadow-lg shadow-primary-500/75
+		text-primary
         dark:text-white
-        bg-gradient-to-b from-secondary-600 to-primary-600
-        dark:from-secondary-300 dark:to-primary-300
-        border-secondary-300/75
-        dark:border-secondary-400/75"
+        bg-gradient-to-b from-primary-900 to-primary-600
+        dark:from-primary-600 dark:to-primary-200
+        border-secondary-500/50
+        dark:border-secondary-700/50"
 	>
 		<div
 			class:list={[
 				"flex flex-col flex-1 pt-5 pb-28 overflow-y-auto",
 				"scrollbar scrollbar-w-2 scrollbar-thumb-rounded-[0.1667rem]",
-				"scrollbar-thumb-slate-200 scrollbar-track-gray-400",
-				"dark:scrollbar-thumb-slate-900 dark:scrollbar-track-gray-800",
+				"scrollbar-thumb-purple-300 scrollbar-track-secondary-800",
+				"dark:scrollbar-thumb-purple-900 dark:scrollbar-track-secondary-500",
 			]}
 		>
 			<div class="flex-1 px-3 space-y-1 divide-y">
@@ -122,7 +122,7 @@ const menuHerarchy = buildMenuHierarchy(items);
 									class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
 								>
 									<svg
-										class="w-5 h-5 text-gray-100"
+										class="w-5 h-5 text-primary-600 dark:text-gray-100"
 										fill="currentColor"
 										viewBox="0 0 20 20"
 										xmlns="http://www.w3.org/2000/svg"
@@ -146,7 +146,7 @@ const menuHerarchy = buildMenuHierarchy(items);
                                     p-2.5
                                     bg-secondary-400
                                     border-secondary-500
-                                    text-gray-200
+                                    text-primary-500 dark:text-gray-200
                                     focus:ring-secondary-600
                                     focus:border-secondary-600
                                     dark:bg-secondary-300
@@ -166,7 +166,7 @@ const menuHerarchy = buildMenuHierarchy(items);
                             p-2 text-base
                             rounded-lg
                             group transition duration-75 focus:outline-offset-2
-                            text-gray-200
+                            text-primary-600 dark:text-gray-100
                             hover:bg-secondary-500
                             focus:outline-secondary-600
                             dark:hover:bg-secondary-400"
@@ -193,7 +193,7 @@ const menuHerarchy = buildMenuHierarchy(items);
 						<a
 							href="/dashboard"
 							class="flex items-center p-2 text-base rounded-lg group transition duration-75 focus:outline-offset-2
-                            text-gray-200
+                            text-primary-600 dark:text-gray-100
                             hover:bg-secondary-500
                             focus:outline-secondary-600
                             dark:hover:bg-secondary-400"
@@ -223,7 +223,7 @@ const menuHerarchy = buildMenuHierarchy(items);
 										id={item.id.toString()}
 										type="button"
 										class="flex items-center p-2 w-full text-base font-normal 
-                                        rounded-lg transition duration-75 group text-gray-200
+                                        rounded-lg transition duration-75 group text-primary-600 dark:text-gray-100
                                         hover:bg-secondary-500
                                         focus:outline-secondary-600 
                                         focus:bg-secondary-600/80 
@@ -264,7 +264,7 @@ const menuHerarchy = buildMenuHierarchy(items);
 														}
 														class="flex items-center p-2 pl-8 w-full 
 														text-base font-normal rounded-lg transition 
-														duration-75 group text-gray-100
+														duration-75 group text-primary-500 dark:text-gray-300
 														hover:bg-secondary-600
 														focus:outline-secondary-700
 														dark:hover:bg-secondary-500"
@@ -289,7 +289,7 @@ const menuHerarchy = buildMenuHierarchy(items);
 											text-base
 											font-normal
 											rounded-lg
-											text-gray-200
+											text-primary-600 dark:text-gray-100
 											hover:bg-secondary-500
 											focus:outline-secondary-600
 											dark:hover:bg-secondary-400"

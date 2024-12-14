@@ -5,15 +5,15 @@ interface Props {
 	resource: string;
 }
 
-const { data, columns, resource } = Astro.props;
+const { data, columns } = Astro.props;
 ---
 
 <table
-	class="min-w-full divide-y table-fixed rounded-md divide-gray-300 text-primary-300 dark:text-white"
+	class="min-w-full divide-y table-fixed rounded-md divide-gray-300 text-white"
 	id="default-table"
 >
-	<thead class="bg-gray-800/75 text-white">
-		<tr>
+	<thead>
+		<tr class="bg-primary-500 text-white">
 			{
 				columns.map((column) => (
 					<th scope="col">
@@ -176,7 +176,7 @@ const { data, columns, resource } = Astro.props;
 	const dataTable = new DataTable("#default-table", {
 		searchable: true,
 		sortable: true,
-		perPage: 15,
+		perPage: 10,
 		perPageSelect: [10, 15, 20, 50, 100],
 		scrollY: "45vh",
 	});

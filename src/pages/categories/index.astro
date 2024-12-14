@@ -127,7 +127,7 @@ const breadcrumbs = [
 						class="min-w-full divide-y divide-gray-200"
 						id="default-table"
 					>
-						<thead class="bg-primary-100 text-white">
+						<thead class="bg-primary-400 text-white">
 							<tr>
 								<th scope="col">
 									<span
@@ -137,9 +137,7 @@ const breadcrumbs = [
 								items-center
 								font-medium
 								uppercase
-								tracking-wider
-								text-primary-200
-								dark:text-gray-100"
+								tracking-wider"
 									>
 										Nombre
 										<svg
@@ -163,9 +161,7 @@ const breadcrumbs = [
 								>
 								<th scope="col">
 									<span
-										class="px-4 py-2 flex items-center font-medium uppercase tracking-wider
-								text-primary-200
-								dark:text-gray-100"
+										class="px-4 py-2 flex items-center font-medium uppercase tracking-wider"
 									>
 										Slug
 										<svg
@@ -189,9 +185,7 @@ const breadcrumbs = [
 								>
 								<th scope="col">
 									<span
-										class="px-4 py-2 flex items-center font-medium uppercase tracking-wider
-								text-primary-200
-								dark:text-gray-100"
+										class="px-4 py-2 flex items-center font-medium uppercase tracking-wider"
 										>Creado<svg
 											class="w-4 h-4 ms-1"
 											aria-hidden="true"
@@ -213,15 +207,13 @@ const breadcrumbs = [
 								>
 								<th
 									scope="col"
-									class="relative py-2 px-4 text-center text-xs font-medium uppercase tracking-wider
-								text-primary-200
-								dark:text-gray-100"
+									class="relative py-2 px-4 text-center text-xs font-medium uppercase tracking-wider"
 									><span class="sr-only">Actions</span></th
 								>
 							</tr>
 						</thead>
 						<tbody
-							class="divide-y divide-slate-300 dark:divide-gray-400"
+							class="divide-y divide-primary-500 dark:divide-gray-200"
 						>
 							{
 								categories.map((category) => (
@@ -246,18 +238,20 @@ const breadcrumbs = [
 													href={`/categories/${category.id}/edit`}
 													aria-current="page"
 													class="
-										px-1 
-										py-1
-										mr-1
-										text-sm 
-										font-medium 
-										rounded-s-lg 
-										focus:z-10 
-										focus:ring-2 
-										text-warning-500 
-										hover:bg-warning-900 
-										focus:ring-orange-500 
-										focus:text-warning-500"
+														px-1 
+														py-1
+														mr-1
+														text-sm 
+														font-medium 
+														rounded-s-lg 
+														focus:z-10 
+														focus:ring-2 
+														text-warning-500 
+														dark:text-warning-600 
+														hover:bg-warning-800 
+														hover:text-warning-400
+														focus:ring-warning-600 
+														focus:text-warning-600"
 												>
 													<span class="sr-only">
 														Edit
@@ -276,18 +270,20 @@ const breadcrumbs = [
 													href={`/categories/${category.id}/details`}
 													aria-current="page"
 													class="
-										px-1 
-										py-1
-										mr-1
-										text-sm 
-										font-medium 
-										rounded-md 
-										focus:z-10 
-										focus:ring-2 
-										text-success-500 
-										hover:bg-success-900 
-										focus:ring-success-500 
-										focus:text-success-500"
+													px-1 
+													py-1
+													mr-1
+													text-sm 
+													font-medium 
+													rounded-md 
+													focus:z-10 
+													focus:ring-2 
+													text-green-500 
+													dark:text-green-600
+													hover:bg-success-800 
+													hover:text-green-400 
+													focus:ring-green-600
+													focus:text-green-600"
 												>
 													<span class="sr-only">
 														Details
@@ -317,18 +313,18 @@ const breadcrumbs = [
 													data-id={category.id}
 													type="button"
 													class="
-											px-1 
-											py-1 
-											text-sm 
-											font-medium 
-											rounded-e-lg 
-											focus:z-10 
-											focus:ring-2  
-											text-danger-400 
-											hover:bg-danger-900 
-											focus:ring-orange-600 
-											focus:text-danger-500 
-											delete-btn"
+													px-1 
+													py-1 
+													text-sm 
+													font-medium 
+													rounded-e-lg 
+													focus:z-10 
+													focus:ring-2  
+													text-danger-400
+													hover:bg-danger-800 
+													focus:ring-orange-600 
+													focus:text-danger-300
+													delete-btn"
 												>
 													<span class="sr-only">
 														Delete
@@ -565,7 +561,7 @@ const breadcrumbs = [
 		const dataTable = new DataTable("#default-table", {
 			searchable: true,
 			sortable: true,
-			perPage: 15,
+			perPage: 10,
 			perPageSelect: [10, 15, 20, 50, 100],
 			scrollY: "45vh",
 		});
@@ -630,3 +626,94 @@ const breadcrumbs = [
 		}
 	});
 </script>
+<style is:global>
+	.datatable-wrapper .datatable-table thead {
+		font-size: 0.75rem;
+		color: #fff;
+		background-color: #021a3f;
+	}
+	.dark .datatable-wrapper .datatable-table thead {
+		color: #fff;
+		background-color: #021a3f;
+	}
+	.datatable-wrapper .datatable-top .datatable-dropdown {
+		color: #021a3f;
+		font-size: 0.875rem;
+	}
+	.datatable-wrapper .datatable-bottom .datatable-info {
+		color: #021a3f;
+		font-size: 0.875rem;
+	}
+	.datatable-wrapper
+		.datatable-bottom
+		.datatable-pagination
+		.datatable-pagination-list-item-link {
+		display: flex;
+		align-items: center;
+		color: #021a3f;
+		font-weight: 500;
+		padding-left: 0.75rem;
+		padding-right: 0.75rem;
+		height: 2rem;
+		font-size: 0.875rem;
+		border-top: 1px solid #d1d5db;
+		border-bottom: 1px solid #d1d5db;
+		border-right: 1px solid #d1d5db;
+	}
+	.datatable-wrapper
+		.datatable-bottom
+		.datatable-pagination
+		.datatable-pagination-list-item:first-of-type
+		.datatable-pagination-list-item-link,
+	.datatable-wrapper
+		.datatable-bottom
+		.datatable-pagination
+		.datatable-pagination-list-item:last-of-type
+		.datatable-pagination-list-item-link {
+		color: #021a3f;
+		background: antiquewhite;
+	}
+	.dark
+		.datatable-wrapper
+		.datatable-bottom
+		.datatable-pagination
+		.datatable-pagination-list-item:first-of-type
+		.datatable-pagination-list-item-link,
+	.dark
+		.datatable-wrapper
+		.datatable-bottom
+		.datatable-pagination
+		.datatable-pagination-list-item:last-of-type
+		.datatable-pagination-list-item-link {
+		color: #021a3f;
+		color: transparent;
+	}
+	.datatable-wrapper
+		.datatable-bottom
+		.datatable-pagination
+		.datatable-page-list {
+		color: #021a3f;
+		font-size: 0.875rem;
+	}
+	.datatable-wrapper
+		.datatable-bottom
+		.datatable-pagination
+		.datatable-page-list
+		.datatable-page-list-item-link {
+		color: #021a3f;
+	}
+	.datatable-wrapper
+		.datatable-bottom
+		.datatable-pagination
+		.datatable-page-list
+		.datatable-page-list-item-link.active {
+		color: #fff;
+	}
+	.datatable-wrapper
+		.datatable-bottom
+		.datatable-pagination
+		.datatable-page-list
+		.datatable-page-list-item-link:hover {
+		color: #fff;
+	}
+</style>
