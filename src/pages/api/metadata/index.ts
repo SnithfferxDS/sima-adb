@@ -4,7 +4,7 @@ import { db, eq, Metadata, MetadataRelations, Group, CommonName } from 'astro:db
 export const POST: APIRoute = async ({ request }) => {
   try {
     const formData = await request.json();
-    
+    console.log("Form Data", formData);
     // Extract and validate form data
     const name = formData.name;
     const format = formData.format;
@@ -27,8 +27,8 @@ export const POST: APIRoute = async ({ request }) => {
     // Prepare metadata object with validated data
     const metadataValues = {
       name: name.trim(),
-      allow_description: formData.description == 'on' ? true : false, //formData.has('description') || false,
-      is_feature: formData.description == 'on' ? true : false, //formData.has('is_feature') || false,
+      allow_description: formData.description, //formData.has('description') || false,
+      is_feature: formData.is_feature, //formData.has('is_feature') || false,
       format: format && typeof format === 'string' ? format.trim() : null,
       id_group: groupId && typeof groupId === 'string' ? parseInt(groupId) : null,
       tooltip: tooltip && typeof tooltip === 'string' ? tooltip.trim() : null
