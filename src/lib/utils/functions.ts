@@ -16,7 +16,8 @@ export function generateName(
 
   const parts = [commonName, type, brand].filter(part => 
     part && part !== '-- Seleccionar Nombre Común --' && 
-    part !== '' && 
+    part !== '' && part !== '-- Seleccionar Tipo --' && 
+    part !== '-- Seleccionar Marca --' &&
     part !== ''
   );
 

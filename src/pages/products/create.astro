@@ -699,6 +699,30 @@ const breadcrumbs = [
 															class="inline-flex items-center mb-2 cursor-pointer"
 														>
 															<input
+																id="productUsed"
+																name="productUsed"
+																type="checkbox"
+																value=""
+																class="sr-only peer"
+															/>
+															<div
+																class="relative w-11 h-6 bg-red-500 peer peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-300 peer-checked:after:translate-x-full peer-checked:after:border-white peer-checked:bg-green-600 rounded-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:w-5 after:h-5 after:transition-all dark:peer-focus:ring-gray-800 dark:bg-red-700 dark:border-gray-600"
+															>
+															</div>
+															<span
+																class="ms-3 text-sm font-medium text-gray-400 dark:text-gray-500"
+															>
+																Usado/Reparado
+															</span>
+														</label>
+													</div>
+													<div
+														class="col-span-1 flex items-center"
+													>
+														<label
+															class="inline-flex items-center mb-2 cursor-pointer"
+														>
+															<input
 																id="productActive"
 																name="productActive"
 																type="checkbox"
@@ -1619,8 +1643,8 @@ const breadcrumbs = [
 					// 	option.textContent = category.name;
 					// 	categorySelect.appendChild(option);
 					// });
-					typeSelect.innerHTML =
-						'<option value="">Select Product Type</option>';
+					// typeSelect.innerHTML =
+					// 	'<option value="">Select Product Type</option>';
 				};
 
 				const getDescriptionByType = async () => {
@@ -1729,6 +1753,7 @@ const breadcrumbs = [
 							common: formData.get("productCommonName"),
 							logo: logoUrl,
 							active: formData.get("productActive") === "on",
+							refurbished: formData.get("productUsed") === "on",
 							type: formData.get("productType"),
 							brand: formData.get("productBrand"),
 							mpn: formData.get("productMPN"),
