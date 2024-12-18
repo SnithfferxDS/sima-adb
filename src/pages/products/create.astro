@@ -1571,6 +1571,128 @@ const breadcrumbs = [
 					"productId",
 				) as HTMLInputElement;
 
+				const productDescription = document.getElementById(
+					"productDesc",
+				) as HTMLElement;
+
+				let currentMetadata: any[] = [];
+				async function fetchMetadataDescription(data: any[]) {
+					try {
+						currentMetadata = data;
+						renderMetadataGroups(data);
+					} catch (error) {
+						console.error(
+							"Error fetching metadata description:",
+							error,
+						);
+						if (productDescription) {
+							productDescription.innerHTML =
+								'<p class="text-sm text-red-500">Error loading metadata. Please try again.</p>';
+						}
+					}
+				}
+
+				function renderMetadataGroups(groups: any[]) {
+					if (!productDescription) return;
+
+					if (groups.length === 0) {
+						productDescription.innerHTML =
+							'<p class="text-sm text-gray-500">No metadata available for the selected options.</p>';
+						return;
+					}
+
+					productDescription.innerHTML = groups
+						.map(
+							(group) => `
+								<div class="bg-gray-50 rounded-lg p-6">
+									<h3 class="text-lg font-medium text-gray-900 mb-4">${group.name}</h3>
+									<div class="space-y-4">
+									${group.metadata
+										.map(
+											(meta: any) => `
+										<div>
+										<label for="metadata_${meta.id}" class="block text-sm font-medium text-gray-700">
+											${meta.name}
+											${meta.tooltip ? `<span class="text-gray-500 text-xs ml-1" title="${meta.tooltip}">ⓘ</span>` : ""}
+										</label>
+										<div class="mt-1 flex rounded-md shadow-sm">
+											<input
+											type="text"
+											id="metadata_${meta.id}"
+											name="metadata_${meta.id}"
+											class="flex-1 rounded-l-md border-gray-300 focus:border-primary-500 focus:ring-primary-500"
+											${meta.format ? `pattern="${meta.format}"` : ""}
+											/>
+											<button
+											type="button"
+											data-metadata-id="${meta.id}"
+											class="save-metadata-btn inline-flex items-center px-4 py-2 border border-l-0 border-gray-300 rounded-r-md bg-gray-50 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-primary-500"
+											>
+											Save
+											</button>
+										</div>
+										</div>
+									`,
+										)
+										.join("")}
+									</div>
+								</div>`,
+						)
+						.join("");
+
+					productDescription
+						.querySelectorAll(".save-metadata-btn")
+						.forEach((button) => {
+							button.addEventListener("click", (e) => {
+								const metadataId = (
+									e.target as HTMLButtonElement
+								).dataset.metadataId;
+								if (metadataId) {
+									saveMetadataValue(parseInt(metadataId));
+								}
+							});
+						});
+				}
+
+				async function saveMetadataValue(metadataId: number) {
+					const productId = (
+						document.getElementById("id") as HTMLInputElement
+					).value;
+					const value = (
+						document.getElementById(
+							`metadata_${metadataId}`,
+						) as HTMLInputElement
+					).value;
+
+					if (!productId) {
+						alert("Please save the product first");
+						return;
+					}
+
+					try {
+						const response = await fetch("/api/metadata-values", {
+							method: "POST",
+							headers: {
+								"Content-Type": "application/json",
+							},
+							body: JSON.stringify({
+								product_id: productId,
+								metadata_id: metadataId,
+								value,
+							}),
+						});
+
+						if (!response.ok) {
+							throw new Error("Failed to save metadata value");
+						}
+
+						alert("Metadata value saved successfully");
+					} catch (error) {
+						console.error("Error saving metadata value:", error);
+						alert("Failed to save metadata value");
+					}
+				}
+
 				// Function to update product name
 				const updateProductName = () => {
 					generateName(
@@ -1606,14 +1728,15 @@ const breadcrumbs = [
 									},
 									body: JSON.stringify({
 										action: "common",
-										id: productId,
+										product: productId,
 										common_name: commonNameId,
 										categories: categories,
 									}),
 								},
 							);
 							if (response.ok) {
-								console.log(response);
+								const data = await response.json();
+								fetchMetadataDescription(data);
 							}
 						} catch (error) {
 							console.error("Error:", error);
@@ -1635,16 +1758,6 @@ const breadcrumbs = [
 							return [];
 						}
 					}
-
-					//categorySelect.innerHTML ='<option value="">Select Category</option>';
-					// categories.forEach((category: any) => {
-					// 	const option = document.createElement("option");
-					// 	option.value = category.id;
-					// 	option.textContent = category.name;
-					// 	categorySelect.appendChild(option);
-					// });
-					// typeSelect.innerHTML =
-					// 	'<option value="">Select Product Type</option>';
 				};
 
 				const getDescriptionByType = async () => {
@@ -1867,6 +1980,76 @@ const breadcrumbs = [
 
 				// 	productTypeSelect.disabled = false;
 				// });
+
+				async function saveAll() {
+					const productId = (
+						document.getElementById("id") as HTMLInputElement
+					).value;
+
+					if (!productId) {
+						const saved = await saveProduct();
+						if (!saved) {
+							alert("Failed to save product");
+							return;
+						}
+					}
+
+					const metadataValues = currentMetadata
+						.flatMap((group) =>
+							group.metadata.map((meta: any) => ({
+								id: meta.id,
+								value:
+									(
+										document.getElementById(
+											`metadata_${meta.id}`,
+										) as HTMLInputElement
+									)?.value || "",
+							})),
+						)
+						.filter((mv) => mv.value.trim() !== "");
+
+					try {
+						const response = await fetch(
+							"/api/metadata-values/batch",
+							{
+								method: "POST",
+								headers: {
+									"Content-Type": "application/json",
+								},
+								body: JSON.stringify({
+									product_id: productId,
+									values: metadataValues,
+								}),
+							},
+						);
+
+						if (!response.ok) {
+							throw new Error("Failed to save metadata values");
+						}
+
+						alert("All values saved successfully");
+						window.location.href = "/products";
+					} catch (error) {
+						console.error("Error saving metadata values:", error);
+						alert("Failed to save metadata values");
+					}
+				}
+
+				// Event Listeners
+				document
+					.getElementById("common_name_id")
+					?.addEventListener("change", fetchMetadataDescription);
+				document
+					.getElementById("category_id")
+					?.addEventListener("change", fetchMetadataDescription);
+				document
+					.getElementById("product_type_id")
+					?.addEventListener("change", fetchMetadataDescription);
+				saveProductBtn?.addEventListener("click", saveProduct);
+				saveAllBtn?.addEventListener("click", saveAll);
+
+				// Initialize metadata if all selects have values
+				fetchMetadataDescription();
 			</script>
 		</div>
 	</div>

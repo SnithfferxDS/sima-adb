@@ -1,0 +1,155 @@
+---
+import LoadingSpinner from "../shared/Loading.astro";
+import MetadataGroup from "./MetadataGroup.astro";
+
+interface Props {
+	productId?: string;
+}
+
+const { productId } = Astro.props;
+---
+
+<div id="metadataDescription" class="space-y-6">
+	<h2 class="text-lg font-medium text-gray-900">Description</h2>
+
+	<div id="loadingState" class="hidden py-12">
+		<LoadingSpinner size="lg" color="primary" />
+		<p class="text-center text-gray-500 mt-4">Loading metadata...</p>
+	</div>
+
+	<div id="errorState" class="hidden">
+		<p class="text-sm text-red-500 text-center py-8">
+			Error loading metadata. Please try again.
+		</p>
+	</div>
+
+	<div id="emptyState" class="hidden">
+		<p class="text-sm text-gray-500 text-center py-8">
+			Please select all required fields to load metadata.
+		</p>
+	</div>
+
+	<div id="metadataGroups" class="space-y-8">
+		<!-- Metadata groups will be inserted here -->
+	</div>
+</div>
+
+<script>
+	import type { MetadataGroup } from "../../lib/utils/metadata";
+	import {
+		fetchMetadataDescription,
+		collectMetadataValues,
+	} from "../../lib/utils/metadata";
+
+	let currentMetadata: MetadataGroup[] = [];
+	const form = document.querySelector("form");
+	const metadataGroups = document.getElementById("metadataGroups");
+	const loadingState = document.getElementById("loadingState");
+	const errorState = document.getElementById("errorState");
+	const emptyState = document.getElementById("emptyState");
+
+	function showState(stateId: string) {
+		[loadingState, errorState, emptyState, metadataGroups].forEach((el) => {
+			if (el) el.classList.add("hidden");
+		});
+		const element = document.getElementById(stateId);
+		if (element) element.classList.remove("hidden");
+	}
+
+	async function fetchMetadata() {
+		const commonNameSelect = document.getElementById(
+			"common_name_id",
+		) as HTMLSelectElement;
+		const categorySelect = document.getElementById(
+			"category_id",
+		) as HTMLSelectElement;
+		const productTypeSelect = document.getElementById(
+			"product_type_id",
+		) as HTMLSelectElement;
+
+		if (
+			!commonNameSelect?.value ||
+			!categorySelect?.value ||
+			!productTypeSelect?.value
+		) {
+			showState("emptyState");
+			return;
+		}
+
+		try {
+			showState("loadingState");
+
+			const data = await fetchMetadataDescription(
+				commonNameSelect.value,
+				categorySelect.value,
+				productTypeSelect.value,
+			);
+
+			currentMetadata = data;
+
+			if (data.length === 0) {
+				showState("emptyState");
+				return;
+			}
+
+			showState("metadataGroups");
+			renderMetadataGroups(data);
+		} catch (error) {
+			console.error("Error fetching metadata description:", error);
+			showState("errorState");
+		}
+	}
+
+	function renderMetadataGroups(groups: MetadataGroup[]) {
+		if (!metadataGroups) return;
+
+		metadataGroups.innerHTML = groups
+			.map(
+				(group) => `
+      <div class="bg-gray-50 rounded-lg p-6 transition-all duration-200 ease-in-out">
+        <h3 class="text-lg font-medium text-gray-900 mb-4">${group.name}</h3>
+        <div class="space-y-4">
+          ${group.metadata
+				.map(
+					(meta) => `
+            <div class="transition-all duration-200 ease-in-out">
+              <label for="metadata_${meta.id}" class="block text-sm font-medium text-gray-700">
+                ${meta.name}
+                ${meta.tooltip ? `<span class="text-gray-500 text-xs ml-1" title="${meta.tooltip}">ⓘ</span>` : ""}
+              </label>
+              <div class="mt-1 flex rounded-md shadow-sm">
+                <input
+                  type="text"
+                  id="metadata_${meta.id}"
+                  name="metadata_${meta.id}"
+                  class="flex-1 rounded-md border-gray-300 focus:border-primary-500 focus:ring-primary-500"
+                  ${meta.format ? `pattern="${meta.format}"` : ""}
+                />
+              </div>
+            </div>
+          `,
+				)
+				.join("")}
+        </div>
+      </div>
+    `,
+			)
+			.join("");
+	}
+
+	// Listen for changes in the selects
+	["common_name_id", "category_id", "product_type_id"].forEach((id) => {
+		document.getElementById(id)?.addEventListener("change", fetchMetadata);
+	});
+
+	// Add metadata values to form submission
+	form?.addEventListener("submit", (e) => {
+		const metadataValues = collectMetadataValues(currentMetadata);
+
+		const metadataInput = document.createElement("input");
+		metadataInput.type = "hidden";
+		metadataInput.name = "metadata_values";
+		metadataInput.value = JSON.stringify(metadataValues);
+		form.appendChild(metadataInput);
+	});
+</script>

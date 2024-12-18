@@ -228,22 +228,56 @@ const breadcrumbs = [
 												{metadata.name}
 											</td>
 											<td class="px-6 py-4 whitespace-nowrap text-sm">
-												<span
+												{/* <span
 													class={`px-2 py-1 rounded-full text-xs ${metadata.allow_description ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
-												>
-													{metadata.allow_description
-														? "Yes"
-														: "No"}
-												</span>
+												></span> */}
+												<label class="inline-flex items-center mb-2 cursor-pointer">
+													<input
+														id={`metadataAllowDesc-${metadata.id}`}
+														name="metadataAllowDesc"
+														type="checkbox"
+														value=""
+														class="sr-only peer metadataAllowDesc"
+														data-id={metadata.id}
+														checked={
+															metadata.allow_description
+														}
+													/>
+													<div class="relative w-11 h-6 bg-red-500 peer peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-300 peer-checked:after:translate-x-full peer-checked:after:border-white peer-checked:bg-green-600 rounded-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:w-5 after:h-5 after:transition-all dark:peer-focus:ring-gray-800 dark:bg-red-700 dark:border-gray-600" />
+													<span class="ms-3 text-sm font-medium text-gray-400 dark:text-gray-500">
+														{metadata.allow_description
+															? "Yes"
+															: "No"}
+													</span>
+												</label>
 											</td>
 											<td class="px-6 py-4 whitespace-nowrap text-sm">
-												<span
+												{/* <span
 													class={`px-2 py-1 rounded-full text-xs ${metadata.is_feature ? "bg-green-100 text-green-800" : "bg-red-100 text-red-800"}`}
 												>
 													{metadata.is_feature
 														? "Yes"
 														: "No"}
-												</span>
+												</span> */}
+												<label class="inline-flex items-center mb-2 cursor-pointer">
+													<input
+														id={`isFeature-${metadata.id}`}
+														name="isFeature"
+														type="checkbox"
+														value=""
+														class="sr-only peer isFeature"
+														data-id={metadata.id}
+														checked={
+															metadata.is_feature
+														}
+													/>
+													<div class="relative w-11 h-6 bg-red-500 peer peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-300 peer-checked:after:translate-x-full peer-checked:after:border-white peer-checked:bg-green-600 rounded-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:w-5 after:h-5 after:transition-all dark:peer-focus:ring-gray-800 dark:bg-red-700 dark:border-gray-600" />
+													<span class="ms-3 text-sm font-medium text-gray-400 dark:text-gray-500">
+														{metadata.is_feature
+															? "Yes"
+															: "No"}
+													</span>
+												</label>
 											</td>
 											<td class="px-6 py-4 whitespace-nowrap text-sm">
 												{metadata.format || "-"}
@@ -439,3 +473,68 @@ const breadcrumbs = [
 		</div>
 	</div>
 </Layout>
+
+<script>
+	import { showError, showSuccess } from "../../lib/utils/notifications";
+
+	const allowDescriptions = document.querySelectorAll(".metadataAllowDesc");
+	const isFeatureCheckboxes = document.querySelectorAll(".isFeature");
+
+	if (allowDescriptions) {
+		allowDescriptions.forEach((allowDescription) => {
+			const allowDesc = allowDescription as HTMLInputElement;
+			const id = allowDesc.dataset.id;
+			allowDescription?.addEventListener("change", async (e) => {
+				try {
+					const response = await fetch(`/api/metadata/${id}`, {
+						method: "PUT",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({
+							allow_description: allowDesc.checked,
+						}),
+					});
+					if (response.ok) {
+						showSuccess("Metadata updated successfully");
+					} else {
+						const error = await response.json();
+						showError(error.message || "Error updating metadata");
+					}
+				} catch (error) {
+					console.error("Error updating metadata", error);
+					showError("Error updating metadata");
+				}
+			});
+		});
+	}
+
+	if (isFeatureCheckboxes) {
+		isFeatureCheckboxes.forEach((isFeature) => {
+			const isFeatureElement = isFeature as HTMLInputElement;
+			const id = isFeatureElement.dataset.id;
+			isFeature?.addEventListener("change", async (e) => {
+				try {
+					const response = await fetch(`/api/metadata/${id}`, {
+						method: "PUT",
+						headers: {
+							"Content-Type": "application/json",
+						},
+						body: JSON.stringify({
+							is_feature: isFeatureElement.checked,
+						}),
+					});
+					if (response.ok) {
+						showSuccess("Metadata updated successfully");
+					} else {
+						const error = await response.json();
+						showError(error.message || "Error updating metadata");
+					}
+				} catch (error) {
+					console.error("Error updating metadata", error);
+					showError("Error updating metadata");
+				}
+			});
+		});
+	}
+</script>

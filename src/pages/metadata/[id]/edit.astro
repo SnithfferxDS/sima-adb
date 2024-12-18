@@ -1,15 +1,15 @@
 ---
 import Layout from "../../../layouts/app.layout.astro";
 import MetadataForm from "../../../components/metadata/MetadataForm.astro";
+import BreadCrumbs from "../../../components/BreadCrumbs.astro";
+import { db, eq } from "astro:db";
 import {
-	db,
 	Metadata,
 	MetadataRelations,
 	Group,
 	Category,
 	CommonName,
 	ProductType,
-	eq,
 } from "astro:db";
 
 const { id } = Astro.params;
@@ -43,29 +43,55 @@ const [groups, categories, commonNames, productTypes] = await Promise.all([
 
 // Organize selected relations
 const selectedRelations = {
-	categories: relations.map((r) => r.category).filter(Boolean),
-	commonNames: relations.map((r) => r.common_name).filter(Boolean),
-	productTypes: relations.map((r) => r.product_type).filter(Boolean),
+	categories: relations.map((r) => JSON.parse(r.categories as string))[0],
+	commonNames: relations.map((r) => JSON.parse(r.common_names as string))[0],
+	productTypes: relations.map((r) =>
+		JSON.parse(r.product_types as string),
+	)[0],
 };
+
+const breadcrumbs = [
+	{
+		lable: "Metadata",
+		path: "/metadata",
+	},
+	{
+		lable: "Edición",
+		path: `/metadata/${metadata.name}/edit`,
+	},
+];
 ---
 
 <Layout title="Edit Metadata">
 	<div
-		class="bg-white shadow-md rounded-lg overflow-hidden max-w-4xl mx-auto transition-shadow hover:shadow-lg"
+		class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg"
 	>
-		<div class="p-4 border-b">
-			<h1 class="text-2xl font-bold text-gray-800">Edit Metadata</h1>
+		<div
+			class="p-4 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5"
+		>
+			<div class="w-full mb-1">
+				<BreadCrumbs
+					routes={breadcrumbs}
+					currentRoute={Astro.url.pathname}
+					headerTitle="Metadatos"
+				/>
+			</div>
 		</div>
-
-		<MetadataForm
-			metadata={metadata}
-			groups={groups}
-			categories={categories}
-			commonNames={commonNames}
-			productTypes={productTypes}
-			selectedRelations={selectedRelations}
-			action={`/metadata/${id}/update`}
-			submitText="Update"
-		/>
-	</div>
-</Layout>
+		<div class="flex flex-col">
+			<div class="overflow-x-auto">
+				<div class="p-6 mx-auto align-middle">
+					<MetadataForm
+						metadata={metadata}
+						groups={groups}
+						categories={categories}
+						commonNames={commonNames}
+						productTypes={productTypes}
+						selectedRelations={selectedRelations}
+						action={`metadata/${id}`}
+						submitText="Update"
+					/>
+				</div>
+			</div>
+		</div>
+	</div></Layout
+>

@@ -3,13 +3,13 @@ import { Category, CommonName, ProductType } from "astro:db";
 
 interface Props {
 	metadata?: {
-		id?: number;
+		id?: number | undefined;
 		name: string;
-		allow_description?: boolean;
-		is_feature: boolean;
-		format?: string;
-		tooltip?: string;
-		id_group: number;
+		allow_description: boolean | null;
+		is_feature: boolean | null;
+		format?: string | null;
+		tooltip: string | null;
+		id_group: number | null;
 	};
 	groups?: Array<{
 		id: number;
@@ -28,14 +28,13 @@ interface Props {
 		name: string;
 	}>;
 	selectedRelations?: {
-		categories?: number[];
-		commonNames?: number[];
-		productTypes?: number[];
+		categories?: unknown[] | number[];
+		commonNames?: unknown[] | number[];
+		productTypes?: unknown[] | number[];
 	};
 	action: string;
 	submitText: string;
 }
-
 const {
 	metadata,
 	action,
@@ -52,6 +51,7 @@ const {
 	id="createForm"
 	class="bg-gray-50/50 dark:bg-gray-700/50 rounded-lg shadow p-6"
 	data-action={action}
+	data-medatadaId={metadata?.id}
 	enctype="multipart/form-data"
 >
 	<div class="grid grid-cols-3 gap-6">
@@ -95,10 +95,10 @@ const {
 			<textarea
 				name="tooltip"
 				id="tooltip"
-				value={metadata?.tooltip || ""}
 				class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 				placeholder="Enter metadata tooltip"
-				rows="3"></textarea>
+				rows="3">{metadata?.tooltip || ""}</textarea
+			>
 		</div>
 		<!-- Relations Sections -->
 		<div class="space-y-6 border-t pt-6 col-span-3">
@@ -283,6 +283,8 @@ const {
 	const form = document.getElementById("createForm");
 	form?.addEventListener("submit", async (e) => {
 		e.preventDefault();
+		const formAction = form.dataset.action;
+		const metadataId = form.dataset.medatadaId;
 		const formData = new FormData(form as HTMLFormElement);
 		const name = formData.get("name");
 		const format = formData.get("format");
@@ -308,24 +310,29 @@ const {
 		try {
 			// prepare metadata object with validated data
 			const metadataValues = {
-				name: name.trim(),
-				allow_description: formData.get("description") === "on",
-				is_feature: formData.get("is_feature") === "on",
-				format:
-					format && typeof format === "string" ? format.trim() : null,
-				id_group:
-					groupId && typeof groupId === "string"
-						? parseInt(groupId)
-						: null,
-				tooltip:
-					tooltip && typeof tooltip === "string"
-						? tooltip.trim()
-						: null,
-				categories: categories,
-				common_names: commonNames,
-				product_types: productTypes,
+				id: metadataId,
+				data: {
+					name: name.trim(),
+					allow_description: formData.get("description") === "on",
+					is_feature: formData.get("is_feature") === "on",
+					format:
+						format && typeof format === "string"
+							? format.trim()
+							: null,
+					id_group:
+						groupId && typeof groupId === "string"
+							? parseInt(groupId)
+							: null,
+					tooltip:
+						tooltip && typeof tooltip === "string"
+							? tooltip.trim()
+							: null,
+					categories: categories,
+					common_names: commonNames,
+					product_types: productTypes,
+				},
 			};
-			const response = await fetch("/api/metadata", {
+			const response = await fetch(`/api/${formAction}`, {
 				method: "POST",
 				headers: {
 					"Content-Type": "application/json",
@@ -333,15 +340,15 @@ const {
 				body: JSON.stringify(metadataValues),
 			});
 			if (response.ok) {
-				showSuccess("Metadata created successfully");
+				showSuccess("Metadata transaction processed successfully");
 				window.location.href = "/metadata";
 			} else {
 				const error = await response.json();
-				showError(error.message || "Error creating metadata");
+				showError(error.message || "Error processing form");
 			}
 		} catch (error) {
-			console.error("Error creating metadata:", error);
-			showError("Error creating metadata");
+			console.error("Error processing form:", error);
+			showError("Error processing form");
 		}
 	});
 </script>
