@@ -85,7 +85,7 @@ const SidebarMenu = defineTable({
     icon: column.text({ optional: true }),
     parent_id: column.number({ 
       optional: true,
-      references: () => SidebarMenu.columns.id 
+      references: () => SidebarMenu.columns.id
     }),
     position: column.number({ default: 0 }),
     created_at: column.date({ default: NOW }),
@@ -100,6 +100,7 @@ const CommonName = defineTable({
     position: column.number({ optional: true, default: 1 }),
     active: column.boolean({ optional: true, default: true }),
     desc_active: column.boolean({ default: true }),
+    parent_id: column.number({ optional: true, references: () => Category.columns.id }),  
     categories: column.json({ optional: true}),
     created_at: column.date({ default: NOW }),
     updated_at: column.date({ optional: true })

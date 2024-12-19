@@ -1,0 +1,91 @@
+---
+interface Props {
+	disabled: boolean;
+	id: string;
+	required: boolean;
+	saveAction: string;
+	redoAction: string;
+	cleanAction: string;
+}
+
+const {
+	disabled = false,
+	id = "",
+	required = false,
+	saveAction,
+	redoAction,
+	cleanAction,
+} = Astro.props;
+---
+
+<div class="relative">
+	<input
+		{disabled ? 'disabled' : ''}
+		id={`editInput${id}`}
+		class="block
+        w-full
+        p-2.5
+        ps-10
+        text-sm
+        border
+        rounded-lg
+        shadow-sm
+        text-gray-900
+        bg-gray-100
+        border-gray-400
+        focus:ring-blue-500
+        focus:border-blue-500
+        dark:text-gray-200
+        dark:bg-gray-700
+        dark:border-gray-600
+        dark:focus:ring-blue-600
+        dark:focus:border-blue-600"
+		{$required ? 'required' : ''}
+	/>
+	<div class="absolute inset-y-0 end-0 flex items-center ps-3.5">
+		<button
+			class="mr-2
+            bg-transparent
+            text-green-600
+            hover:text-green-500
+            dark:hover:text-green-300
+            dark:text-green-400
+            font-medium"
+			type="button"
+			id={`saveinput${id}`}
+			title="Guardar"
+			data-toggle="tooltip"
+			onclick={saveAction}
+		>
+			<span class="material-symbols-outlined"> save </span>
+		</button>
+		<button
+			class="mr-2
+            bg-transparent
+            text-secondary-600
+            hover:text-secondary-700
+            dark:text-secondary-700
+            dark:hover:text-secondary-800
+            font-medium"
+			type="button"
+			id={`redoinput_${id}`}
+			title="Re-hacer"
+			data-toggle="tooltip"
+			onclick={redoAction}
+		>
+			<span class="material-symbols-outlined">
+				keyboard_previous_language
+			</span>
+		</button>
+		<button
+			class="test-gray-500"
+			type="button"
+			id={`cleaninput_${id}`}
+			title="Limpiar"
+			data-toggle="tooltip"
+			onclick={cleanAction}
+		>
+			<span class="material-symbols-outlined"> cleaning_services </span>
+		</button>
+	</div>
+</div>

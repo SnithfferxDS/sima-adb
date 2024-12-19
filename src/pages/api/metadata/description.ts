@@ -9,13 +9,12 @@ export const POST:APIRoute = async ({ request }) => {
         // Ids of the metadata
         const metadatas: number[] = [];
         const metadataRelations = await db.select()
-            .from(MetadataRelations);
-        const { product, common_names, categories } = formData;
+        .from(MetadataRelations);
         // If product is not empty, find metadata vlue relations where product_id is equal to product
-        if (product) {
+        if (formData.product) {
             const metadataByProduct = await db.select()
                 .from(MetadataValueRelations)
-                .where(eq(MetadataValueRelations.product_id, product))
+                .where(eq(MetadataValueRelations.product_id, formData.product))
                 .get();
         }
         // If common_name is not empty, get metadata relations where common_name is in common_names json array
@@ -24,8 +23,8 @@ export const POST:APIRoute = async ({ request }) => {
                 metadataRelations.map((rel: any) => {
                     const commonNames = JSON.parse(rel.common_names);
                     const categoriesR = JSON.parse(rel.categories);
-                    if (common_names) {
-                        const commons = common_names.map((commonName: string | number) => Number(commonName));
+                    if (formData.common_names) {
+                        const commons = formData.common_names.map((commonName: string | number) => Number(commonName));
                         // If commons is an array, check if common_name is in commons array
                         if (Array.isArray(commons)) {
                             if (commons.includes(commonNames)) {
@@ -34,13 +33,13 @@ export const POST:APIRoute = async ({ request }) => {
                         }
                     }
 
-                    if (categories) {
+                    if (formData.categories) {
                         // If categories is not an array, parse it
                         let catsArray: number[] = [];
-                        if (!Array.isArray(categories)) {
-                            catsArray = JSON.parse(categories);
+                        if (!Array.isArray(formData.categories)) {
+                            catsArray = JSON.parse(formData.categories);
                         } else {
-                            catsArray = categories;
+                            catsArray = formData.categories;
                         }
                         const cats = catsArray.map((category: string | number) => Number(category));
                         // For each category, check if it is included in the categories array
@@ -49,12 +48,23 @@ export const POST:APIRoute = async ({ request }) => {
                                 metadatas.push(Number(rel.metadata_id));
                             }
                         });
+                  }
+                  if (formData.product_type) {
+                    const productTypes = JSON.parse(rel.product_types);
+                    if (Array.isArray(productTypes)) {
+                      if (productTypes.includes(formData.product_type)) {
+                        metadatas.push(Number(rel.metadata_id));
+                      }
+                    } else {
+                      if (productTypes === formData.product_type) {
+                        metadatas.push(Number(rel.metadata_id));
+                      } 
                     }
+                  }
                 }))
             .catch((error) => {
                 console.error('Error:', error);
             });
-            console.log("Metadatos: ",metadatas);
         }
 
         // Get metadata with their groups

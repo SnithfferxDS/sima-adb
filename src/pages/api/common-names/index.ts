@@ -9,6 +9,7 @@ export const POST: APIRoute = async ({ request }) => {
       position: parseInt(data.possition) || 1,
       active: data.active === 'true' || data.active === true,
       desc_active: data.desc_active === 'true' || data.desc_active === true,
+      parent_id: data.parent,
       categories: JSON.stringify(data.categories),
       created_at: new Date()
     });
