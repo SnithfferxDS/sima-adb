@@ -1,88 +1,88 @@
 ---
 interface Props {
-    id: string;
-    label: string;
-    accept?: string;
-    required?: boolean;
-    previewUrl?: string;
+	id: string;
+	label: string;
+	accept?: string;
+	required?: boolean;
+	previewUrl?: string;
 }
 
 const {
-    id,
-    label,
-    accept = "image/*",
-    required = false,
-    previewUrl = "",
+	id,
+	label,
+	accept = "image/*",
+	required = false,
+	previewUrl = "",
 } = Astro.props;
 ---
 
 <div class="mb-4">
-    <label
-        for={id}
-        class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-        >{label}</label
-    >
-    <div class="flex items-center justify-center w-full">
-        <label
-            for={id}
-            class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500"
-        >
-            <div class="flex flex-col items-center justify-center pt-5 pb-6">
-                <img
-                    id={`${id}-preview`}
-                    src={previewUrl}
-                    class="hidden max-h-40 mb-4"
-                    alt="Preview"
-                />
-                <svg
-                    class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
-                    aria-hidden="true"
-                    xmlns="http://www.w3.org/2000/svg"
-                    fill="none"
-                    viewBox="0 0 20 16"
-                >
-                    <path
-                        stroke="currentColor"
-                        stroke-linecap="round"
-                        stroke-linejoin="round"
-                        stroke-width="2"
-                        d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-                    ></path>
-                </svg>
-                <p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
-                    <span class="font-semibold">Click to upload</span> or drag and
-                    drop
-                </p>
-                <p class="text-xs text-gray-500 dark:text-gray-400">
-                    PNG, JPG or GIF
-                </p>
-            </div>
-            <input
-                id={id}
-                type="file"
-                class="hidden"
-                accept={accept}
-                required={required}
-            />
-        </label>
-    </div>
+	<label
+		for={id}
+		class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+		>{label}</label
+	>
+	<div class="flex items-center justify-center w-full">
+		<label
+			for={id}
+			class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500"
+		>
+			<div class="flex flex-col items-center justify-center pt-5 pb-6">
+				<img
+					id={`${id}-preview`}
+					src={previewUrl}
+					class="hidden max-h-40 mb-4"
+					alt="Preview"
+				/>
+				<svg
+					class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
+					aria-hidden="true"
+					xmlns="http://www.w3.org/2000/svg"
+					fill="none"
+					viewBox="0 0 20 16"
+				>
+					<path
+						stroke="currentColor"
+						stroke-linecap="round"
+						stroke-linejoin="round"
+						stroke-width="2"
+						d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
+					></path>
+				</svg>
+				<p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
+					<span class="font-semibold">Click to upload</span> or drag and
+					drop
+				</p>
+				<p class="text-xs text-gray-500 dark:text-gray-400">
+					PNG, JPG or GIF
+				</p>
+			</div>
+			<input
+				id={id}
+				type="file"
+				class="hidden"
+				accept={accept}
+				required={required}
+			/>
+		</label>
+	</div>
 </div>
 
 <script define:vars={{ id }}>
-    const input = document.getElementById(id);
-    const preview = document.getElementById(`${id}-preview`);
+	const input = document.getElementById(id);
+	const preview = document.getElementById(`${id}-preview`);
 
-    if (input && preview) {
-        input.addEventListener("change", (e) => {
-            const file = (e.target as HTMLInputElement).files?.[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onloadend = () => {
-                    preview.src = reader.result as string;
-                    preview.classList.remove("hidden");
-                };
-                reader.readAsDataURL(file);
-            }
-        });
-    }
+	if (input && preview) {
+		input.addEventListener("change", (e) => {
+			const file = e.target.files?.[0];
+			if (file) {
+				const reader = new FileReader();
+				reader.onloadend = () => {
+					preview.src = reader.result;
+					preview.classList.remove("hidden");
+				};
+				reader.readAsDataURL(file);
+			}
+		});
+	}
 </script>

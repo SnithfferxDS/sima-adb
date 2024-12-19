@@ -1,0 +1,241 @@
+---
+interface Props {
+	productId?: string;
+	maxFiles?: number;
+	accept?: string;
+}
+
+const {
+	productId,
+	maxFiles = 5,
+	accept = "image/png,image/jpeg,image/webp",
+} = Astro.props;
+---
+
+<div class="space-y-4">
+	<div class="flex items-center justify-between">
+		<h3 class="text-lg font-medium text-gray-900">Product Images</h3>
+		<span class="text-sm text-gray-500" id="imageCount"
+			>0/{maxFiles} images</span
+		>
+	</div>
+
+	<div
+		id="dropZone"
+		class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary-500 transition-colors"
+	>
+		<input
+			type="file"
+			id="fileInput"
+			name="images"
+			multiple
+			accept={accept}
+			class="hidden"
+			data-max-files={maxFiles}
+			data-product-id={productId}
+		/>
+
+		<label for="fileInput" class="cursor-pointer">
+			<div class="space-y-2">
+				<svg
+					class="mx-auto h-12 w-12 text-gray-400"
+					stroke="currentColor"
+					fill="none"
+					viewBox="0 0 48 48"
+				>
+					<path
+						d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
+						stroke-width="2"
+						stroke-linecap="round"
+						stroke-linejoin="round"></path>
+				</svg>
+				<div class="text-gray-600">
+					<span class="text-primary-600">Upload images</span> or drag and
+					drop
+				</div>
+				<p class="text-xs text-gray-500">PNG, JPG, WebP up to 10MB</p>
+			</div>
+		</label>
+	</div>
+
+	<div
+		id="previewContainer"
+		class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+	>
+		<!-- Image previews will be inserted here -->
+	</div>
+
+	<div id="progressContainer" class="hidden">
+		<div class="w-full bg-gray-200 rounded-full h-2.5">
+			<div
+				id="progressBar"
+				class="bg-primary h-2.5 rounded-full"
+				style="width: 0%"
+			>
+			</div>
+		</div>
+		<p id="progressText" class="text-sm text-gray-600 mt-1">Uploading...</p>
+	</div>
+</div>
+
+<script>
+	class ImageUploader {
+		private dropZone: HTMLElement;
+		private fileInput: HTMLInputElement;
+		private previewContainer: HTMLElement;
+		private progressContainer: HTMLElement;
+		private progressBar: HTMLElement;
+		private progressText: HTMLElement;
+		private imageCount: HTMLElement;
+		private maxFiles: number;
+		private productId: string;
+
+		constructor() {
+			this.dropZone = document.getElementById("dropZone")!;
+			this.fileInput = document.getElementById(
+				"fileInput",
+			) as HTMLInputElement;
+			this.previewContainer =
+				document.getElementById("previewContainer")!;
+			this.progressContainer =
+				document.getElementById("progressContainer")!;
+			this.progressBar = document.getElementById("progressBar")!;
+			this.progressText = document.getElementById("progressText")!;
+			this.imageCount = document.getElementById("imageCount")!;
+			this.maxFiles = parseInt(this.fileInput.dataset.maxFiles || "5");
+			this.productId = this.fileInput.dataset.productId || "";
+
+			this.initializeEventListeners();
+		}
+
+		private initializeEventListeners() {
+			this.dropZone.addEventListener("dragover", (e) => {
+				e.preventDefault();
+				this.dropZone.classList.add("border-primary-500");
+			});
+
+			this.dropZone.addEventListener("dragleave", () => {
+				this.dropZone.classList.remove("border-primary-500");
+			});
+
+			this.dropZone.addEventListener("drop", (e) => {
+				e.preventDefault();
+				this.dropZone.classList.remove("border-primary-500");
+				const files = e.dataTransfer?.files;
+				if (files) this.handleFiles(files);
+			});
+
+			this.fileInput.addEventListener("change", () => {
+				if (this.fileInput.files) {
+					this.handleFiles(this.fileInput.files);
+				}
+			});
+		}
+
+		private async handleFiles(files: FileList) {
+			const currentCount = this.previewContainer.children.length;
+			const remainingSlots = this.maxFiles - currentCount;
+
+			if (remainingSlots <= 0) {
+				alert(`Maximum ${this.maxFiles} images allowed`);
+				return;
+			}
+
+			const validFiles = Array.from(files)
+				.slice(0, remainingSlots)
+				.filter((file) => file.type.startsWith("image/"));
+
+			for (const file of validFiles) {
+				await this.uploadFile(file);
+			}
+
+			this.updateImageCount();
+		}
+
+		private async uploadFile(file: File) {
+			// Create preview
+			const preview = this.createPreview(file);
+			this.previewContainer.appendChild(preview);
+
+			// Prepare form data
+			const formData = new FormData();
+			formData.append("image", file);
+			formData.append("productId", this.productId);
+
+			try {
+				// Show progress
+				this.progressContainer.classList.remove("hidden");
+
+				// Upload file
+				const response = await fetch("/api/images/upload", {
+					method: "POST",
+					body: formData,
+				});
+
+				if (!response.ok) throw new Error("Upload failed");
+
+				const result = await response.json();
+
+				// Update preview with final image
+				const img = preview.querySelector("img");
+				if (img) img.src = result.thumbnailUrl;
+
+				// Add delete button functionality
+				const deleteBtn = preview.querySelector(".delete-btn");
+				if (deleteBtn) {
+					deleteBtn.addEventListener("click", () =>
+						this.deleteImage(result.id, preview),
+					);
+				}
+			} catch (error) {
+				console.error("Upload failed:", error);
+				preview.remove();
+			} finally {
+				this.progressContainer.classList.add("hidden");
+				this.progressBar.style.width = "0%";
+			}
+		}
+
+		private createPreview(file: File): HTMLElement {
+			const div = document.createElement("div");
+			div.className = "relative group";
+
+			const img = document.createElement("img");
+			img.className = "w-full h-48 object-cover rounded-lg";
+			img.src = URL.createObjectURL(file);
+
+			const deleteBtn = document.createElement("button");
+			deleteBtn.className =
+				"delete-btn absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity";
+			deleteBtn.innerHTML = "×";
+
+			div.appendChild(img);
+			div.appendChild(deleteBtn);
+
+			return div;
+		}
+
+		private async deleteImage(imageId: string, preview: HTMLElement) {
+			try {
+				const response = await fetch(`/api/images/${imageId}`, {
+					method: "DELETE",
+				});
+
+				if (!response.ok) throw new Error("Delete failed");
+
+				preview.remove();
+				this.updateImageCount();
+			} catch (error) {
+				console.error("Delete failed:", error);
+			}
+		}
+
+		private updateImageCount() {
+			const count = this.previewContainer.children.length;
+			this.imageCount.textContent = `${count}/${this.maxFiles} images`;
+		}
+	}
+
+	// Initialize uploader
+	new ImageUploader();
+</script>

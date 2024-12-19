@@ -2,11 +2,13 @@
 import BaseLayout from "../../layouts/app.layout.astro";
 import ProductVariantUpload from "../../components/ProductVariantUpload.astro";
 import ProductVariantForm from "../../components/ProductVariantForm.astro";
-import UploadFile from "../../components/FileUpload.astro";
-import { db, Brand, Category, CommonName, ProductType } from "astro:db";
+//import UploadFile from "../../components/FileUpload.astro";
+import { db } from "astro:db";
+import UploadFile from "../../components/shared/ImageUploader.astro";
 import BreadCrumbs from "../../components/BreadCrumbs.astro";
 import type { CommonNames } from "../../types/entities";
 import MetadataDescription from "../../components/MetadataDescription.astro";
+import { Country, Brand, Category, CommonName, ProductType } from "astro:db";
 
 const Categories = await db
 	.select({ id: Category.id, name: Category.name })
@@ -33,6 +35,13 @@ const ProductTypes = await db
 		categories: ProductType.categories,
 	})
 	.from(ProductType)
+	.all();
+const Origins = await db
+	.select({
+		id: Country.id,
+		name: Country.name,
+	})
+	.from(Country)
 	.all();
 
 const breadcrumbs = [
@@ -199,8 +208,7 @@ const breadcrumbs = [
 															class="rounded-lg shadow"
 														>
 															<UploadFile
-																id="productImage"
-																label=""
+																productId="productImage"
 															/>
 															{
 																/* <img
@@ -674,7 +682,31 @@ const breadcrumbs = [
 																/>
 															</div>
 															<div
-																class="col-span-1 sm:col-span-2 md:col-span-3"
+																class="col-span-1 flex items-center"
+															>
+																<label
+																	class="inline-flex items-center mb-2 cursor-pointer"
+																>
+																	<input
+																		id="productUsed"
+																		name="productUsed"
+																		type="checkbox"
+																		value=""
+																		class="sr-only peer"
+																	/>
+																	<div
+																		class="relative w-11 h-6 bg-red-500 peer peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-300 peer-checked:after:translate-x-full peer-checked:after:border-white peer-checked:bg-green-600 rounded-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:w-5 after:h-5 after:transition-all dark:peer-focus:ring-gray-800 dark:bg-red-700 dark:border-gray-600"
+																	>
+																	</div>
+																	<span
+																		class="ms-3 text-sm font-medium text-gray-400 dark:text-gray-500"
+																	>
+																		Usado/Reparado
+																	</span>
+																</label>
+															</div>
+															<div
+																class="col-span-1 sm:col-span-1 md:col-span-2"
 															>
 																<label
 																	for="productName"
@@ -690,55 +722,31 @@ const breadcrumbs = [
 																	required=""
 																/>
 															</div>
+															<div
+																class="col-span-1 flex items-center"
+															>
+																<label
+																	class="inline-flex items-center mb-2 cursor-pointer"
+																>
+																	<input
+																		id="productActive"
+																		name="productActive"
+																		type="checkbox"
+																		value=""
+																		class="sr-only peer"
+																	/>
+																	<div
+																		class="relative w-11 h-6 bg-red-500 peer peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-300 peer-checked:after:translate-x-full peer-checked:after:border-white peer-checked:bg-green-600 rounded-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:w-5 after:h-5 after:transition-all dark:peer-focus:ring-gray-800 dark:bg-red-700 dark:border-gray-600"
+																	>
+																	</div>
+																	<span
+																		class="ms-3 text-sm font-medium text-gray-400 dark:text-gray-500"
+																	>
+																		Activo
+																	</span>
+																</label>
+															</div>
 														</div>
-													</div>
-													<div
-														class="col-span-1 flex items-center"
-													>
-														<label
-															class="inline-flex items-center mb-2 cursor-pointer"
-														>
-															<input
-																id="productUsed"
-																name="productUsed"
-																type="checkbox"
-																value=""
-																class="sr-only peer"
-															/>
-															<div
-																class="relative w-11 h-6 bg-red-500 peer peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-300 peer-checked:after:translate-x-full peer-checked:after:border-white peer-checked:bg-green-600 rounded-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:w-5 after:h-5 after:transition-all dark:peer-focus:ring-gray-800 dark:bg-red-700 dark:border-gray-600"
-															>
-															</div>
-															<span
-																class="ms-3 text-sm font-medium text-gray-400 dark:text-gray-500"
-															>
-																Usado/Reparado
-															</span>
-														</label>
-													</div>
-													<div
-														class="col-span-1 flex items-center"
-													>
-														<label
-															class="inline-flex items-center mb-2 cursor-pointer"
-														>
-															<input
-																id="productActive"
-																name="productActive"
-																type="checkbox"
-																value=""
-																class="sr-only peer"
-															/>
-															<div
-																class="relative w-11 h-6 bg-red-500 peer peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-gray-300 peer-checked:after:translate-x-full peer-checked:after:border-white peer-checked:bg-green-600 rounded-full rtl:peer-checked:after:-translate-x-full after:content-[''] after:absolute after:top-[2px] after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:w-5 after:h-5 after:transition-all dark:peer-focus:ring-gray-800 dark:bg-red-700 dark:border-gray-600"
-															>
-															</div>
-															<span
-																class="ms-3 text-sm font-medium text-gray-400 dark:text-gray-500"
-															>
-																Activo
-															</span>
-														</label>
 													</div>
 													<div
 														class="col-span-1 flex items-center"
@@ -894,7 +902,9 @@ const breadcrumbs = [
 															</div>
 														</div> */
 														}
-														<ProductVariantUpload />
+														<UploadFile
+															productId="productImage"
+														/>
 													</div>
 
 													<div
@@ -1050,7 +1060,7 @@ const breadcrumbs = [
 												aria-labelledby="productLogistics-tab"
 											>
 												<div
-													class="grid sm:grid-cols-1 md:grid-cols-4 lg:grid-cols-6 gap-2 md:gap-4"
+													class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-2 md:gap-4"
 												>
 													<div class="mb-4">
 														<label
@@ -1069,6 +1079,23 @@ const breadcrumbs = [
 																>-- Seleccionar
 																País Origen --</option
 															>
+															{
+																Origins.map(
+																	(
+																		origin,
+																	) => (
+																		<option
+																			value={
+																				origin.id
+																			}
+																		>
+																			{
+																				origin.name
+																			}
+																		</option>
+																	),
+																)
+															}
 														</select>
 													</div>
 
@@ -1214,303 +1241,299 @@ const breadcrumbs = [
 															<span
 																class="ms-3 text-sm font-medium text-gray-400 dark:text-gray-500"
 															>
-																Cilindro
+																Onjecto
+																Cilíndrico
 															</span>
 														</label>
 													</div>
 
 													<div
-														class="mb-4 col-span-2 lg:col-span-3"
+														class="mb-4"
+														id="widthField"
 													>
-														<div
-															class="grid grid-cols-3"
+														<label
+															for="width"
+															class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+															>Ancho</label
 														>
-															<div class="mb-4">
-																<label
-																	for="width"
-																	class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-																	>Ancho</label
+														<div class="relative">
+															<div
+																class="absolute inset-y-0 end-0 flex items-center"
+															>
+																<select
+																	name="measureUnit"
+																	id="measureUnit"
+																	class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 select2"
 																>
-																<div
-																	class="relative"
-																>
-																	<div
-																		class="absolute inset-y-0 end-0 flex items-center"
+																	<option
+																		value="mm"
+																		selected=""
+																		>Milimetro</option
 																	>
-																		<select
-																			name="measureUnit"
-																			id="measureUnit"
-																			class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 select2"
-																		>
-																			<option
-																				value="mm"
-																				selected=""
-																				>Milimetro</option
-																			>
-																			<option
-																				value="cm"
-																				>Centimetro</option
-																			>
-																			<option
-																				value="in"
-																				>Pulgada</option
-																			>
-																			<option
-																				value="ft"
-																				>Pies</option
-																			>
-																			<option
-																				value="yd"
-																				>Yardas</option
-																			>
-																			<option
-																				value="mi"
-																				>Millas</option
-																			>
-																		</select>
-																	</div>
-																	<input
-																		type="number"
-																		name="width"
-																		id="width"
-																		class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-																		placeholder="0.00"
-																		min="0.01"
-																		value="0.00"
-																		step="any"
-																	/>
-																</div>
+																	<option
+																		value="cm"
+																		>Centimetro</option
+																	>
+																	<option
+																		value="in"
+																		>Pulgada</option
+																	>
+																	<option
+																		value="ft"
+																		>Pies</option
+																	>
+																	<option
+																		value="yd"
+																		>Yardas</option
+																	>
+																	<option
+																		value="mi"
+																		>Millas</option
+																	>
+																</select>
 															</div>
+															<input
+																type="number"
+																name="width"
+																id="width"
+																class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+																placeholder="0.00"
+																min="0.01"
+																value="0.00"
+																step="any"
+															/>
+														</div>
+													</div>
 
-															<div class="mb-4">
-																<label
-																	for="height"
-																	class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-																	>Alto</label
+													<div
+														class="mb-4"
+														id="heightField"
+													>
+														<label
+															for="height"
+															class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+															>Alto</label
+														>
+														<div class="relative">
+															<div
+																class="absolute inset-y-0 end-0 flex items-center"
+															>
+																<select
+																	name="measureUnit"
+																	id="measureUnit"
+																	class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 select2"
 																>
-																<div
-																	class="relative"
-																>
-																	<div
-																		class="absolute inset-y-0 end-0 flex items-center"
+																	<option
+																		value="mm"
+																		selected=""
+																		>Milimetro</option
 																	>
-																		<select
-																			name="measureUnit"
-																			id="measureUnit"
-																			class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 select2"
-																		>
-																			<option
-																				value="mm"
-																				selected=""
-																				>Milimetro</option
-																			>
-																			<option
-																				value="cm"
-																				>Centimetro</option
-																			>
-																			<option
-																				value="in"
-																				>Pulgada</option
-																			>
-																			<option
-																				value="ft"
-																				>Pies</option
-																			>
-																			<option
-																				value="yd"
-																				>Yardas</option
-																			>
-																			<option
-																				value="mi"
-																				>Millas</option
-																			>
-																		</select>
-																	</div>
-																	<input
-																		type="number"
-																		name="height"
-																		id="height"
-																		class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-																		placeholder="0.00"
-																		min="0.01"
-																		value="0.00"
-																		step="any"
-																	/>
-																</div>
+																	<option
+																		value="cm"
+																		>Centimetro</option
+																	>
+																	<option
+																		value="in"
+																		>Pulgada</option
+																	>
+																	<option
+																		value="ft"
+																		>Pies</option
+																	>
+																	<option
+																		value="yd"
+																		>Yardas</option
+																	>
+																	<option
+																		value="mi"
+																		>Millas</option
+																	>
+																</select>
 															</div>
+															<input
+																type="number"
+																name="height"
+																id="height"
+																class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+																placeholder="0.00"
+																min="0.01"
+																value="0.00"
+																step="any"
+															/>
+														</div>
+													</div>
 
-															<div class="mb-4">
-																<label
-																	for="depth"
-																	class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-																	>Pofundidad</label
+													<div
+														class="mb-4"
+														id="depthField"
+													>
+														<label
+															for="depth"
+															class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+															>Pofundidad</label
+														>
+														<div class="relative">
+															<div
+																class="absolute inset-y-0 end-0 flex items-center"
+															>
+																<select
+																	name="measureUnit"
+																	id="measureUnit"
+																	class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 select2"
 																>
-																<div
-																	class="relative"
-																>
-																	<div
-																		class="absolute inset-y-0 end-0 flex items-center"
+																	<option
+																		value="mm"
+																		selected=""
+																		>Milimetro</option
 																	>
-																		<select
-																			name="measureUnit"
-																			id="measureUnit"
-																			class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 select2"
-																		>
-																			<option
-																				value="mm"
-																				selected=""
-																				>Milimetro</option
-																			>
-																			<option
-																				value="cm"
-																				>Centimetro</option
-																			>
-																			<option
-																				value="in"
-																				>Pulgada</option
-																			>
-																			<option
-																				value="ft"
-																				>Pies</option
-																			>
-																			<option
-																				value="yd"
-																				>Yardas</option
-																			>
-																			<option
-																				value="mi"
-																				>Millas</option
-																			>
-																		</select>
-																	</div>
-																	<input
-																		type="number"
-																		name="depth"
-																		id="depth"
-																		class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-																		placeholder="0.00"
-																		min="0.01"
-																		value="0.00"
-																		step="any"
-																	/>
-																</div>
+																	<option
+																		value="cm"
+																		>Centimetro</option
+																	>
+																	<option
+																		value="in"
+																		>Pulgada</option
+																	>
+																	<option
+																		value="ft"
+																		>Pies</option
+																	>
+																	<option
+																		value="yd"
+																		>Yardas</option
+																	>
+																	<option
+																		value="mi"
+																		>Millas</option
+																	>
+																</select>
 															</div>
+															<input
+																type="number"
+																name="depth"
+																id="depth"
+																class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+																placeholder="0.00"
+																min="0.01"
+																value="0.00"
+																step="any"
+															/>
+														</div>
+													</div>
 
-															<div class="mb-4">
-																<label
-																	for="outterDiameter"
-																	class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-																	>Diametro
-																	Externo</label
+													<div
+														class="mb-4"
+														id="outterDiameterField"
+													>
+														<label
+															for="outterDiameter"
+															class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+															>Diametro Externo</label
+														>
+														<div class="relative">
+															<div
+																class="absolute inset-y-0 end-0 flex items-center"
+															>
+																<select
+																	name="measureUnit"
+																	id="measureUnit"
+																	class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 select2"
 																>
-																<div
-																	class="relative"
-																>
-																	<div
-																		class="absolute inset-y-0 end-0 flex items-center"
+																	<option
+																		value="mm"
+																		selected=""
+																		>Milimetro</option
 																	>
-																		<select
-																			name="measureUnit"
-																			id="measureUnit"
-																			class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 select2"
-																		>
-																			<option
-																				value="mm"
-																				selected=""
-																				>Milimetro</option
-																			>
-																			<option
-																				value="cm"
-																				>Centimetro</option
-																			>
-																			<option
-																				value="in"
-																				>Pulgada</option
-																			>
-																			<option
-																				value="ft"
-																				>Pies</option
-																			>
-																			<option
-																				value="yd"
-																				>Yardas</option
-																			>
-																			<option
-																				value="mi"
-																				>Millas</option
-																			>
-																		</select>
-																	</div>
-																	<input
-																		type="number"
-																		name="outterDiameter"
-																		id="outterDiameter"
-																		class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-																		placeholder="0.00"
-																		min="0.01"
-																		value="0.00"
-																		step="any"
-																	/>
-																</div>
+																	<option
+																		value="cm"
+																		>Centimetro</option
+																	>
+																	<option
+																		value="in"
+																		>Pulgada</option
+																	>
+																	<option
+																		value="ft"
+																		>Pies</option
+																	>
+																	<option
+																		value="yd"
+																		>Yardas</option
+																	>
+																	<option
+																		value="mi"
+																		>Millas</option
+																	>
+																</select>
 															</div>
+															<input
+																type="number"
+																name="outterDiameter"
+																id="outterDiameter"
+																class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+																placeholder="0.00"
+																min="0.01"
+																value="0.00"
+																step="any"
+															/>
+														</div>
+													</div>
 
-															<div class="mb-4">
-																<label
-																	for="innerDiameter"
-																	class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-																	>Diametro
-																	Interno</label
+													<div
+														class="mb-4"
+														id="innerDiameterField"
+													>
+														<label
+															for="innerDiameter"
+															class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+															>Diametro Interno</label
+														>
+														<div class="relative">
+															<div
+																class="absolute inset-y-0 end-0 flex items-center"
+															>
+																<select
+																	name="measureUnit"
+																	id="measureUnit"
+																	class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 select2"
 																>
-																<div
-																	class="relative"
-																>
-																	<div
-																		class="absolute inset-y-0 end-0 flex items-center"
+																	<option
+																		value="mm"
+																		selected=""
+																		>Milimetro</option
 																	>
-																		<select
-																			name="measureUnit"
-																			id="measureUnit"
-																			class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 select2"
-																		>
-																			<option
-																				value="mm"
-																				selected=""
-																				>Milimetro</option
-																			>
-																			<option
-																				value="cm"
-																				>Centimetro</option
-																			>
-																			<option
-																				value="in"
-																				>Pulgada</option
-																			>
-																			<option
-																				value="ft"
-																				>Pies</option
-																			>
-																			<option
-																				value="yd"
-																				>Yardas</option
-																			>
-																			<option
-																				value="mi"
-																				>Millas</option
-																			>
-																		</select>
-																	</div>
-																	<input
-																		type="number"
-																		name="innerDiameter"
-																		id="innerDiameter"
-																		class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
-																		placeholder="0.00"
-																		min="0.01"
-																		value="0.00"
-																		step="any"
-																	/>
-																</div>
+																	<option
+																		value="cm"
+																		>Centimetro</option
+																	>
+																	<option
+																		value="in"
+																		>Pulgada</option
+																	>
+																	<option
+																		value="ft"
+																		>Pies</option
+																	>
+																	<option
+																		value="yd"
+																		>Yardas</option
+																	>
+																	<option
+																		value="mi"
+																		>Millas</option
+																	>
+																</select>
 															</div>
+															<input
+																type="number"
+																name="innerDiameter"
+																id="innerDiameter"
+																class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+																placeholder="0.00"
+																min="0.01"
+																value="0.00"
+																step="any"
+															/>
 														</div>
 													</div>
 												</div>
@@ -1570,10 +1593,29 @@ const breadcrumbs = [
 				const productIdInput = document.getElementById(
 					"productId",
 				) as HTMLInputElement;
-
 				const productDescription = document.getElementById(
 					"productDesc",
 				) as HTMLElement;
+				const CubicObject = document.getElementById(
+					"objectCubicShape",
+				) as HTMLInputElement;
+				const CylinderObject = document.getElementById(
+					"objectCylinder",
+				) as HTMLInputElement;
+				const diameterInner =
+					document.getElementById("innerDiameterField");
+				const diameterOutter = document.getElementById(
+					"outterDiameterField",
+				);
+				const depth = document.getElementById("depthField");
+				const height = document.getElementById("heightField");
+				const width = document.getElementById("widthField");
+
+				if (depth) depth.style.display = "none";
+				if (height) height.style.display = "none";
+				if (width) width.style.display = "none";
+				if (diameterInner) diameterInner.style.display = "none";
+				if (diameterOutter) diameterOutter.style.display = "none";
 
 				let currentMetadata: any[] = [];
 				async function fetchMetadataDescription(data: any[]) {
@@ -1597,61 +1639,101 @@ const breadcrumbs = [
 
 					if (groups.length === 0) {
 						productDescription.innerHTML =
-							'<p class="text-sm text-gray-500">No metadata available for the selected options.</p>';
+							'<p class="text-sm text-gray-500">El nombre común no tiene metadatos.</p>';
 						return;
 					}
-
+					/* 
+					{
+						id: 9,
+						name: 'Tipo de Memoria',
+						position: 1,
+						active: true,
+						allow_description: true,
+						is_feature: false,
+						format: null,
+						tooltip: 'Según especificaciones técnicas, digite o seleccione el tipo de memoria RAM',
+						id_group: null,
+						created_at: 2024-12-14T17:53:51.000Z,
+						updated_at: 2024-12-17T19:02:25.089Z
+					} */
 					productDescription.innerHTML = groups
 						.map(
 							(group) => `
-								<div class="bg-gray-50 rounded-lg p-6">
+								<div class="rounded-lg p-6">
 									<h3 class="text-lg font-medium text-gray-900 mb-4">${group.name}</h3>
 									<div class="space-y-4">
-									${group.metadata
-										.map(
-											(meta: any) => `
-										<div>
-										<label for="metadata_${meta.id}" class="block text-sm font-medium text-gray-700">
-											${meta.name}
-											${meta.tooltip ? `<span class="text-gray-500 text-xs ml-1" title="${meta.tooltip}">ⓘ</span>` : ""}
-										</label>
-										<div class="mt-1 flex rounded-md shadow-sm">
-											<input
-											type="text"
-											id="metadata_${meta.id}"
-											name="metadata_${meta.id}"
-											class="flex-1 rounded-l-md border-gray-300 focus:border-primary-500 focus:ring-primary-500"
-											${meta.format ? `pattern="${meta.format}"` : ""}
-											/>
-											<button
-											type="button"
-											data-metadata-id="${meta.id}"
-											class="save-metadata-btn inline-flex items-center px-4 py-2 border border-l-0 border-gray-300 rounded-r-md bg-gray-50 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-primary-500"
-											>
-											Save
-											</button>
-										</div>
-										</div>
-									`,
-										)
-										.join("")}
+										${group.metadata
+											.map(
+												(meta: any) => `
+													<div>
+														<label for="metadata_${meta.id}" class="block text-sm font-medium text-gray-700">
+															${meta.name}
+															${meta.tooltip ? `<span class="text-gray-500 text-xs ml-1" title="${meta.tooltip}">ⓘ</span>` : ""}
+														</label>
+														<div class="mt-1 flex rounded-md shadow-sm">
+															<input
+																type="text"
+																id="metadata_${meta.id}"
+																name="metadata_${meta.id}"
+																class="flex-1 rounded-l-md border-gray-300 focus:border-primary-500 focus:ring-primary-500"
+																${meta.format ? `pattern="${meta.format}"` : ""}
+															/>
+															<button
+																type="button"
+																data-metadata-id="${meta.id}"
+																class="save-metadata-btn inline-flex items-center px-4 py-2 border border-l-0 border-gray-300 rounded-r-md bg-gray-50 text-sm font-medium text-gray-700 hover:bg-gray-100 focus:outline-none focus:ring-1 focus:ring-primary-500"
+															>
+																Save
+															</button>
+														</div>
+														<div class="relative">
+															<input
+																type="text"
+																id="metadata_${meta.id}"
+																class="block w-full p-2.5 ps-10 text-sm border rounded-lg shadow-sm text-gray-900 bg-gray-100 border-gray-400 focus:ring-blue-500 focus:border-blue-500 dark:text-gray-200 dark:bg-gray-700 dark:border-gray-600 dark:focus:ring-blue-600 dark:focus:border-blue-600"
+															/>
+															<div class="absolute inset-y-0 end-0 flex items-center ps-3.5">
+																<button
+																	class="mr-2 bg-transparent text-green-600 hover:text-green-500 dark:hover:text-green-300 dark:text-green-400 font-medium"
+																	type="button"
+																	id="saveinput_${meta.id}"
+																	title="Guardar"
+																	data-toggle="tooltip"
+																	onclick="saveMetadataValue(${meta.id})"
+																>
+																	<span class="material-symbols-outlined"> save </span>
+																</button>
+																<button
+																	class="mr-2 bg-transparent text-secondary-600 hover:text-secondary-700 dark:text-secondary-700 dark:hover:text-secondary-800 font-medium"
+																	type="button"
+																	id="redoinput_${meta.id}"
+																	title="Re-hacer"
+																	data-toggle="tooltip"
+																	onclick="redoMetadataValue(${meta.id})"
+																>
+																	<span class="material-symbols-outlined">
+																		undo
+																	</span>
+																</button>
+																<button
+																	class="test-gray-500"
+																	type="button"
+																	id="cleaninput_${meta.id}"
+																	title="Limpiar"
+																	data-toggle="tooltip"
+																	onclick="cleanMetadataValue(${meta.id})"
+																>
+																	<span class="material-symbols-outlined"> cleaning_services </span>
+																</button>
+															</div>
+														</div>
+													</div>`,
+											)
+											.join("")}
 									</div>
 								</div>`,
 						)
 						.join("");
-
-					productDescription
-						.querySelectorAll(".save-metadata-btn")
-						.forEach((button) => {
-							button.addEventListener("click", (e) => {
-								const metadataId = (
-									e.target as HTMLButtonElement
-								).dataset.metadataId;
-								if (metadataId) {
-									saveMetadataValue(parseInt(metadataId));
-								}
-							});
-						});
 				}
 
 				async function saveMetadataValue(metadataId: number) {
@@ -1670,17 +1752,62 @@ const breadcrumbs = [
 					}
 
 					try {
-						const response = await fetch("/api/metadata-values", {
-							method: "POST",
-							headers: {
-								"Content-Type": "application/json",
+						const response = await fetch(
+							"/api/metadata/metadata-values",
+							{
+								method: "POST",
+								headers: {
+									"Content-Type": "application/json",
+								},
+								body: JSON.stringify({
+									product_id: productId,
+									metadata_id: metadataId,
+									value,
+								}),
 							},
-							body: JSON.stringify({
-								product_id: productId,
-								metadata_id: metadataId,
-								value,
-							}),
-						});
+						);
+
+						if (!response.ok) {
+							throw new Error("Failed to save metadata value");
+						}
+
+						alert("Metadata value saved successfully");
+					} catch (error) {
+						console.error("Error saving metadata value:", error);
+						alert("Failed to save metadata value");
+					}
+				}
+
+				async function cleanMetadataValue(metadataId: number) {
+					const productId = (
+						document.getElementById("id") as HTMLInputElement
+					).value;
+					const value = (
+						document.getElementById(
+							`metadata_${metadataId}`,
+						) as HTMLInputElement
+					).value;
+
+					if (!productId) {
+						alert("Please save the product first");
+						return;
+					}
+
+					try {
+						const response = await fetch(
+							"/api/metadata/metadata-values",
+							{
+								method: "POST",
+								headers: {
+									"Content-Type": "application/json",
+								},
+								body: JSON.stringify({
+									product_id: productId,
+									metadata_id: metadataId,
+									value,
+								}),
+							},
+						);
 
 						if (!response.ok) {
 							throw new Error("Failed to save metadata value");
@@ -1727,9 +1854,8 @@ const breadcrumbs = [
 										"Content-Type": "application/json",
 									},
 									body: JSON.stringify({
-										action: "common",
 										product: productId,
-										common_name: commonNameId,
+										common_names: commonNameId,
 										categories: categories,
 									}),
 								},
@@ -1766,16 +1892,51 @@ const breadcrumbs = [
 					if (description) {
 						try {
 							const response = await fetch(
-								`/api/metadata?common_names=${commonNameSelect.value}&product_types=${typeSelect.value}`,
+								"/api/metadata/description",
+								{
+									method: "POST",
+									headers: {
+										"Content-Type": "application/json",
+									},
+									body: JSON.stringify({
+										product: productIdInput.value,
+										common_names: commonNameSelect.value,
+										categories: typeSelect.value,
+										product_type: typeSelect.value,
+									}),
+								},
 							);
 							if (response.ok) {
-								console.log(response);
+								const data = await response.json();
+								fetchMetadataDescription(data);
 							}
 						} catch (error) {
 							console.error("Error:", error);
 						}
 					}
 				};
+
+				// Hide measure elements
+				function hideFields(typo: string) {
+					if (typo === "cylinder") {
+						if (diameterInner) diameterInner.style.display = "none";
+						if (diameterOutter)
+							diameterOutter.style.display = "none";
+						if (depth) depth.style.display = "block";
+						if (height) height.style.display = "block";
+						if (width) width.style.display = "block";
+						CubicObject.checked = false;
+					} else if (typo === "cubic") {
+						if (diameterInner)
+							diameterInner.style.display = "block";
+						if (diameterOutter)
+							diameterOutter.style.display = "block";
+						if (depth) depth.style.display = "block";
+						if (height) height.style.display = "none";
+						if (width) width.style.display = "none";
+						CylinderObject.checked = false;
+					}
+				}
 
 				// Add event listeners
 				commonNameSelect.addEventListener(
@@ -1787,6 +1948,12 @@ const breadcrumbs = [
 				mpnInput.addEventListener("keyup", updateProductName);
 				skuInput.addEventListener("keyup", updateProductName);
 				upcInput.addEventListener("keyup", updateProductName);
+				CubicObject.addEventListener("change", () => {
+					hideFields("cubic");
+				});
+				CylinderObject.addEventListener("change", () => {
+					hideFields("cylinder");
+				});
 				const generalInfo = document.getElementById("btnAddProduct");
 
 				// Initialize MPN and SKU generation buttons
@@ -1899,32 +2066,6 @@ const breadcrumbs = [
 				});
 			</script>
 			<script>
-				// const commonNameSelect = document.getElementById(
-				// 	"common_name_id",
-				// ) as HTMLSelectElement;
-				// const categorySelect = document.getElementById(
-				// 	"category_id",
-				// ) as HTMLSelectElement;
-				// const productTypeSelect = document.getElementById(
-				// 	"product_type_id",
-				// ) as HTMLSelectElement;
-
-				// async function fetchData(url: string) {
-				// 	try {
-				// 		const response = await fetch(url);
-				// 		if (!response.ok) {
-				// 			throw new Error(
-				// 				`HTTP error! status: ${response.status}`,
-				// 			);
-				// 		}
-				// 		const data = await response.json();
-				// 		return data;
-				// 	} catch (error) {
-				// 		console.error("Error fetching data:", error);
-				// 		return [];
-				// 	}
-				// }
-
 				// commonNameSelect?.addEventListener("change", async () => {
 				// 	const commonNameId = commonNameSelect.value;
 				// 	if (!commonNameId) {
@@ -1981,75 +2122,59 @@ const breadcrumbs = [
 				// 	productTypeSelect.disabled = false;
 				// });
 
-				async function saveAll() {
-					const productId = (
-						document.getElementById("id") as HTMLInputElement
-					).value;
+				// async function saveAll() {
+				// 	const productId = (
+				// 		document.getElementById("id") as HTMLInputElement
+				// 	).value;
 
-					if (!productId) {
-						const saved = await saveProduct();
-						if (!saved) {
-							alert("Failed to save product");
-							return;
-						}
-					}
+				// 	if (!productId) {
+				// 		const saved = await saveProduct();
+				// 		if (!saved) {
+				// 			alert("Failed to save product");
+				// 			return;
+				// 		}
+				// 	}
 
-					const metadataValues = currentMetadata
-						.flatMap((group) =>
-							group.metadata.map((meta: any) => ({
-								id: meta.id,
-								value:
-									(
-										document.getElementById(
-											`metadata_${meta.id}`,
-										) as HTMLInputElement
-									)?.value || "",
-							})),
-						)
-						.filter((mv) => mv.value.trim() !== "");
+				// 	const metadataValues = currentMetadata
+				// 		.flatMap((group) =>
+				// 			group.metadata.map((meta: any) => ({
+				// 				id: meta.id,
+				// 				value:
+				// 					(
+				// 						document.getElementById(
+				// 							`metadata_${meta.id}`,
+				// 						) as HTMLInputElement
+				// 					)?.value || "",
+				// 			})),
+				// 		)
+				// 		.filter((mv) => mv.value.trim() !== "");
 
-					try {
-						const response = await fetch(
-							"/api/metadata-values/batch",
-							{
-								method: "POST",
-								headers: {
-									"Content-Type": "application/json",
-								},
-								body: JSON.stringify({
-									product_id: productId,
-									values: metadataValues,
-								}),
-							},
-						);
+				// 	try {
+				// 		const response = await fetch(
+				// 			"/api/metadata-values/batch",
+				// 			{
+				// 				method: "POST",
+				// 				headers: {
+				// 					"Content-Type": "application/json",
+				// 				},
+				// 				body: JSON.stringify({
+				// 					product_id: productId,
+				// 					values: metadataValues,
+				// 				}),
+				// 			},
+				// 		);
 
-						if (!response.ok) {
-							throw new Error("Failed to save metadata values");
-						}
+				// 		if (!response.ok) {
+				// 			throw new Error("Failed to save metadata values");
+				// 		}
 
-						alert("All values saved successfully");
-						window.location.href = "/products";
-					} catch (error) {
-						console.error("Error saving metadata values:", error);
-						alert("Failed to save metadata values");
-					}
-				}
-
-				// Event Listeners
-				document
-					.getElementById("common_name_id")
-					?.addEventListener("change", fetchMetadataDescription);
-				document
-					.getElementById("category_id")
-					?.addEventListener("change", fetchMetadataDescription);
-				document
-					.getElementById("product_type_id")
-					?.addEventListener("change", fetchMetadataDescription);
-				saveProductBtn?.addEventListener("click", saveProduct);
-				saveAllBtn?.addEventListener("click", saveAll);
-
-				// Initialize metadata if all selects have values
-				fetchMetadataDescription();
+				// 		alert("All values saved successfully");
+				// 		window.location.href = "/products";
+				// 	} catch (error) {
+				// 		console.error("Error saving metadata values:", error);
+				// 		alert("Failed to save metadata values");
+				// 	}
+				// }
 			</script>
 		</div>
 	</div>

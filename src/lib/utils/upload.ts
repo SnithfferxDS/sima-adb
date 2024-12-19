@@ -1,4 +1,7 @@
 import { showError } from './notifications';
+import sharp from 'sharp';
+import path from 'path';
+import fs from 'fs/promises';
 
 export async function uploadFile(file: File): Promise<string | null> {
   // For demo purposes, we'll simulate file upload and return a data URL
@@ -28,5 +31,71 @@ export async function saveFile(file: File): Promise<string | null> {
   } catch (error) {
     showError('Failed to save file');
     return null;
+  }
+}
+
+interface ImageProcessingOptions {
+  width: number;
+  height: number;
+  fit?: 'contain' | 'cover';
+  background?: string;
+}
+
+export async function processImage(
+  inputBuffer: Buffer, 
+  options: ImageProcessingOptions
+): Promise<Buffer> {
+  return sharp(inputBuffer)
+    .resize(options.width, options.height, {
+      fit: options.fit || 'contain',
+      background: options.background || '#FFFFFF'
+    })
+    .webp({ quality: 80 })
+    .toBuffer();
+}
+
+export async function createThumbnail(inputBuffer: Buffer): Promise<Buffer> {
+  return processImage(inputBuffer, {
+    width: 200,
+    height: 200,
+    fit: 'cover'
+  });
+}
+
+export async function saveProductImage(
+  imageBuffer: Buffer,
+  upc: string,
+  index: number,
+  isThumb = false
+): Promise<string> {
+  // Create base storage path
+  const storagePath = path.join('src', 'storage', 'uploads', upc);
+  
+  // Ensure directory exists
+  await fs.mkdir(storagePath, { recursive: true });
+  
+  // Generate filename
+  const filename = `${upc}_${index}${isThumb ? '_thumb' : ''}.webp`;
+  const filepath = path.join(storagePath, filename);
+  
+  // Save file
+  await fs.writeFile(filepath, imageBuffer);
+  
+  return filepath;
+}
+
+export async function getNextImageIndex(upc: string): Promise<number> {
+  const storagePath = path.join('src', 'storage', 'uploads', upc);
+  
+  try {
+    const files = await fs.readdir(storagePath);
+    const indices = files
+      .filter(f => !f.includes('_thumb'))
+      .map(f => parseInt(f.split('_')[1]))
+      .filter(n => !isNaN(n));
+    
+    return indices.length > 0 ? Math.max(...indices) + 1 : 1;
+  } catch {
+    return 1;
   }
 }
