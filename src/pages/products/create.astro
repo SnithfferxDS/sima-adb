@@ -2042,6 +2042,7 @@ const breadcrumbs = [
 							ean: formData.get("productEAN"),
 							info: "general",
 						};
+						
 						const response = await fetch("/api/products", {
 							method: "POST",
 							headers: {
