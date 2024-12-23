@@ -1,0 +1,41 @@
+---
+import Layout from "../../layouts/app.layout.astro";
+import BreadCrumbs from "../../components/BreadCrumbs.astro";
+import PurchaseForm from "../../components/purchases/PurchaseForm.astro";
+
+const breadcrumbs = [
+	{
+		lable: "Compras",
+		path: "/compras",
+	},
+	{
+		lable: "Nueva compra",
+		path: "/compras/new",
+	},
+];
+---
+
+<Layout title="Nueva compra">
+	<div
+		class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg"
+	>
+		<div
+			class="p-4 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5"
+		>
+			<div class="w-full mb-1">
+				<BreadCrumbs
+					routes={breadcrumbs}
+					currentRoute={Astro.url.pathname}
+					headerTitle="Nueva compra"
+				/>
+			</div>
+		</div>
+		<div class="flex flex-col">
+			<div class="overflow-x-auto">
+				<div class="inline-block min-w-full align-middle">
+					<PurchaseForm />
+				</div>
+			</div>
+		</div>
+	</div>
+</Layout>
