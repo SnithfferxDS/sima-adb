@@ -247,7 +247,7 @@ const categories = await db.select().from(Category).all();
 					name: formData.get("name"),
 					possition: formData.get("possition"),
 					active: formData.get("active") === "on",
-					parent: parent
+					parent: parent,
 					categories: levels_name,
 					desc_active: formData.get("active_desc") === "on",
 				}),

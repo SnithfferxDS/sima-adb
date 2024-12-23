@@ -99,3 +99,8 @@ export async function getNextImageIndex(upc: string): Promise<number> {
     return 1;
   }
 }
+
+export async function saveImage(imageBuffer: Buffer, identifier: string, isThumb = false): Promise<string> {
+  // Create base storage path
+  const storagePath = path.join('src', 'storage', 'uploads', identifier);
+}
