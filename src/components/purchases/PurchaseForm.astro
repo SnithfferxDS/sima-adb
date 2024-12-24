@@ -1,0 +1,653 @@
+---
+import { db, Supplier } from "astro:db";
+import UploadFile from "../../components/FileUpload.astro";
+
+const Suppliers = await db.select().from(Supplier).all();
+---
+
+<form id="createForm" class="space-y-6">
+	<input type="hidden" name="purchaseId" id="purchaseId" value="" />
+	<section class="flex flex-col">
+		<div class="overflow-x-auto">
+			<div
+				class="relative shadow-md sm:rounded-lg bg-gray-50/25 dark:bg-gray-800/25"
+			>
+				<div
+					class="p-4 space-y-3 md:space-y-0 md:space-x-4 overflow-hidden rounded-lg"
+				>
+					<div
+						class="mb-4 border-b border-gray-200/25 dark:border-gray-700/25"
+					>
+						<ul
+							class="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-600 border-b border-gray-400 dark:border-gray-500 dark:text-gray-300"
+							id="default-tab"
+							data-tabs-toggle="#default-tab-content"
+							role="tablist"
+						>
+							<li class="me-2" role="presentation">
+								<button
+									class="inline-block p-4 border-b-2 rounded-t-lg text-primary-600 bg-gray-100/75 dark:bg-gray-600/75 dark:text-gray-100"
+									id="purchase-local-tab"
+									data-tabs-target="#purchase-local"
+									type="button"
+									role="tab"
+									aria-controls="purchase-local"
+									aria-selected="false">Local</button
+								>
+							</li>
+							<li class="me-2" role="presentation">
+								<button
+									class="inline-block p-4 border-b-2 rounded-t-lg"
+									id="purchase-import-tab"
+									data-tabs-target="#purchase-import"
+									type="button"
+									role="tab"
+									aria-controls="purchase-import"
+									aria-selected="false">Importación</button
+								>
+							</li>
+						</ul>
+					</div>
+					<div id="default-tab-content">
+						<!-- Local -->
+						<div
+							class="hidden p-1 md:p-0 rounded-lg bg-gray-50/25 dark:bg-gray-700/25"
+							id="purchase-local"
+							role="tabpanel"
+							aria-labelledby="purchase-local-tab"
+						>
+							<div class="grid grid-cols-1 md:grid-cols-3 gap-1">
+								<!-- Invoice Information -->
+								<div
+									class="col-span-1 sm:col-span-1 flex flex-col p-2.5 md:p-4 bg-purple-500/25 dark:bg-purple-800/25"
+								>
+									<div class="mb-4">
+										<label
+											for="purchase-date"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Fecha de entrada</label
+										>
+										<input
+											type="text"
+											name="purchase-date"
+											id="purchase-date"
+											value={new Date()
+												.toISOString()
+												.split("T")[0]}
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 disabled"
+											disabled
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="invoice-number"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Número de factura</label
+										>
+										<input
+											type="text"
+											name="invoice-number"
+											id="invoice-number"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											placeholder="Número de compra"
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="invoice-date"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Fecha de factura</label
+										>
+										<input
+											type="date"
+											name="invoice-date"
+											id="invoice-date"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											placeholder="Fecha de compra"
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="invoice-type"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Tipo de documento</label
+										>
+										<select
+											name="invoice-type"
+											id="invoice-type"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+										>
+											<option value="0"
+												>Seleccionar</option
+											>
+											<option value="1">Factura</option>
+											<option value="2"
+												>Nota de crédito</option
+											>
+											<option value="3"
+												>Nota de débito</option
+											>
+										</select>
+									</div>
+									<div class="mb-4">
+										<label
+											for="invoice-payment-type"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Tipo de pago</label
+										>
+										<select
+											name="invoice-payment-type"
+											id="invoice-payment-type"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+										>
+											<option value="0"
+												>Seleccionar</option
+											>
+											<option value="1">Efectivo</option>
+											<option value="2">A plazo</option>
+											<option value="3">A crédito</option>
+										</select>
+									</div>
+									<div class="mb-4">
+										<label
+											for="invoice-supplier"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Proveedor</label
+										>
+										<select
+											name="invoice-supplier"
+											id="invoice-supplier"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+										>
+											<option value="0"
+												>Seleccionar</option
+											>
+											{
+												Suppliers.map((supplier) => (
+													<option value={supplier.id}>
+														{supplier.name}
+													</option>
+												))
+											}
+										</select>
+									</div>
+								</div>
+								<!-- purchase details -->
+								<div
+									class="col-span-1 sm:col-span-1 flex flex-col p-2.5 md:p-4 bg-blue-500/25 dark:bg-blue-800/25"
+								>
+									<div class="mb-4">
+										<label
+											for="purchaseProduct"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Producto</label
+										>
+										<input
+											type="text"
+											name="purchaseProduct"
+											id="purchaseProduct"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											placeholder="UPC de producto"
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="purchase-product-cost"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Costo unitario</label
+										>
+										<input
+											type="number"
+											name="purchase-product-cost"
+											id="purchase-product-cost"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											placeholder="Costo unitario"
+											value="0"
+											step="any"
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="purchase-product-quantity"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Cantidad</label
+										>
+										<input
+											type="number"
+											name="purchase-product-quantity"
+											id="purchase-product-quantity"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											placeholder="Cantidad"
+											value="0"
+											step="1"
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="purchase-product-total-cost"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Costo total</label
+										>
+										<input
+											type="number"
+											name="purchase-product-total-cost"
+											id="purchase-product-total-cost"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											placeholder="Costo total"
+											value="0"
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="purchase-product-discount"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Descuento</label
+										>
+										<input
+											type="number"
+											name="purchase-product-discount"
+											id="purchase-product-discount"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											placeholder="Descuento"
+											value="0"
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="purchase-product-taxes"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Taxes</label
+										>
+										<input
+											type="number"
+											name="purchase-product-taxes"
+											id="purchase-product-taxes"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											placeholder="Taxes"
+											value="0"
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="purchase-total"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Total</label
+										>
+										<input
+											type="number"
+											name="purchase-total"
+											id="purchase-total"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											placeholder="Total"
+											value="0"
+										/>
+									</div>
+								</div>
+								<!-- product serial numbers -->
+								<div
+									class="col-span-1 sm:col-span-1 flex flex-col p-2.5 md:p-4 bg-red-500/25 dark:bg-red-800/25"
+								>
+									<div class="mb-4">
+										<label
+											for="purchase-product-serial-number"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Número de serie</label
+										>
+										<textarea
+											name="purchase-product-serial-number"
+											id="purchase-product-serial-number"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											placeholder="Números de serie"
+											rows="5"></textarea>
+									</div>
+									<UploadFile
+										id="purchase-product-file"
+										label="Archivo"
+										accept="/pdf/*,/image/*"
+									/>
+								</div>
+							</div>
+						</div>
+						<!-- Importación -->
+						<div
+							class="hidden p-1 md:p-0 rounded-lg bg-gray-50/25 dark:bg-gray-700/25"
+							id="purchase-import"
+							role="tabpanel"
+							aria-labelledby="purchase-import-tab"
+						>
+							<div class="grid grid-cols-1 md:grid-cols-3 gap-1">
+								<!-- Invoice Information -->
+								<div
+									class="col-span-1 sm:col-span-1 flex flex-col p-2.5 md:p-4 bg-purple-500/25 dark:bg-purple-800/25"
+								>
+									<div class="mb-4">
+										<label
+											for="purchase-date"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Fecha de entrada</label
+										>
+										<input
+											type="text"
+											name="purchase-date"
+											id="purchase-date"
+											value={new Date()
+												.toISOString()
+												.split("T")[0]}
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 disabled"
+											disabled
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="invoice-number"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Número de factura</label
+										>
+										<input
+											type="text"
+											name="invoice-number"
+											id="invoice-number"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											placeholder="Número de compra"
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="invoice-date"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Fecha de factura</label
+										>
+										<input
+											type="date"
+											name="invoice-date"
+											id="invoice-date"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											placeholder="Fecha de compra"
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="invoice-type"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Tipo de documento</label
+										>
+										<select
+											name="invoice-type"
+											id="invoice-type"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+										>
+											<option value="0"
+												>Seleccionar</option
+											>
+											<option value="1">Factura</option>
+											<option value="2"
+												>Nota de crédito</option
+											>
+											<option value="3"
+												>Nota de débito</option
+											>
+										</select>
+									</div>
+									<div class="mb-4">
+										<label
+											for="invoice-payment-type"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Tipo de pago</label
+										>
+										<select
+											name="invoice-payment-type"
+											id="invoice-payment-type"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+										>
+											<option value="0"
+												>Seleccionar</option
+											>
+											<option value="1">Efectivo</option>
+											<option value="2">A plazo</option>
+											<option value="3">A crédito</option>
+										</select>
+									</div>
+									<div class="mb-4">
+										<label
+											for="invoice-supplier"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Proveedor</label
+										>
+										<select
+											name="invoice-supplier"
+											id="invoice-supplier"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+										>
+											<option value="0"
+												>Seleccionar</option
+											>
+											{
+												Suppliers.map((supplier) => (
+													<option value={supplier.id}>
+														{supplier.name}
+													</option>
+												))
+											}
+										</select>
+									</div>
+								</div>
+								<!-- order details -->
+								<div
+									class="col-span-1 sm:col-span-1 flex flex-col p-2.5 md:p-4 bg-green-500/25 dark:bg-green-800/25"
+								>
+									<div class="mb-4">
+										<label
+											for="purchaseProduct"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Producto</label
+										>
+										<input
+											type="text"
+											name="purchaseProduct"
+											id="purchaseProduct"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											placeholder="UPC de producto"
+											value=""
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="purchase-product-cost"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Costo unitario</label
+										>
+										<input
+											type="number"
+											name="purchase-product-cost"
+											id="purchase-product-cost"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											placeholder="Costo unitario"
+											value="0"
+											step="any"
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="purchase-product-quantity"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Cantidad</label
+										>
+										<input
+											type="number"
+											name="purchase-product-quantity"
+											id="purchase-product-quantity"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											placeholder="Cantidad"
+											value="0"
+											step="1"
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="purchase-product-total-cost"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Costo total</label
+										>
+										<input
+											type="number"
+											name="purchase-product-total-cost"
+											id="purchase-product-total-cost"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											placeholder="Costo total"
+											value="0"
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="purchase-product-discount"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Descuento</label
+										>
+										<input
+											type="number"
+											name="purchase-product-discount"
+											id="purchase-product-discount"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											placeholder="Descuento"
+											value="0"
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="purchase-product-taxes"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Taxes</label
+										>
+										<input
+											type="number"
+											name="purchase-product-taxes"
+											id="purchase-product-taxes"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											placeholder="Taxes"
+											value="0"
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="purchase-total"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Total</label
+										>
+										<input
+											type="number"
+											name="purchase-total"
+											id="purchase-total"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											placeholder="Total"
+											value="0"
+										/>
+									</div>
+								</div>
+								<!-- product serial numbers -->
+								<div
+									class="col-span-1 sm:col-span-1 flex flex-col p-2.5 md:p-4 bg-yellow-500/25 dark:bg-yellow-800/25"
+								>
+									<div class="mb-4">
+										<label
+											for="purchase-product-serial-number"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Número de serie</label
+										>
+										<textarea
+											name="purchase-product-serial-number"
+											id="purchase-product-serial-number"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											placeholder="Números de serie"
+											rows="5"></textarea>
+									</div>
+									<UploadFile
+										id="purchase-product-file"
+										label="Archivo"
+										accept="/pdf/*,/image/*"
+									/>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</form>
+<script>
+	import { showSuccess, showError } from "../../lib/utils/notifications";
+	import type { SearchableProduct } from "../../types/entities";
+
+	const searchProduct = document.getElementById(
+		"purchaseProduct",
+	) as HTMLInputElement;
+	const qnt = document.getElementById(
+		"purchase-product-quantity",
+	) as HTMLInputElement;
+	const cost = document.getElementById(
+		"purchase-product-cost",
+	) as HTMLInputElement;
+	const taxes = document.getElementById(
+		"purchase-product-taxes",
+	) as HTMLInputElement;
+	const discount = document.getElementById(
+		"purchase-product-discount",
+	) as HTMLInputElement;
+	const totalCost = document.getElementById(
+		"purchase-product-total-cost",
+	) as HTMLInputElement;
+	const grandTotal = document.getElementById(
+		"purchase-total",
+	) as HTMLInputElement;
+
+	function calcTaxes(cost: number, qnt: number) {
+		return cost * qnt * 0.13;
+	}
+
+	const calcTotals = function calcTotals() {
+		const qntValue = Number(qnt.value);
+		const costValue = Number(cost.value);
+		const discountValue = Number(discount.value);
+		let total = 0;
+		if (qntValue > 0) {
+			totalCost.value = (costValue * qntValue).toFixed(2);
+			let costWDiscount = costValue - discountValue;
+			let iva = calcTaxes(costWDiscount, qntValue);
+			console.log(costWDiscount, iva);
+			taxes.value = iva.toFixed(2);
+			total = costWDiscount * qntValue + iva;
+			console.log(total);
+			grandTotal.value = total.toFixed(2);
+		}
+	};
+
+	searchProduct.addEventListener("keyup", async (e) => {
+		const search = searchProduct.value;
+		if (search.length > 0) {
+			const response = await fetch("/api/products/search?term=" + search);
+			if (response.ok) {
+				const data = await response.json();
+				const options = document.createElement("div");
+				const optionsList = document.createElement("ul");
+				optionsList.classList.add("list-none");
+				options.appendChild(optionsList);
+				data.forEach((product: SearchableProduct) => {
+					const option = document.createElement("li");
+					const optionLink = document.createElement("a");
+					optionLink.href = `/products/${product.id}`;
+					optionLink.innerText = product.name;
+					option.appendChild(optionLink);
+					optionsList.appendChild(option);
+				});
+				searchProduct.innerHTML = "";
+				searchProduct.appendChild(options);
+			}
+		}
+	});
+	qnt?.addEventListener("keyup", calcTotals);
+	qnt?.addEventListener("change", calcTotals);
+	cost?.addEventListener("keyup", calcTotals);
+	cost?.addEventListener("change", calcTotals);
+	discount?.addEventListener("keyup", calcTotals);
+	discount?.addEventListener("change", calcTotals);
+</script>

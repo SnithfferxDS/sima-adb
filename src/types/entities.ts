@@ -227,3 +227,11 @@ export interface Country {
 	impex: number;
 	additional: number;
 }
+
+export interface SearchableProduct {
+	id: number;
+	name: string;
+	sku: string;
+	mpn: string;
+	upc: string;
+}

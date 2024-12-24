@@ -5,6 +5,7 @@ interface Props {
 	accept?: string;
 	required?: boolean;
 	previewUrl?: string;
+	maxFiles?: number;
 }
 
 const {
@@ -13,65 +14,84 @@ const {
 	accept = "image/*",
 	required = false,
 	previewUrl = "",
+	maxFiles = 5,
 } = Astro.props;
 ---
 
 <div class="mb-4">
-	<label
-		for={id}
-		class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
-		>{label}</label
-	>
-	<div class="flex items-center justify-center w-full">
-		<img
-			id={`${id}-preview`}
-			src={previewUrl}
-			class="hidden max-h-40 mb-4"
-			alt="Preview"
-		/>
-	</div>
-	<div class="flex items-center justify-center w-full">
-		<label
-			for={id}
-			class="flex flex-col items-center justify-center w-full h-64 border-2 border-gray-300 border-dashed rounded-lg cursor-pointer bg-gray-50 dark:hover:bg-gray-800 dark:bg-gray-700 hover:bg-gray-100 dark:border-gray-600 dark:hover:border-gray-500"
+	<div class="flex items-center justify-between">
+		<h3 class="text-lg font-medium text-gray-900 dark:text-gray-50">
+			{label}
+		</h3>
+		<span class="text-sm text-gray-600 dark:text-gray-100" id="fileCount"
+			>0 archivos</span
 		>
-			<div class="flex flex-col items-center justify-center pt-5 pb-6">
+	</div>
+
+	<div
+		id="dropZone"
+		class="border-2 border-dashed border-gray-300 rounded-lg p-8 text-center hover:border-primary-500 transition-colors"
+	>
+		<input
+			type="file"
+			id="fileInput"
+			name="fileInput"
+			multiple
+			accept={accept}
+			class="hidden"
+			required={required}
+			data-max-files={maxFiles > 0 ? maxFiles : ""}
+			data-resource-id={id}
+		/>
+
+		<label for="fileInput" class="cursor-pointer">
+			<div class="space-y-2">
 				<svg
-					class="w-8 h-8 mb-4 text-gray-500 dark:text-gray-400"
-					aria-hidden="true"
-					xmlns="http://www.w3.org/2000/svg"
+					class="mx-auto h-12 w-12 text-gray-700 dark:text-gray-300"
+					stroke="currentColor"
 					fill="none"
-					viewBox="0 0 20 16"
+					viewBox="0 0 48 48"
 				>
 					<path
-						stroke="currentColor"
-						stroke-linecap="round"
-						stroke-linejoin="round"
+						d="M28 8H12a4 4 0 00-4 4v20m32-12v8m0 0v8a4 4 0 01-4 4H12a4 4 0 01-4-4v-4m32-4l-3.172-3.172a4 4 0 00-5.656 0L28 28M8 32l9.172-9.172a4 4 0 015.656 0L28 28m0 0l4 4m4-24h8m-4-4v8m-12 4h.02"
 						stroke-width="2"
-						d="M13 13h3a3 3 0 0 0 0-6h-.025A5.56 5.56 0 0 0 16 6.5 5.5 5.5 0 0 0 5.207 5.021C5.137 5.017 5.071 5 5 5a4 4 0 0 0 0 8h2.167M10 15V6m0 0L8 8m2-2 2 2"
-					></path>
+						stroke-linecap="round"
+						stroke-linejoin="round"></path>
 				</svg>
-				<p class="mb-2 text-sm text-gray-500 dark:text-gray-400">
-					<span class="font-semibold">Clic para subir</span> o arrastre
-					y suelte el archivo
-				</p>
-				<p class="text-xs text-gray-500 dark:text-gray-400">
-					PNG, JPG or GIF
+				<div class="text-gray-600 dark:text-gray-300">
+					<span
+						class="text-primary-500 decoration-sky-300 dark:text-secondary-800"
+						>Cargar archivos</span
+					> o arrastre y suelte
+				</div>
+				<p class="text-xs text-gray-600 dark:text-gray-300">
+					PNG, JPG, WebP up to 10MB, PDF
 				</p>
 			</div>
-			<input
-				id={id}
-				type="file"
-				class="hidden"
-				accept={accept}
-				required={required}
-				multiple
-			/>
 		</label>
+	</div>
+
+	<div
+		id="previewContainer"
+		class="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4"
+	>
+		<!-- Image previews will be inserted here -->
+	</div>
+
+	<div id="progressContainer" class="hidden">
+		<div class="w-full bg-gray-200 rounded-full h-2.5">
+			<div
+				id="progressBar"
+				class="bg-primary h-2.5 rounded-full"
+				style="width: 0%"
+			>
+			</div>
+		</div>
+		<p id="progressText" class="text-sm text-gray-600 mt-1">Cargando...</p>
 	</div>
 </div>
 
-<script define:vars={{ id }}>
+<!-- <script define:vars={{ id }}>
 	const input = document.getElementById(id);
 	const preview = document.getElementById(`${id}-preview`);
 
@@ -88,4 +108,170 @@ const {
 			}
 		});
 	}
+</script> -->
+<script>
+	class fileUploader {
+		private dropZone: HTMLElement;
+		private fileInput: HTMLInputElement;
+		private previewContainer: HTMLElement;
+		private progressContainer: HTMLElement;
+		private progressBar: HTMLElement;
+		private progressText: HTMLElement;
+		private fileCount: HTMLElement;
+		private maxFiles: number;
+		private resourceId: string;
+
+		constructor() {
+			this.dropZone = document.getElementById("dropZone")!;
+			this.fileInput = document.getElementById(
+				"fileInput",
+			) as HTMLInputElement;
+			this.previewContainer =
+				document.getElementById("previewContainer")!;
+			this.progressContainer =
+				document.getElementById("progressContainer")!;
+			this.progressBar = document.getElementById("progressBar")!;
+			this.progressText = document.getElementById("progressText")!;
+			this.fileCount = document.getElementById("fileCount")!;
+			this.maxFiles = parseInt(this.fileInput.dataset.maxFiles || "5");
+			this.resourceId = this.fileInput.dataset.productId || "";
+
+			this.initializeEventListeners();
+		}
+
+		private initializeEventListeners() {
+			this.dropZone.addEventListener("dragover", (e) => {
+				e.preventDefault();
+				this.dropZone.classList.add("border-primary-500");
+			});
+
+			this.dropZone.addEventListener("dragleave", () => {
+				this.dropZone.classList.remove("border-primary-500");
+			});
+
+			this.dropZone.addEventListener("drop", (e) => {
+				e.preventDefault();
+				this.dropZone.classList.remove("border-primary-500");
+				const files = e.dataTransfer?.files;
+				if (files) this.handleFiles(files);
+			});
+
+			this.fileInput.addEventListener("change", () => {
+				if (this.fileInput.files) {
+					this.handleFiles(this.fileInput.files);
+				}
+			});
+		}
+
+		private async handleFiles(files: FileList) {
+			const currentCount = this.previewContainer.children.length;
+			const remainingSlots = this.maxFiles - currentCount;
+
+			if (remainingSlots <= 0) {
+				alert(`Maximum ${this.maxFiles} files allowed`);
+				return;
+			}
+
+			const validFiles = Array.from(files)
+				.slice(0, remainingSlots)
+				// .filter((file) => file.type.startsWith("image/"));
+				.filter(
+					(file) =>
+						file.type.startsWith("image/") ||
+						file.type.startsWith("application/pdf"),
+				);
+
+			for (const file of validFiles) {
+				await this.uploadFile(file);
+			}
+
+			this.updateFileCount();
+		}
+
+		private async uploadFile(file: File) {
+			// Create preview
+			const preview = this.createPreview(file);
+			this.previewContainer.appendChild(preview);
+
+			// Prepare form data
+			const formData = new FormData();
+			formData.append("file", file);
+			formData.append("resourceId", this.resourceId);
+
+			try {
+				// Show progress
+				this.progressContainer.classList.remove("hidden");
+
+				// Upload file
+				const response = await fetch("/api/files/upload", {
+					method: "POST",
+					body: formData,
+				});
+
+				if (!response.ok) throw new Error("Upload failed");
+
+				const result = await response.json();
+
+				// Update preview with final image
+				const img = preview.querySelector("img");
+				if (img) img.src = result.thumbnailUrl;
+
+				// Add delete button functionality
+				const deleteBtn = preview.querySelector(".delete-btn");
+				if (deleteBtn) {
+					deleteBtn.addEventListener("click", () =>
+						this.deleteFile(result.id, preview),
+					);
+				}
+			} catch (error) {
+				console.error("Upload failed:", error);
+				preview.remove();
+			} finally {
+				this.progressContainer.classList.add("hidden");
+				this.progressBar.style.width = "0%";
+			}
+		}
+
+		private createPreview(file: File): HTMLElement {
+			const div = document.createElement("div");
+			div.className = "relative group";
+
+			const img = document.createElement("img");
+			img.className = "w-full h-48 object-cover rounded-lg";
+			img.src = URL.createObjectURL(file);
+
+			const deleteBtn = document.createElement("button");
+			deleteBtn.className =
+				"delete-btn absolute top-2 right-2 p-1 bg-red-500 text-white rounded-full opacity-0 group-hover:opacity-100 transition-opacity";
+			deleteBtn.innerHTML = "×";
+
+			div.appendChild(img);
+			div.appendChild(deleteBtn);
+
+			return div;
+		}
+
+		private async deleteFile(fileId: string, preview: HTMLElement) {
+			try {
+				const response = await fetch(`/api/files/${fileId}`, {
+					method: "DELETE",
+				});
+
+				if (!response.ok) throw new Error("Delete failed");
+
+				preview.remove();
+				this.updateFileCount();
+			} catch (error) {
+				console.error("Delete failed:", error);
+			}
+		}
+
+		private updateFileCount() {
+			const count = this.previewContainer.children.length;
+			this.fileCount.textContent = `${count}/${this.maxFiles} files`;
+		}
+	}
+
+	// Initialize uploader
+	new fileUploader();
 </script>
