@@ -1,32 +1,32 @@
 import { defineDb, defineTable, column, NOW } from 'astro:db';
 
 const Product = defineTable({
-    columns: {
-        id: column.number({ primaryKey: true }),
-        name: column.text(),
-        handle: column.text({ optional: true }),
-        long_description: column.text({ optional: true }),
-        short_description: column.text({ optional: true }),
-        tags: column.json({ optional: true }),
-        sku: column.text({ optional: true }),
-        mpn: column.text({ optional: true }),
-        upc: column.text({ unique: true }),
-        ean: column.text({ optional: true }),
-        isbn: column.text({ optional: true }),
-        weight: column.number({ optional: true, default: 0.0 }),
-        weight_unit: column.text({ optional: true, default: 'g' }),
-        width: column.number({ optional: true, default: 0.0 }),
-        height: column.number({ optional: true, default: 0.0 }),
-        length: column.number({ optional: true, default: 0.0 }),
-        inner_diameter: column.number({ optional: true, default: 0.0 }),
-        outer_diameter: column.number({ optional: true, default: 0.0 }),
-        measure_unit: column.text({ optional: true, default: 'mm' }),
-        customizable: column.boolean({ optional: true }),
-        customizable_fields: column.json({ optional: true }),
-        created_at: column.date({ default: NOW }),
-        updated_at: column.date({ optional: true }),
-        deleted_at: column.date({ optional: true })
-    }
+  columns: {
+    id: column.number({ primaryKey: true }),
+    name: column.text(),
+    handle: column.text({ optional: true }),
+    long_description: column.text({ optional: true }),
+    short_description: column.text({ optional: true }),
+    tags: column.json({ optional: true }),
+    sku: column.text({ optional: true }),
+    mpn: column.text({ optional: true }),
+    upc: column.text({ unique: true }),
+    ean: column.text({ optional: true }),
+    isbn: column.text({ optional: true }),
+    weight: column.number({ optional: true, default: 0.0 }),
+    weight_unit: column.text({ optional: true, default: 'g' }),
+    width: column.number({ optional: true, default: 0.0 }),
+    height: column.number({ optional: true, default: 0.0 }),
+    length: column.number({ optional: true, default: 0.0 }),
+    inner_diameter: column.number({ optional: true, default: 0.0 }),
+    outer_diameter: column.number({ optional: true, default: 0.0 }),
+    measure_unit: column.text({ optional: true, default: 'mm' }),
+    customizable: column.boolean({ optional: true }),
+    customizable_fields: column.json({ optional: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+    deleted_at: column.date({ optional: true })
+  }
 });
 
 const User = defineTable({
@@ -37,12 +37,13 @@ const User = defineTable({
     password: column.text(),
     phone: column.text({ unique: true }),
     verified_token: column.text({ optional: true }),
-    email_verified: column.boolean({ optional: true,default: false }),
+    email_verified: column.boolean({ optional: true, default: false }),
     reset_token: column.text({ optional: true }),
     token_expiry: column.date({ optional: true }),
     person: column.number({ references: () => Person.columns.id }),
     level: column.number({ references: () => User_Level.columns.id }),
     created_at: column.date({ default: NOW }),
+    contact: column.number({ optional: true, references: () => Contact.columns.id }),
     updated_at: column.date({ optional: true })
   }
 });
@@ -70,11 +71,51 @@ const Person = defineTable({
     gender: column.text({ optional: true }),
     birthday: column.date({ optional: true }),
     address: column.text({ optional: true }),
-    phone: column.text({ unique:true, optional: true }),
+    phone: column.text({ unique: true, optional: true }),
     email: column.text({ unique: true }),
     created_at: column.date({ default: NOW }),
     updated_at: column.date({ optional: true })
   }
+});
+
+const Address = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    name: column.text(),
+    address: column.text(),
+    phone: column.text(),
+    email: column.text(),
+    contact: column.text(),
+    contact_phone: column.text(),
+    contact_email: column.text(),
+    country: column.text(),
+    state: column.text(),
+    city: column.text(),
+    street: column.text(),
+    optional: column.text(),
+    status: column.number({ references: () => Status.columns.id, default: 1 }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+    deleted_at: column.date({ optional: true }),
+  },
+});
+
+const Contact = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    name: column.text(),
+    email: column.text(),
+    home_phone: column.text(),
+    mobile_phone: column.text(),
+    work_phone: column.text(),
+    address_id: column.number({ references: () => Address.columns.id }),
+    skype: column.text(),
+    whatsapp: column.number({ default: 0.0 }),
+    status: column.number({ references: () => Status.columns.id, default: 1 }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+    deleted_at: column.date({ optional: true }),
+  },
 });
 
 const SidebarMenu = defineTable({
@@ -83,7 +124,7 @@ const SidebarMenu = defineTable({
     name: column.text(),
     url: column.text({ optional: true }),
     icon: column.text({ optional: true }),
-    parent_id: column.number({ 
+    parent_id: column.number({
       optional: true,
       references: () => SidebarMenu.columns.id
     }),
@@ -100,8 +141,8 @@ const CommonName = defineTable({
     position: column.number({ optional: true, default: 1 }),
     active: column.boolean({ optional: true, default: true }),
     desc_active: column.boolean({ default: true }),
-    parent_id: column.number({ optional: true, references: () => Category.columns.id }),  
-    categories: column.json({ optional: true}),
+    parent_id: column.number({ optional: true, references: () => Category.columns.id }),
+    categories: column.json({ optional: true }),
     created_at: column.date({ default: NOW }),
     updated_at: column.date({ optional: true })
   }
@@ -151,7 +192,7 @@ const Metadata = defineTable({
     is_feature: column.boolean({ optional: true, default: false }),
     format: column.text({ optional: true }),
     tooltip: column.text({ optional: true }),
-    id_group: column.number({ optional:true, references: () => Group.columns.id }),
+    id_group: column.number({ optional: true, references: () => Group.columns.id }),
     created_at: column.date({ default: NOW }),
     updated_at: column.date({ optional: true })
   }
@@ -197,7 +238,7 @@ const Supplier = defineTable({
     logo: column.text({ optional: true }),
     taxes: column.number({ default: 0.0 }),
     discount: column.number({ default: 0.0 }),
-    status: column.number({ references: () => Status.columns.id, default:1 }),
+    status: column.number({ references: () => Status.columns.id, default: 1 }),
     created_at: column.date({ default: NOW }),
     updated_at: column.date({ optional: true }),
     deleted_at: column.date({ optional: true }),
@@ -234,11 +275,14 @@ const Purchase = defineTable({
     id: column.number({ primaryKey: true }),
     number: column.text({ unique: true }),
     purchase_date: column.date(),
+    purchase_order_id: column.number({ optional: true, references: () => PurchaseOrder.columns.id }),
     ingress_date: column.date(),
     processed_date: column.date(),
     total: column.number({ default: 0.0 }),
     taxes: column.number({ default: 0.0 }),
     discount: column.number({ default: 0.0 }),
+    fob: column.number({ default: 0.0 }),
+    cif: column.number({ default: 0.0 }),
     purchase_details: column.number(),
     supplier_id: column.number(),
     buyer_id: column.number(),
@@ -253,12 +297,30 @@ const Purchase_Details = defineTable({
   columns: {
     id: column.number({ primaryKey: true }),
     invoice_number: column.text(),
+    store_order_number: column.text({ optional: true }),
     product_id: column.number(),
     price: column.number({ default: 0.0 }),
     taxes: column.number({ default: 0.0 }),
     discount: column.number({ default: 0.0 }),
     quantity: column.number({ default: 1 }),
     processed: column.boolean({ default: false }),
+    attachment: column.text({ optional: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+    deleted_at: column.date({ optional: true }),
+  },
+});
+
+const StoreOrder = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    order_number: column.text(),
+    invoice_number: column.text(),
+    price: column.number({ default: 0.0 }),
+    taxes: column.number({ default: 0.0 }),
+    discount: column.number({ default: 0.0 }),
+    quantity: column.number({ default: 1 }),
+    status: column.number({ references: () => Status.columns.id, default: 1 }),
     created_at: column.date({ default: NOW }),
     updated_at: column.date({ optional: true }),
     deleted_at: column.date({ optional: true }),
@@ -314,7 +376,7 @@ const VariantRelation = defineTable({
   },
 });
 
-const variantType = defineTable({
+const VariantType = defineTable({
   columns: {
     id: column.number({ primaryKey: true }),
     name: column.text(),
@@ -324,14 +386,14 @@ const variantType = defineTable({
   },
 });
 
-const variantTypeValue = defineTable({
+const VariantTypeValue = defineTable({
   columns: {
     id: column.number({ primaryKey: true }),
     name: column.text(),
     value: column.text(),
     abbreviation: column.text(),
     variant_type_id: column.number({
-      references: () => variantType.columns.id,
+      references: () => VariantType.columns.id,
     }),
     active: column.boolean({ default: false }),
     created_at: column.date({ default: NOW }),
@@ -353,11 +415,11 @@ const MetadataRelations = defineTable({
   columns: {
     id: column.number({ primaryKey: true }),
     metadata_id: column.number(),
-    common_name: column.json({ deprecated:true, optional: true}),
-    common_names: column.json({optional: true}),
-    category: column.json({ deprecated:true, optional: true}),
+    common_name: column.json({ deprecated: true, optional: true }),
+    common_names: column.json({ optional: true }),
+    category: column.json({ deprecated: true, optional: true }),
     categories: column.json({ optional: true }),
-    product_type: column.number({ deprecated:true, optional: true }),
+    product_type: column.number({ deprecated: true, optional: true }),
     product_types: column.json({ optional: true }),
     created_at: column.date({ default: NOW }),
     updated_at: column.date({ optional: true }),
@@ -422,6 +484,10 @@ const ProductRelations = defineTable({
       optional: true,
       references: () => ProductType.columns.id,
     }),
+    common_name_id: column.number({
+      optional: true,
+      references: () => CommonName.columns.id,
+    }),
     created_at: column.date({ default: NOW }),
     updated_at: column.date({ optional: true }),
   },
@@ -453,6 +519,385 @@ const Country = defineTable({
   },
 });
 
+const PurchaseOrder = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    number: column.text(),
+    quoter_id: column.text({ references: () => User.columns.id }),
+    assigned_to: column.text({ optional: true, references: () => User.columns.id }),
+    quotations: column.json(),
+    processed: column.boolean({ default: false }),
+    status: column.number({ references: () => Status.columns.id, default: 1 }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+    deleted_at: column.date({ optional: true }),
+  },
+});
+
+const PurchaseOrderDetail = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    purchase_order_id: column.number({ references: () => PurchaseOrder.columns.id }),
+    purchase_id: column.number({ optional: true, references: () => Purchase.columns.id }),
+    product_id: column.number({ optional: true, references: () => Product.columns.id }),
+    quotation_id: column.number({ optional: true, references: () => Quotation.columns.id }),
+    invoice_number: column.text(),
+    quoted_price: column.number({ default: 0.0 }),
+    quoted_taxes: column.number({ default: 0.0 }),
+    quoted_discount: column.number({ default: 0.0 }),
+    quoted_quantity: column.number({ default: 1 }),
+    processed_price: column.number({ default: 0.0 }),
+    processed_taxes: column.number({ default: 0.0 }),
+    processed_discount: column.number({ default: 0.0 }),
+    processed_quantity: column.number({ default: 1 }),
+    processed: column.boolean({ default: false }),
+    purchase_date: column.date({ optional: true }),
+    ingress_date: column.date({ optional: true }),
+    processed_date: column.date({ optional: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+    deleted_at: column.date({ optional: true }),
+  },
+});
+
+const Currier = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    name: column.text(),
+    address: column.text(),
+    phone: column.text(),
+    email: column.text(),
+    website: column.text(),
+    contact: column.text(),
+    contact_phone: column.text(),
+    contact_email: column.text(),
+    country: column.text(),
+    state: column.text(),
+    city: column.text(),
+    street: column.text(),
+    optional: column.text(),
+    logo: column.text(),
+    taxes: column.number({ default: 0.0 }),
+    discount: column.number({ default: 0.0 }),
+    status: column.number({ references: () => Status.columns.id, default: 1 }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  },
+});
+
+const Client = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    name: column.text(),
+    address: column.json(),
+    contact: column.json(),
+    logo: column.text(),
+    increase: column.number({ default: 0.0 }),
+    discount: column.number({ default: 0.0 }),
+    status: column.number({ references: () => Status.columns.id, default: 1 }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+    deleted_at: column.date({ optional: true }),
+  },
+});
+
+const Quotation = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    number: column.text(),
+    quotation_type: column.text({ optional: true }),
+    quoter_id: column.text({ references: () => User.columns.id }),
+    client_id: column.number({ references: () => Client.columns.id }),
+    product_id: column.number({ references: () => Product.columns.id }),
+    currier_id: column.number({ references: () => Currier.columns.id }),
+    store_id: column.number({ references: () => Supplier.columns.id }),
+    country_id: column.number({ references: () => Country.columns.id }),
+    initial_cost: column.number(),
+    final_cost: column.number(),
+    purchase_date: column.date({ optional: true }),
+    ingress_date: column.date({ optional: true }),
+    processed_date: column.date({ optional: true }),
+    processed: column.boolean({ default: false }),
+    status: column.number({ references: () => Status.columns.id, default: 1 }),
+    expected_arrival_date: column.date(),
+    arrival_date: column.date(),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+    deleted_at: column.date({ optional: true }),
+  },
+});
+
+const QuotationDetail = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    quotation_id: column.number({ references: () => Quotation.columns.id }),
+    purchase_id: column.number({ optional: true, references: () => Purchase.columns.id }),
+    invoice_number: column.text(),
+    product_price: column.number({ default: 0.0 }),
+    product_taxes: column.number({ default: 0.0 }),
+    product_discount: column.number({ default: 0.0 }),
+    product_quantity: column.number({ default: 0.0 }),
+    product_shipping: column.number({ default: 0.0 }),
+    store_price: column.number({ default: 0.0 }),
+    store_taxes: column.number({ default: 0.0 }),
+    store_discount: column.number({ default: 0.0 }),
+    store_quantity: column.number({ default: 0.0 }),
+    store_shipping: column.number({ default: 0.0 }),
+    store_link: column.text(),
+    warranty: column.text(),
+    processed_price: column.number({ default: 0.0 }),
+    processed_taxes: column.number({ default: 0.0 }),
+    processed_discount: column.number({ default: 0.0 }),
+    processed_quantity: column.number({ default: 1 }),
+    processed: column.boolean({ default: false }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+    deleted_at: column.date({ optional: true }),
+  },
+});
+
+const PoBox = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    name: column.text(),
+    pbnumber: column.text(),
+    currier_id: column.number({ references: () => Currier.columns.id }),
+    phone: column.text(),
+    email: column.text(),
+    contact: column.text(),
+    contact_phone: column.text(),
+    contact_email: column.text(),
+    address_id: column.number({ references: () => Address.columns.id }),
+    logo: column.text(),
+    taxes: column.number({ default: 0.0 }),
+    discount: column.number({ default: 0.0 }),
+    status: column.number({ references: () => Status.columns.id, default: 1 }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+    deleted_at: column.date({ optional: true }),
+  },
+});
+
+const FastQuotation = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    quotation_number: column.text(),
+    quotation_id: column.number({ optional: true, references: () => Quotation.columns.id }),
+    product_id: column.number({ optional: true, references: () => Product.columns.id }),
+    store_id: column.number({ references: () => Supplier.columns.id }),
+    country_id: column.number({ references: () => Country.columns.id }),
+    product_type_id: column.number({ references: () => ProductType.columns.id }),
+    store_price: column.number({ default: 0.0 }),
+    store_taxes: column.number({ default: 0.0 }),
+    store_discount: column.number({ default: 0.0 }),
+    store_quantity: column.number({ default: 0.0 }),
+    store_shipping: column.number({ default: 0.0 }),
+    store_weight: column.number({ default: 0.0 }),
+    store_link: column.text({ optional: true }),
+    comment: column.text({ optional: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  },
+});
+
+const LazyQuotation = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    quotation_number: column.text(),
+    quotation_id: column.number({ optional: true, references: () => Quotation.columns.id }),
+    product_id: column.number({ optional: true, references: () => Product.columns.id }),
+    quantity: column.number({ default: 0.0 }),
+    max_price: column.number({ default: 0.0 }),
+    min_price: column.number({ default: 0.0 }),
+    product_type_id: column.number({ references: () => ProductType.columns.id }),
+    specification: column.text({ optional: true }),
+    comment: column.text({ optional: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  }
+});
+
+const ForeightGeneral = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    doc_date: column.date(),
+    doc_number: column.text(),
+    doc_type: column.text(),
+    ingress_date: column.date(),
+    details: column.number({ optional: true, references: () => ForeightGeneralDetail.columns.id }),
+    attachment: column.text({ optional: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  },
+});
+
+const ForeightGeneralDetail = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    tramits: column.number({ default: 0.0 }),
+    storage: column.number({ default: 0.0 }),
+    air_charge: column.number({ default: 0.0 }),
+    regular_charge: column.number({ default: 0.0 }),
+    handle: column.number({ default: 0.0 }),
+    fuel: column.number({ default: 0.0 }),
+    repackage: column.number({ default: 0.0 }),
+    air_insurance: column.number({ default: 0.0 }),
+    regular_insurance: column.number({ default: 0.0 }),
+    thc: column.number({ default: 0.0 }),
+    vts: column.number({ default: 0.0 }),
+    its: column.number({ default: 0.0 }),
+    cepa: column.number({ default: 0.0 }),
+    total_dai: column.number({ default: 0.0 }),
+    added: column.number({ default: 0.0 }),
+    shipping: column.number({ default: 0.0 }),
+    insurance: column.number({ default: 0.0 }),
+    freight: column.number({ default: 0.0 }),
+    customs: column.number({ default: 0.0 }),
+    total: column.number({ default: 0.0 }),
+    taxes: column.number({ default: 0.0 }),
+    attachment: column.text({ optional: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  },
+});
+
+const ForeightPurchase = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    purchase_id: column.number({ optional: true, references: () => Purchase.columns.id }),
+    doc_date: column.date(),
+    doc_number: column.text(),
+    doc_type: column.text(),
+    ingress_date: column.date(),
+    details: column.number({ optional: true, references: () => ForeightPurchaseDetail.columns.id }),
+    attachment: column.text({ optional: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  },
+});
+
+const ForeightPurchaseDetail = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    product_id: column.number({ optional: true, references: () => Product.columns.id }),
+    tramits: column.number({ default: 0.0 }),
+    storage: column.number({ default: 0.0 }),
+    air_charge: column.number({ default: 0.0 }),
+    regular_charge: column.number({ default: 0.0 }),
+    handle: column.number({ default: 0.0 }),
+    fuel: column.number({ default: 0.0 }),
+    repackage: column.number({ default: 0.0 }),
+    air_insurance: column.number({ default: 0.0 }),
+    regular_insurance: column.number({ default: 0.0 }),
+    total_dai: column.number({ default: 0.0 }),
+    added: column.number({ default: 0.0 }),
+    shipping: column.number({ default: 0.0 }),
+    insurance: column.number({ default: 0.0 }),
+    freight: column.number({ default: 0.0 }),
+    customs: column.number({ default: 0.0 }),
+    total: column.number({ default: 0.0 }),
+    taxes: column.number({ default: 0.0 }),
+    attachment: column.text({ optional: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  },
+});
+
+const Tracking = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    tracking_details: column.number({ optional: true, references: () => TrackingDetail.columns.id }),
+    tracking_number: column.text(),
+    tracking_date: column.date(),
+    attachment: column.text({ optional: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  },
+});
+
+const TrackingDetail = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    purchase_id: column.number({ optional: true, references: () => Purchase.columns.id }),
+    product_id: column.number({ optional: true, references: () => Product.columns.id }),
+    sale_id: column.number({ optional: true, references: () => Sale.columns.id }),
+    currier_id: column.number({ optional: true, references: () => Currier.columns.id }),
+    tracking_type: column.text(),
+    tracking_number: column.text(),
+    tracking_date: column.date(),
+    quantity: column.number({ default: 0.0 }),
+    price: column.number({ default: 0.0 }),
+    weight: column.number({ default: 0.0 }),
+    volume: column.number({ default: 0.0 }),
+    attachment: column.text({ optional: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  },
+});
+
+const Sale = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    purchase_id: column.number({ optional: true, references: () => Purchase.columns.id }),
+    sale_type: column.text(),
+    sale_date: column.date(),
+    attachment: column.text({ optional: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  },
+});
+
+const SaleDetail = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    purchase_id: column.number({ optional: true, references: () => Purchase.columns.id }),
+    product_id: column.number({ optional: true, references: () => Product.columns.id }),
+    sale_id: column.number({ optional: true, references: () => Sale.columns.id }),
+    sale_type: column.text(),
+    sale_date: column.date(),
+    quantity: column.number({ default: 0.0 }),
+    attachment: column.text({ optional: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  },
+});
+
+const TrackingImport = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    tracking_detail: column.number({ optional: true, references: () => TrackingImportDetail.columns.id }),
+    tracking_number: column.text(),
+    tracking_date: column.date(),
+    attachment: column.text({ optional: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  },
+});
+
+const TrackingImportDetail = defineTable({
+  columns: {
+    id: column.number({ primaryKey: true, autoIncrement: true }),
+    purchase_id: column.number({ optional: true, references: () => Purchase.columns.id }),
+    product_id: column.number({ optional: true, references: () => Product.columns.id }),
+    store_order_id: column.number({ optional: true, references: () => StoreOrder.columns.id }),
+    store_currier_id: column.number({ optional: true, references: () => Currier.columns.id }),
+    importer_currier_id: column.number({ optional: true, references: () => Currier.columns.id }),
+    pob: column.number({ optional: true, references: () => PoBox.columns.id }),
+    tracking_type: column.text(),
+    store_tracking_number: column.text(),
+    store_tracking_date: column.date(),
+    importer_tracking_slip: column.text({ optional: true }),
+    importer_tracking_number: column.text(),
+    importer_tracking_date: column.date(),
+    quantity: column.number({ default: 0.0 }),
+    weight: column.number({ default: 0.0 }),
+    volume: column.number({ default: 0.0 }),
+    attachment: column.text({ optional: true }),
+    created_at: column.date({ default: NOW }),
+    updated_at: column.date({ optional: true }),
+  },
+});
+
 // https://astro.build/db/config
 export default defineDb({
   tables: {
@@ -474,8 +919,8 @@ export default defineDb({
     Purchase,
     Purchase_Details,
     Variant,
-    variantType,
-    variantTypeValue,
+    VariantType,
+    VariantTypeValue,
     VariantOption,
     VariantRelation,
     ProductType,
@@ -486,5 +931,27 @@ export default defineDb({
     Image,
     DaiCategoryProduct,
     Country,
+    Address,
+    Contact,
+    StoreOrder,
+    PurchaseOrder,
+    PurchaseOrderDetail,
+    Currier,
+    Client,
+    Quotation,
+    QuotationDetail,
+    PoBox,
+    FastQuotation,
+    LazyQuotation,
+    ForeightGeneral,
+    ForeightGeneralDetail,
+    ForeightPurchase,
+    ForeightPurchaseDetail,
+    Tracking,
+    TrackingDetail,
+    Sale,
+    SaleDetail,
+    TrackingImport,
+    TrackingImportDetail,
   }
 });
