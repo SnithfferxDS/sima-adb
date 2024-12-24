@@ -525,7 +525,7 @@ const PurchaseOrder = defineTable({
     number: column.text(),
     quoter_id: column.text({ references: () => User.columns.id }),
     assigned_to: column.text({ optional: true, references: () => User.columns.id }),
-    quotations: column.json(),
+    quotations: column.json(), // Array of quotations
     processed: column.boolean({ default: false }),
     status: column.number({ references: () => Status.columns.id, default: 1 }),
     created_at: column.date({ default: NOW }),

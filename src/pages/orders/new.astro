@@ -1,0 +1,121 @@
+---
+import Layout from "../../layouts/app.layout.astro";
+import { db, eq } from "astro:db";
+import { Quotation, User } from "astro:db";
+
+// Fetch all quotations and users from the database
+const allQuotations = await db.select().from(Quotation);
+const allUsers = await db.select().from(User);
+
+// Handle form submission
+if (Astro.request.method === "POST") {
+	try {
+		const formData = await Astro.request.formData();
+		const quotationId = Number(formData.get("quotationId"));
+		const userId = Number(formData.get("userId"));
+		const status = formData.get("status");
+		const orderDate = new Date().toISOString();
+
+		// Here you would insert the order into your orders table
+		// await db.insert(orders).values({
+		//   quotationId,
+		//   userId,
+		//   status,
+		//   orderDate,
+		// });
+
+		return Astro.redirect("/orders");
+	} catch (error) {
+		console.error("Error creating order:", error);
+	}
+}
+---
+
+<Layout title="Create New Order">
+	<div class="max-w-2xl mx-auto p-4">
+		<h1 class="text-2xl font-bold mb-6">Create New Order</h1>
+
+		<form method="POST" class="space-y-4">
+			<div>
+				<label
+					for="quotationId"
+					class="block text-sm font-medium text-gray-700"
+				>
+					Select Quotation
+				</label>
+				<select
+					id="quotationId"
+					name="quotationId"
+					required
+					class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+				>
+					<option value="">Select a quotation</option>
+					{
+						allQuotations.map((quotation) => (
+							<option value={quotation.id}>
+								Quotation #{quotation.id} -{" "}
+								{quotation.description}
+							</option>
+						))
+					}
+				</select>
+			</div>
+
+			<div>
+				<label
+					for="userId"
+					class="block text-sm font-medium text-gray-700"
+				>
+					Select User
+				</label>
+				<select
+					id="userId"
+					name="userId"
+					required
+					class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+				>
+					<option value="">Select a user</option>
+					{
+						allUsers.map((user) => (
+							<option value={user.id}>{user.name}</option>
+						))
+					}
+				</select>
+			</div>
+
+			<div>
+				<label
+					for="status"
+					class="block text-sm font-medium text-gray-700"
+				>
+					Status
+				</label>
+				<select
+					id="status"
+					name="status"
+					required
+					class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+				>
+					<option value="pending">Pending</option>
+					<option value="approved">Approved</option>
+					<option value="rejected">Rejected</option>
+				</select>
+			</div>
+
+			<div class="flex justify-end space-x-3">
+				<a
+					href="/orders"
+					class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+				>
+					Cancel
+				</a>
+				<button
+					type="submit"
+					class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
+				>
+					Create Order
+				</button>
+			</div>
+		</form>
+	</div>
+</Layout>
