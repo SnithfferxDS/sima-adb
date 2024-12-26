@@ -1,13 +1,13 @@
 import type { APIRoute } from 'astro';
-import { db, eq, variantTypeValue } from 'astro:db';
+import { db, eq, VariantTypeValue } from 'astro:db';
 
 export const GET: APIRoute = async ({ params }) => {
     try {
         const typeId = parseInt(params.id!);
         const values = await db
             .select()
-            .from(variantTypeValue)
-            .where(eq(variantTypeValue.variant_type_id, typeId))
+            .from(VariantTypeValue)
+            .where(eq(VariantTypeValue.variant_type_id, typeId))
             .all();
 
         return new Response(JSON.stringify(values), {

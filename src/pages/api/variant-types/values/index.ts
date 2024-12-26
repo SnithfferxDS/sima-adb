@@ -1,10 +1,10 @@
 import type { APIRoute } from 'astro';
-import { db, variantTypeValue } from 'astro:db';
+import { db, VariantTypeValue } from 'astro:db';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
     const data = await request.json();
-    const value = await db.insert(variantTypeValue).values({
+    const value = await db.insert(VariantTypeValue).values({
       name: data.name,
       value: data.value,
       abbreviation: data.abbreviation,

@@ -1,10 +1,10 @@
 import type { APIRoute } from 'astro';
-import { db, eq, variantTypeValue } from 'astro:db';
+import { db, eq, VariantTypeValue } from 'astro:db';
 
 export const DELETE: APIRoute = async ({ params }) => {
   try {
     const id = parseInt(params.id!);
-    await db.delete(variantTypeValue).where(eq(variantTypeValue.id, id));
+    await db.delete(VariantTypeValue).where(eq(VariantTypeValue.id, id));
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,
@@ -29,16 +29,16 @@ export const PUT: APIRoute = async ({ request, params }) => {
   try {
     const id = parseInt(params.id!);
     const data = await request.json();
-    
+
     await db
-      .update(variantTypeValue)
+      .update(VariantTypeValue)
       .set({
         name: data.name,
         value: data.value,
         abbreviation: data.abbreviation,
         updated_at: new Date()
       })
-      .where(eq(variantTypeValue.id, id));
+      .where(eq(VariantTypeValue.id, id));
 
     return new Response(JSON.stringify({ success: true }), {
       status: 200,

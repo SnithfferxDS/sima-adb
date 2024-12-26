@@ -1,0 +1,57 @@
+---
+import Layout from "../../layouts/app.layout.astro";
+import { db, eq, and, PurchaseOrder, User } from "astro:db";
+
+const orders = await db
+	.select({
+		quoter: {
+			id: User.id,
+			name: User.name,
+		},
+		assigned_to: {
+			id: User.id,
+			name: User.name,
+		},
+		number: PurchaseOrder.number,
+		quotations: PurchaseOrder.quotations,
+	})
+	.from(PurchaseOrder)
+	.leftJoin(User, eq(PurchaseOrder.quoter_id, User.id))
+	.where(
+		and(
+			eq(PurchaseOrder.status, 1),
+			eq(PurchaseOrder.assigned_to, User.id),
+		),
+	)
+	.all();
+---
+
+<Layout title="Pedidos">
+	<div class="container mx-auto">
+		<h1 class="text-3xl font-bold mb-4">Pedidos</h1>
+		<div class="mb-4">
+			<a
+				href="/orders/new"
+				class="bg-blue-500 text-white px-4 py-2 rounded"
+			>
+				Crear Nuevo Pedido
+			</a>
+		</div>
+		<div class="grid grid-cols-1 md:grid-cols-2 gap-4">
+			{
+				orders.map((order) => (
+					<div class="bg-white shadow-md rounded-lg p-4">
+						<h2 class="text-xl font-bold mb-4">{order.number}</h2>
+						<p class="mb-4">{order.quoter.name || "-"}</p>
+						<p class="mb-4">{order.assigned_to.name || "-"}</p>
+						<p class="mb-4">
+							{JSON.parse(order.quotations as string)
+								.map((q) => q.number)
+								.join(", ")}
+						</p>
+					</div>
+				))
+			}
+		</div>
+	</div>
+</Layout>
