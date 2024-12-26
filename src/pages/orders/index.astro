@@ -1,4 +1,5 @@
 ---
+import { Status } from "astro:db";
 import Layout from "../../layouts/app.layout.astro";
 import { db, eq, and, PurchaseOrder, User } from "astro:db";
 
@@ -14,6 +15,7 @@ const orders = await db
 		},
 		number: PurchaseOrder.number,
 		quotations: PurchaseOrder.quotations,
+		status: Status.name,
 	})
 	.from(PurchaseOrder)
 	.leftJoin(User, eq(PurchaseOrder.quoter_id, User.id))
@@ -49,6 +51,7 @@ const orders = await db
 								.map((q) => q.number)
 								.join(", ")}
 						</p>
+						<p class="mb-4">{order.status}</p>
 					</div>
 				))
 			}

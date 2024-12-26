@@ -1,0 +1,93 @@
+---
+import Layout from "../../layouts/app.layout.astro";
+import { db, eq, desc, Quotation } from "astro:db";
+import QuotationsList from "../../components/quotations/index.astro";
+import BreadCrumbs from "../../components/BreadCrumbs.astro";
+import Search from "../../components/Search.astro";
+
+const data = db
+	.select()
+	.from(Quotation)
+	.where(eq(Quotation.status, 1))
+	.orderBy(desc(Quotation.created_at))
+	.limit(10);
+
+const breadcrumbs = [
+	{
+		lable: "Quotations",
+		path: "/quotations",
+	},
+];
+---
+
+<Layout title="Quotations" />
+<div
+	class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg"
+>
+	<div
+		class="p-4 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5"
+	>
+		<div class="w-full mb-1">
+			<BreadCrumbs
+				routes={breadcrumbs}
+				currentRoute={Astro.url.pathname}
+				headerTitle="Quotations"
+			/>
+			<div class="items-center justify-between flex">
+				<div class="flex items-center mb-4 sm:mb-0">
+					<Search
+						action="search"
+						id="productSearch"
+						placeholder="en productos"
+						method="get"
+					/>
+				</div>
+				<div
+					class="flex items-center mb-4 sm:mb-0 ml-auto space-x-1 sm:space-x-2"
+				>
+					<a
+						class="inline-flex
+							items-center
+							justify-center
+							w-1/2
+							px-3
+							py-2
+							text-sm
+							font-medium
+							text-center
+							rounded-lg
+							focus:ring-4
+							sm:w-auto
+							text-white
+							bg-purple-700
+							hover:bg-purple-800
+							focus:ring-purple-300
+							dark:bg-purple-600
+							dark:hover:bg-purple-700
+							dark:focus:ring-purple-800"
+						href="/products/create"
+					>
+						<svg
+							class="w-5 h-5 sm:mr-2 sm:-ml-1"
+							fill="currentColor"
+							viewBox="0 0 20 20"
+							xmlns="http://www.w3.org/2000/svg"
+							><path
+								fill-rule="evenodd"
+								d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+								clip-rule="evenodd"></path></svg
+						>
+						<span class="hidden md:block">Agregar</span>
+					</a>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="flex flex-col">
+		<div class="overflow-x-auto">
+			<div class="inline-block min-w-full align-middle">
+				<QuotationsList quotations={data} />
+			</div>
+		</div>
+	</div>
+</div>

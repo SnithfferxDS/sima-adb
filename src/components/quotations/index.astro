@@ -1,0 +1,14 @@
+---
+import QuotattionsTable from "../../components/Table.astro";
+interface Props {
+	quotations: any[];
+}
+
+const { quotations } = Astro.props;
+---
+
+<QuotattionsTable
+	resource="Cotizaciones"
+	columns={["ID", "Cliente", "Fecha", "Total", "Estado"]}
+	data={quotations}
+/>

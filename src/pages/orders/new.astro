@@ -2,7 +2,7 @@
 import Layout from "../../layouts/app.layout.astro";
 import { db, eq } from "astro:db";
 import { Quotation, User } from "astro:db";
-
+import BreadCrumbs from "../../components/BreadCrumbs.astro";
 // Fetch all quotations and users from the database
 const allQuotations = await db.select().from(Quotation);
 const allUsers = await db.select().from(User);
@@ -29,93 +29,140 @@ if (Astro.request.method === "POST") {
 		console.error("Error creating order:", error);
 	}
 }
+
+const breadcrumbs = [
+	{ href: "/orders", label: "Orders" },
+	{ href: "/orders/new", label: "New Order" },
+];
 ---
 
 <Layout title="Create New Order">
-	<div class="max-w-2xl mx-auto p-4">
-		<h1 class="text-2xl font-bold mb-6">Create New Order</h1>
-
-		<form method="POST" class="space-y-4">
-			<div>
-				<label
-					for="quotationId"
-					class="block text-sm font-medium text-gray-700"
-				>
-					Select Quotation
-				</label>
-				<select
-					id="quotationId"
-					name="quotationId"
-					required
-					class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-				>
-					<option value="">Select a quotation</option>
-					{
-						allQuotations.map((quotation) => (
-							<option value={quotation.id}>
-								Quotation #{quotation.id} -{" "}
-								{quotation.description}
-							</option>
-						))
-					}
-				</select>
+	<div
+		class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg"
+	>
+		<div
+			class="p-4 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5"
+		>
+			<div class="w-full mb-1">
+				<BreadCrumbs
+					routes={breadcrumbs}
+					currentRoute={Astro.url.pathname}
+					headerTitle="Crear Orden"
+				/>
 			</div>
+		</div>
+		<div class="flex flex-col">
+			<div class="overflow-x-auto">
+				<div class="inline-block min-w-full align-middle">
+					<form id="createForm" class="space-y-6">
+						<div>
+							<label
+								for="quotationId"
+								class="block text-sm font-medium text-gray-700"
+							>
+								Select Quotation
+							</label>
+							<select
+								id="quotationId"
+								name="quotationId"
+								required
+								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+							>
+								<option value="">Select a quotation</option>
+								{
+									allQuotations.map((quotation) => (
+										<option value={quotation.id}>
+											Quotation #{quotation.id} -{" "}
+											{quotation.description}
+										</option>
+									))
+								}
+							</select>
+						</div>
 
-			<div>
-				<label
-					for="userId"
-					class="block text-sm font-medium text-gray-700"
-				>
-					Select User
-				</label>
-				<select
-					id="userId"
-					name="userId"
-					required
-					class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-				>
-					<option value="">Select a user</option>
-					{
-						allUsers.map((user) => (
-							<option value={user.id}>{user.name}</option>
-						))
-					}
-				</select>
-			</div>
+						<div>
+							<label
+								for="userId"
+								class="block text-sm font-medium text-gray-700"
+							>
+								Select User
+							</label>
+							<select
+								id="userId"
+								name="userId"
+								required
+								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+							>
+								<option value="">Select a user</option>
+								{
+									allUsers.map((user) => (
+										<option value={user.id}>
+											{user.name}
+										</option>
+									))
+								}
+							</select>
+						</div>
 
-			<div>
-				<label
-					for="status"
-					class="block text-sm font-medium text-gray-700"
-				>
-					Status
-				</label>
-				<select
-					id="status"
-					name="status"
-					required
-					class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
-				>
-					<option value="pending">Pending</option>
-					<option value="approved">Approved</option>
-					<option value="rejected">Rejected</option>
-				</select>
-			</div>
+						<div>
+							<label
+								for="status"
+								class="block text-sm font-medium text-gray-700"
+							>
+								Status
+							</label>
+							<select
+								id="status"
+								name="status"
+								required
+								class="mt-1 block w-full rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500"
+							>
+								<option value="pending">Pending</option>
+								<option value="approved">Approved</option>
+								<option value="rejected">Rejected</option>
+							</select>
+						</div>
 
-			<div class="flex justify-end space-x-3">
-				<a
-					href="/orders"
-					class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
-				>
-					Cancel
-				</a>
-				<button
-					type="submit"
-					class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
-				>
-					Create Order
-				</button>
+						<div class="flex justify-end space-x-3">
+							<a
+								href="/orders"
+								class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-md hover:bg-gray-200"
+							>
+								Cancel
+							</a>
+							<button
+								type="submit"
+								class="px-4 py-2 text-sm font-medium text-white bg-indigo-600 rounded-md hover:bg-indigo-700"
+							>
+								Crear Orden
+							</button>
+						</div>
+					</form>
+				</div>
 			</div>
-		</form>
+		</div>
 	</div>
 </Layout>
+<script>
+	import { showSuccess } from "../../lib/utils/notifications";
+
+	const form = document.getElementById("createForm") as HTMLFormElement;
+
+	form.addEventListener("submit", async (event) => {
+		event.preventDefault();
+
+		const formData = new FormData(form);
+		const quotationId = formData.get("quotationId");
+		const userId = formData.get("userId");
+		const status = formData.get("status");
+
+		const response = await fetch("/orders/new", {
+			method: "POST",
+			body: formData,
+		});
+
+		if (response.ok) {
+			showSuccess("Order created successfully!");
+		}
+	});
+</script>

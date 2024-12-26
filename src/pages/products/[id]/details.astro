@@ -3,7 +3,11 @@ import Layout from "../../../layouts/app.layout.astro";
 import { db, eq, Product } from "astro:db";
 
 const { id } = Astro.params;
-const product = await db.select().from(Product).where(eq(Product.id, id)).get();
+const product = await db
+	.select()
+	.from(Product)
+	.where(eq(Product.id, parseInt(id as string)))
+	.get();
 
 if (!product) {
 	return Astro.redirect("/products");
@@ -12,7 +16,7 @@ if (!product) {
 
 <Layout title="Product Details">
 	<div class="p-6 mx-auto">
-		<h1 class="text-2xl font-bold mb-6">Product Details</h1>
+		<h1 class="text-2xl font-bold mb-6">Detalles de Producto</h1>
 		<section class="py-8 bg-white md:py-16 dark:bg-gray-900 antialiased">
 			<div class="max-w-screen-xl px-4 mx-auto 2xl:px-0">
 				<div class="lg:grid lg:grid-cols-2 lg:gap-8 xl:gap-16">
