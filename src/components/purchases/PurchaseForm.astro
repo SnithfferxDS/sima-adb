@@ -1,9 +1,9 @@
 ---
-import { db, Supplier, Order } from "astro:db";
+import { db, Supplier, PurchaseOrder } from "astro:db";
 import UploadFile from "../../components/FileUpload.astro";
 
 const Suppliers = await db.select().from(Supplier).all();
-const Orders = await db.select().from(Order).all();
+const Orders = await db.select().from(PurchaseOrder).all();
 ---
 
 <form id="createForm" class="space-y-6">
