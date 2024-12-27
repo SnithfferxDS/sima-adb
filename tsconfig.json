@@ -3,7 +3,55 @@
   "compilerOptions": {
     "strict": true,
     "jsx": "react-jsx",
-    "jsxImportSource": "react"
+    "jsxImportSource": "react",
+    "baseUrl": "./",
+    "paths": {
+      "@Actions/*": [
+        "src/actions/*"
+      ],
+      "@Assets/*": [
+        "src/assets/*"
+      ],
+      "@Components/*": [
+        "src/components/*"
+      ],
+      "@Configs/*": [
+        "src/configs/*"
+      ],
+      "@Layouts/*": [
+        "src/layouts/*"
+      ],
+      "@Lib/*": [
+        "src/lib/*"
+      ],
+      "@Middleware/*": [
+        "src/middleware/*"
+      ],
+      "@Pages/*": [
+        "src/pages/*"
+      ],
+      "@Templates/*": [
+        "src/templates/*"
+      ],
+      "@Types/*": [
+        "types/*"
+      ],
+      "@Utils/*": [
+        "src/lib/utils/*"
+      ],
+      "@DB/*": [
+        "db/*"
+      ],
+      "@Tables/*": [
+        "drizzle/*"
+      ],
+      "@Storage/*": [
+        "src/storage/*"
+      ],
+      "@Api/*": [
+        "src/pages/api/*"
+      ]
+    }
   },
   "include": [
     ".astro/types.d.ts",

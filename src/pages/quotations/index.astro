@@ -1,6 +1,6 @@
 ---
-import Layout from "../../layouts/app.layout.astro";
-import { db, eq, gt, desc, sql, between } from "astro:db";
+import Layout from "@Layouts/app.layout.astro";
+import { db, eq, desc, between } from "astro:db";
 import {
 	Quotation,
 	Supplier,
@@ -12,9 +12,9 @@ import {
 	Category,
 	DaiCategoryProduct,
 } from "astro:db";
-import QuotationsList from "../../components/quotations/QuotationList.astro";
-import BreadCrumbs from "../../components/BreadCrumbs.astro";
-import Search from "../../components/Search.astro";
+import QuotationsList from "@Components/quotations/QuotationList.astro";
+import BreadCrumbs from "@Components/BreadCrumbs.astro";
+import Search from "@Components/Search.astro";
 
 const data = await db
 	.select({

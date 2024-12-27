@@ -1,9 +1,9 @@
 ---
 import Layout from "../../layouts/app.layout.astro";
-import Table from "../../components/Table.astro";
+import Table from "@Components/Table.astro";
 import { db, eq, ProductType, Category } from "astro:db";
-import BreadCrumbs from "../../components/BreadCrumbs.astro";
-import Search from "../../components/Search.astro";
+import BreadCrumbs from "@Components/BreadCrumbs.astro";
+import Search from "@Components/Search.astro";
 
 const categories = await db
 	.select()

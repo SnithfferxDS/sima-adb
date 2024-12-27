@@ -1,13 +1,13 @@
 ---
 import Layout from "../../layouts/main.layout.astro";
-import {APP_NAME, APP_SHORT_VERSION} from "../../configs/constants";
-import {asset} from "../../lib/utils/functions";
+import { APP_NAME, APP_SHORT_VERSION } from "@Configs/constants";
+import { asset } from "../../lib/utils/functions";
 import Footer from "../../templates/footer.guest.template.astro";
 
-let error = '';
-let success = '';
-
+let error = "";
+let success = "";
 ---
+
 <Layout title="Register">
 	<div
 		class="flex flex-col items-center justify-center px-6 pt-8 mx-auto pt:mt-0
@@ -23,7 +23,11 @@ let success = '';
 			href="/"
 			class="flex items-center justify-center mb-8 text-2xl font-semibold lg:mb-10 dark:text-white"
 		>
-			<img src='/assets/img/logos/logo.png' alt="FlowBite Logo" class="mr-4 h-11" />
+			<img
+				src="/assets/img/logos/logo.png"
+				alt="FlowBite Logo"
+				class="mr-4 h-11"
+			/>
 			<span>{APP_NAME} v{APP_SHORT_VERSION}</span>
 		</a>
 		<!-- Card -->
@@ -33,22 +37,35 @@ let success = '';
 			<h2 class="text-2xl font-bold text-gray-900 dark:text-white">
 				Cree su cuenta
 			</h2>
-			{error && (
-				<div class="mb-4 p-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400" role="alert">
-					{error}
-				</div>
-			)}
+			{
+				error && (
+					<div
+						class="mb-4 p-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
+						role="alert"
+					>
+						{error}
+					</div>
+				)
+			}
 
-			{success && (
-				<div class="mb-4 p-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400" role="alert">
-					{success}
-				</div>
-			)}
+			{
+				success && (
+					<div
+						class="mb-4 p-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
+						role="alert"
+					>
+						{success}
+					</div>
+				)
+			}
 
 			<form class="space-y-6" method="POST" id="createForm">
 				<div class="grid grid-cols-2 gap-4">
 					<div>
-						<label for="person_name" class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">
+						<label
+							for="person_name"
+							class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
+						>
 							Nombre
 						</label>
 						<input
@@ -60,7 +77,10 @@ let success = '';
 						/>
 					</div>
 					<div>
-						<label for="person_lastname" class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">
+						<label
+							for="person_lastname"
+							class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
+						>
 							Apellido
 						</label>
 						<input
@@ -74,7 +94,10 @@ let success = '';
 				</div>
 
 				<div>
-					<label for="user_name" class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">
+					<label
+						for="user_name"
+						class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
+					>
 						Nombre de usuario
 					</label>
 					<input
@@ -87,7 +110,10 @@ let success = '';
 				</div>
 
 				<div>
-					<label for="email" class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">
+					<label
+						for="email"
+						class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
+					>
 						Dirección Email
 					</label>
 					<input
@@ -101,7 +127,10 @@ let success = '';
 				</div>
 
 				<div>
-					<label for="phone" class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">
+					<label
+						for="phone"
+						class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
+					>
 						Teléfono (opcional)
 					</label>
 					<input
@@ -113,7 +142,10 @@ let success = '';
 				</div>
 
 				<div>
-					<label for="password" class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">
+					<label
+						for="password"
+						class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
+					>
 						Contraseña
 					</label>
 					<input
@@ -127,7 +159,10 @@ let success = '';
 				</div>
 
 				<div>
-					<label for="confirmPassword" class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">
+					<label
+						for="confirmPassword"
+						class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
+					>
 						Confirmar Contraseña
 					</label>
 					<input
@@ -152,12 +187,15 @@ let success = '';
 
 			<p class="mt-10 text-center text-sm text-gray-500">
 				¿Ya tiene cuenta?
-				<a href="/auth/login" class="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
+				<a
+					href="/auth/login"
+					class="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
+				>
 					Iniciar sesión
 				</a>
 			</p>
 		</div>
-	<Footer/>
+		<Footer />
 	</div>
 </Layout>
 <script>
@@ -176,7 +214,7 @@ let success = '';
 			lastname: formData.get("person_lastname"),
 			phone: formData.get("phone"),
 			user: formData.get("user_name"),
-		}
+		};
 		const validation = validateUserAccount(data);
 		if (validation.errors) {
 			showError(Object.values(validation.errors).flat().join("\n"));
@@ -196,7 +234,10 @@ let success = '';
 				window.location.href = "/auth/login";
 			} else {
 				const error = await response.json();
-				showError(error.message || "No se ha podido crear el usuario, favor verificar información y volver a intentar");
+				showError(
+					error.message ||
+						"No se ha podido crear el usuario, favor verificar información y volver a intentar",
+				);
 			}
 		} catch (error) {
 			showError("Error inesperado, favor verificar consola.");

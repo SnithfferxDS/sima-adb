@@ -1,13 +1,13 @@
 ---
 import BaseLayout from "../../layouts/app.layout.astro";
-import ProductVariantUpload from "../../components/ProductVariantUpload.astro";
-import ProductVariantForm from "../../components/ProductVariantForm.astro";
-//import UploadFile from "../../components/FileUpload.astro";
+import ProductVariantUpload from "@Components/ProductVariantUpload.astro";
+import ProductVariantForm from "@Components/ProductVariantForm.astro";
+//import UploadFile from "@Components/FileUpload.astro";
 import { db } from "astro:db";
-import UploadFile from "../../components/shared/ImageUploader.astro";
-import BreadCrumbs from "../../components/BreadCrumbs.astro";
+import UploadFile from "@Components/shared/ImageUploader.astro";
+import BreadCrumbs from "@Components/BreadCrumbs.astro";
 import type { CommonNames } from "../../types/entities";
-import MetadataDescription from "../../components/MetadataDescription.astro";
+import MetadataDescription from "@Components/MetadataDescription.astro";
 import { Country, Brand, Category, CommonName, ProductType } from "astro:db";
 
 const Categories = await db
@@ -2042,7 +2042,7 @@ const breadcrumbs = [
 							ean: formData.get("productEAN"),
 							info: "general",
 						};
-						
+
 						const response = await fetch("/api/products", {
 							method: "POST",
 							headers: {

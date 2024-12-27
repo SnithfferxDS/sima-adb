@@ -1,8 +1,8 @@
 ---
 import Layout from "../../layouts/app.layout.astro";
-import AstroTable from "../../components/Table.astro";
-import BreadCrumbs from "../../components/BreadCrumbs.astro";
-import FileUpload from "../../components/FileUpload.astro";
+import AstroTable from "@Components/Table.astro";
+import BreadCrumbs from "@Components/BreadCrumbs.astro";
+import FileUpload from "@Components/FileUpload.astro";
 import { db, Brand } from "astro:db";
 
 const brands = await db.select().from(Brand).all();

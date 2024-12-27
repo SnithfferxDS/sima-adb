@@ -1,9 +1,9 @@
 ---
 import { db, Group } from "astro:db";
 import Layout from "../../layouts/app.layout.astro";
-import Table from "../../components/Table.astro";
-import BreadCrumbs from "../../components/BreadCrumbs.astro";
-import Search from "../../components/Search.astro";
+import Table from "@Components/Table.astro";
+import BreadCrumbs from "@Components/BreadCrumbs.astro";
+import Search from "@Components/Search.astro";
 
 const groups = await db.select().from(Group).orderBy(Group.id);
 

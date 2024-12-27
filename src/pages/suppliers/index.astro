@@ -1,7 +1,7 @@
 ---
 import Layout from "../../layouts/app.layout.astro";
-import Table from "../../components/Table.astro";
-import BreadCrumbs from "../../components/BreadCrumbs.astro";
+import Table from "@Components/Table.astro";
+import BreadCrumbs from "@Components/BreadCrumbs.astro";
 import { db, Supplier } from "astro:db";
 
 const suppliers = await db.select().from(Supplier).all();

@@ -1,7 +1,7 @@
 ---
 import BaseLayout from "../../layouts/app.layout.astro";
-import BreadCrumbs from "../../components/BreadCrumbs.astro";
-import Search from "../../components/Search.astro";
+import BreadCrumbs from "@Components/BreadCrumbs.astro";
+import Search from "@Components/Search.astro";
 import { db, Category } from "astro:db";
 
 const categories = await db.select().from(Category).orderBy(Category.name);

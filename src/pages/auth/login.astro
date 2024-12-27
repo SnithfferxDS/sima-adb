@@ -1,43 +1,51 @@
 ---
 import Layout from "../../layouts/main.layout.astro";
-import CsrfToken from '../../components/CsrfToken.astro';
-import { generateCsrfToken,setCsrfCookie } from "../../lib/session";
-import { redirectIfAuthenticated } from '../../middleware/auth';
-import {asset} from "../../lib/utils/functions";
-import {APP_NAME, APP_SHORT_VERSION} from "../../configs/constants";
+import CsrfToken from "@Components/CsrfToken.astro";
+import { generateCsrfToken, setCsrfCookie } from "../../lib/session";
+import { redirectIfAuthenticated } from "../../middleware/auth";
+import { asset } from "../../lib/utils/functions";
+import { APP_NAME, APP_SHORT_VERSION } from "@Configs/constants";
 // Redirect if already authenticated
 await redirectIfAuthenticated(Astro);
 // Generate CSRF token
 const csrfToken = generateCsrfToken();
-Astro.response.headers.append('Set-Cookie', setCsrfCookie(csrfToken));
+Astro.response.headers.append("Set-Cookie", setCsrfCookie(csrfToken));
 ---
 
 <Layout title="Login">
-	<div class="flex min-h-screen flex-col justify-center px-6 pt-8 mx-auto pt:mt-0
+	<div
+		class="flex min-h-screen flex-col justify-center px-6 pt-8 mx-auto pt:mt-0
         bg-gradient-to-b
 		text-gray-800
         dark:text-white
 		from-secondary-600
 		to-primary-600
         dark:from-secondary-300
-		dark:to-primary-300">
+		dark:to-primary-300"
+	>
 		<a
 			href="/"
 			class="flex items-center justify-center mb-8 text-2xl font-semibold lg:mb-10 dark:text-white"
 		>
-			<img src='/assets/img/logos/logo.png' alt="FlowBite Logo" class="mr-4 h-11" />
+			<img
+				src="/assets/img/logos/logo.png"
+				alt="FlowBite Logo"
+				class="mr-4 h-11"
+			/>
 			<span>{APP_NAME} v{APP_SHORT_VERSION}</span>
 		</a>
 		<!-- Card -->
 		<div
 			class="p-6 space-y-8 sm:p-8 sm:mx-auto sm:w-full sm:max-w-sm bg-white/25 rounded-lg shadow dark:bg-gray-800/25"
 		>
-
 			<form class="space-y-6" id="signinForm">
 				<CsrfToken token={csrfToken} />
 
 				<div>
-					<label for="email_user" class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">
+					<label
+						for="email_user"
+						class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
+					>
 						Email o Usuario
 					</label>
 					<input
@@ -53,11 +61,17 @@ Astro.response.headers.append('Set-Cookie', setCsrfCookie(csrfToken));
 
 				<div>
 					<div class="flex items-center justify-between">
-						<label for="password" class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200">
+						<label
+							for="password"
+							class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
+						>
 							Password
 						</label>
 						<div class="text-sm">
-							<a href="/auth/forgot-password" class="font-semibold text-indigo-600 hover:text-indigo-500">
+							<a
+								href="/auth/forgot-password"
+								class="font-semibold text-indigo-600 hover:text-indigo-500"
+							>
 								Forgot password?
 							</a>
 						</div>
@@ -87,13 +101,14 @@ Astro.response.headers.append('Set-Cookie', setCsrfCookie(csrfToken));
 					<div class="ml-3 text-sm">
 						<label
 							for="remember"
-							class="font-medium text-gray-900 dark:text-white">Remember me</label
+							class="font-medium text-gray-900 dark:text-white"
+							>Remember me</label
 						>
 					</div>
 					<a
 						href="#"
 						class="ml-auto mt-4 text-left text-sm text-primary-700 hover:underline dark:text-primary-500 w-full"
-					>Lost Password?</a
+						>Lost Password?</a
 					>
 				</div>
 
@@ -109,7 +124,10 @@ Astro.response.headers.append('Set-Cookie', setCsrfCookie(csrfToken));
 
 			<p class="mt-10 text-center text-sm text-gray-500">
 				Not a member?
-				<a href="/auth/signup" class="font-semibold leading-6 text-indigo-600 hover:text-indigo-500">
+				<a
+					href="/auth/signup"
+					class="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
+				>
 					Create an account
 				</a>
 			</p>
@@ -117,29 +135,28 @@ Astro.response.headers.append('Set-Cookie', setCsrfCookie(csrfToken));
 	</div>
 </Layout>
 <script>
-
 	import { showSuccess, showError } from "../../lib/utils/notifications";
 
 	const form = document.getElementById("signinForm");
 	form?.addEventListener("submit", async (e) => {
 		e.preventDefault();
 		const formData = new FormData(form as HTMLFormElement);
-		const user = formData.get('email_user')?.toString();
-		const password = formData.get('password')?.toString();
+		const user = formData.get("email_user")?.toString();
+		const password = formData.get("password")?.toString();
 
 		if (!user || !password) {
-			showError('Email and password are required');
+			showError("Email and password are required");
 		} else {
 			const data = {
 				terms: user,
 				password: password,
 				remember: formData.get("remember"),
-			}
+			};
 
 			try {
 				const response = await fetch("/api/auth/login", {
 					method: "POST",
-					headers: {"Content-Type": "application/json"},
+					headers: { "Content-Type": "application/json" },
 					body: JSON.stringify(data),
 				});
 				if (response.ok) {

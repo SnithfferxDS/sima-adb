@@ -2,7 +2,7 @@
 import Layout from "../../layouts/app.layout.astro";
 import { db, eq } from "astro:db";
 import { Quotation, User } from "astro:db";
-import BreadCrumbs from "../../components/BreadCrumbs.astro";
+import BreadCrumbs from "@Components/BreadCrumbs.astro";
 // Fetch all quotations and users from the database
 const allQuotations = await db.select().from(Quotation);
 const allUsers = await db.select().from(User);

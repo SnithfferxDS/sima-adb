@@ -1,8 +1,8 @@
 ---
 import Layout from "../../layouts/app.layout.astro";
-import MetadataForm from "../../components/metadata/MetadataForm.astro";
+import MetadataForm from "@Components/metadata/MetadataForm.astro";
 import { db, Group, Category, CommonName, ProductType, eq } from "astro:db";
-import BreadCrumbs from "../../components/BreadCrumbs.astro";
+import BreadCrumbs from "@Components/BreadCrumbs.astro";
 
 /* if (Astro.request.method === "POST") {
 	const formData = await Astro.request.formData();
