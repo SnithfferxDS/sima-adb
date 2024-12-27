@@ -1,6 +1,244 @@
+---
+import { db, eq } from "astro:db";
+import {
+	Supplier,
+	Client,
+	Product,
+	Currier,
+	Quotation,
+	User,
+	Country,
+	Category,
+} from "astro:db";
+import { showError, showSuccess } from "../../lib/utils/notifications";
+
+if (Astro.params.id) {
+	const quotation = await db
+		.select({
+			quotationNumber: Quotation.number,
+			quoter: {
+				id: User.id,
+				name: User.name,
+			},
+			client: {
+				id: Client.id,
+				name: Client.name,
+			},
+			product: {
+				id: Product.id,
+				name: Product.name,
+			},
+			currier: {
+				id: Currier.id,
+				name: Currier.name,
+			},
+			store: {
+				id: Supplier.id,
+				name: Supplier.name,
+			},
+			country: {
+				id: Country.id,
+				name: Country.name,
+			},
+			quotationDate: Quotation.purchase_date,
+			ingressDate: Quotation.ingress_date,
+			processedDate: Quotation.processed_date,
+			expectedArrivalDate: Quotation.expected_arrival_date,
+			arrivalDate: Quotation.arrival_date,
+		})
+		.from(Quotation)
+		.leftJoin(Supplier, eq(Supplier.id, Quotation.store_id))
+		.leftJoin(Country, eq(Country.id, Quotation.country_id))
+		.leftJoin(Client, eq(Client.id, Quotation.client_id))
+		.leftJoin(Product, eq(Product.id, Quotation.product_id))
+		.leftJoin(Currier, eq(Currier.id, Quotation.currier_id))
+		.leftJoin(User, eq(User.id, Quotation.quoter_id))
+		.where(eq(Quotation.id, Number(Astro.params.id)));
+
+	if (!quotation) {
+		showError("No se encontró la cotización");
+		return;
+	}
+}
+if (Astro.params.product_id) {
+	const product = await db
+		.select({
+			id: Product.id,
+			name: Product.name,
+		})
+		.from(Product)
+		.where(eq(Product.id, Number(Astro.params.product_id)));
+
+	if (!product) {
+		showError("No se encontró el producto");
+		return;
+	}
+}
+const suppliers = await db.select().from(Supplier).all();
+const clients = await db.select().from(Client).all();
+const categories = await db.select().from(Category).all();
+const countries = await db.select().from(Country).all();
+---
+
 <form id="createForm" class="space-y-6">
-	<input type="hidden" name="quotationId" id="quotationId" value="" />
-	<section class="flex flex-col">
-		<div class="overflow-x-auto"></div>
-	</section>
+	<input
+		type="hidden"
+		name="quickQuotationId"
+		id="quickQuotationId"
+		value=""
+	/>
+	<div class="grid grid-cols-4 xl:grid-cols-4 gap-4">
+		<div class="mb-4 col-span-2">
+			<label
+				for="quickQuotation-product"
+				class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+				>Producto</label
+			>
+			<input
+				type="text"
+				name="quickQuotation-product"
+				id="quickQuotation-product"
+				class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				placeholder="Producto a cotizar"
+			/>
+		</div>
+		<div class="mb-4 col-span-2">
+			<label
+				for="quickQuotation-link"
+				class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+				>Enlace</label
+			>
+			<input
+				type="text"
+				name="quickQuotation-link"
+				id="quickQuotation-link"
+				class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				placeholder="Producto a cotizar"
+			/>
+		</div>
+		<div class="mb-4">
+			<label
+				for="quickQuotation-quantity"
+				class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+				>Cantidad</label
+			>
+			<input
+				type="number"
+				name="quickQuotation-quantity"
+				id="quickQuotation-quantity"
+				class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				step="1"
+				value="1"
+				placeholder="Cantidad a cotizar"
+			/>
+		</div>
+		<div class="mb-4">
+			<label
+				for="quickQuotation-price"
+				class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+				>Precio</label
+			>
+			<input
+				type="number"
+				name="quickQuotation-price"
+				id="quickQuotation-price"
+				class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				step="any"
+				value="0"
+				placeholder="Precio a cotizar"
+			/>
+		</div>
+		<div class="mb-4">
+			<label
+				for="quickQuotation-shipping"
+				class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+				>Envío</label
+			>
+			<input
+				type="number"
+				name="quickQuotation-shipping"
+				id="quickQuotation-shipping"
+				class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				step="any"
+				value="0"
+				placeholder="Precio a cotizar"
+			/>
+		</div>
+		<div class="mb-4">
+			<label
+				for="quotation-category"
+				class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+				>Categorias</label
+			>
+			<select
+				name="quotation-category"
+				id="quotation-category"
+				class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+			>
+				<option value="0">Seleccione categoría</option>
+				{
+					categories.map((category) => (
+						<option value={category.id}>{category.name}</option>
+					))
+				}
+			</select>
+		</div>
+		<div class="mb-4">
+			<label
+				for="quotation-store"
+				class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+				>Tiendas</label
+			>
+			<select
+				name="quotation-store"
+				id="quotation-store"
+				class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+			>
+				<option value="0">Seleccione tienda</option>
+				{
+					suppliers.map((supplier) => (
+						<option value={supplier.id}>{supplier.name}</option>
+					))
+				}
+			</select>
+		</div>
+		<div class="mb-4">
+			<label
+				for="quotation-client"
+				class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+				>Clienes</label
+			>
+			<select
+				name="quotation-client"
+				id="quotation-client"
+				class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+			>
+				<option value="0">Seleccione cliente</option>
+				{
+					clients.map((client) => (
+						<option value={client.id}>{client.name}</option>
+					))
+				}
+			</select>
+		</div>
+		<div class="mb-4">
+			<label
+				for="quotation-country"
+				class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+				>Paises</label
+			>
+			<select
+				name="quotation-country"
+				id="quotation-country"
+				class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+			>
+				<option value="0">Seleccione país</option>
+				{
+					countries.map((country) => (
+						<option value={country.id}>{country.name}</option>
+					))
+				}
+			</select>
+		</div>
+	</div>
 </form>
