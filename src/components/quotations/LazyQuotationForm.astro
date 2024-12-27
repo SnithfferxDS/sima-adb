@@ -1,0 +1,58 @@
+<form id="createForm" class="space-y-6">
+	<section class="flex flex-col">
+		<div class="overflow-x-auto">
+			<div
+				class="relative shadow-md sm:rounded-lg bg-gray-50/25 dark:bg-gray-800/25"
+			>
+				<div
+					class="p-4 space-y-3 md:space-y-0 md:space-x-4 overflow-hidden rounded-lg"
+				>
+					<div class="grid grid-cols-1 gap-1 md:gap-4 xl:grid-cols-3">
+						<div class="mb-4">
+							<label
+								for="lazyQuotationProduct"
+								class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
+								>Producto</label
+							>
+							<input
+								type="text"
+								id="lazyQuotationProduct"
+								name="lazyQuotationProduct"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								placeholder="Nombre del producto"
+								required
+							/>
+						</div>
+
+						<div class="mb-4">
+							<label
+								for="lazyQuotationComment"
+								class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
+								>Description/Especificaciones</label
+							>
+							<textarea
+								id="lazyQuotationComment"
+								name="lazyQuotationComment"
+								rows="3"
+								class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+								placeholder="Comentario"></textarea>
+						</div>
+
+						<div class="mb-4 flex justify-end space-x-4">
+							<button
+								id="btnAddQuotation"
+								class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md"
+								type="button">Guardar</button
+							>
+							<button
+								id="btncancel"
+								class="bg-red-500 hover:bg-red-600 text-white font-bold py-2 px-4 rounded-md"
+								type="button">Cancelar</button
+							>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</form>

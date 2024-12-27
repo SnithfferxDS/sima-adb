@@ -1,0 +1,565 @@
+---
+import { db, eq } from "astro:db";
+import {
+	Supplier,
+	Client,
+	Product,
+	Currier,
+	Quotation,
+	User,
+	Country,
+} from "astro:db";
+import { showError, showSuccess } from "../../lib/utils/notifications";
+
+if (Astro.params.id) {
+	const quotation = await db
+		.select({
+			quotationNumber: Quotation.number,
+			quoter: {
+				id: User.id,
+				name: User.name,
+			},
+			client: {
+				id: Client.id,
+				name: Client.name,
+			},
+			product: {
+				id: Product.id,
+				name: Product.name,
+			},
+			currier: {
+				id: Currier.id,
+				name: Currier.name,
+			},
+			store: {
+				id: Supplier.id,
+				name: Supplier.name,
+			},
+			country: {
+				id: Country.id,
+				name: Country.name,
+			},
+			quotationDate: Quotation.purchase_date,
+			ingressDate: Quotation.ingress_date,
+			processedDate: Quotation.processed_date,
+			expectedArrivalDate: Quotation.expected_arrival_date,
+			arrivalDate: Quotation.arrival_date,
+		})
+		.from(Quotation)
+		.leftJoin(Supplier, eq(Supplier.id, Quotation.store_id))
+		.leftJoin(Country, eq(Country.id, Quotation.country_id))
+		.leftJoin(Client, eq(Client.id, Quotation.client_id))
+		.leftJoin(Product, eq(Product.id, Quotation.product_id))
+		.leftJoin(Currier, eq(Currier.id, Quotation.currier_id))
+		.leftJoin(User, eq(User.id, Quotation.quoter_id))
+		.where(eq(Quotation.id, Number(Astro.params.id)));
+
+	if (!quotation) {
+		showError("No se encontró la cotización");
+		return;
+	}
+}
+if (Astro.params.product_id) {
+	const product = await db
+		.select({
+			id: Product.id,
+			name: Product.name,
+		})
+		.from(Product)
+		.where(eq(Product.id, Number(Astro.params.product_id)));
+
+	if (!product) {
+		showError("No se encontró el producto");
+		return;
+	}
+}
+const suppliers = await db.select().from(Supplier).all();
+const clients = await db.select().from(Client).all();
+const products = await db.select().from(Product).all();
+const curriers = await db.select().from(Currier).all();
+---
+
+<form id="createForm" class="space-y-6">
+	<input type="hidden" name="quotationId" id="quotationId" value="" />
+	<section class="flex flex-col">
+		<div class="overflow-x-auto">
+			<div
+				class="relative shadow-md sm:rounded-lg bg-gray-50/25 dark:bg-gray-800/25"
+			>
+				<div
+					class="p-4 space-y-3 md:space-y-0 md:space-x-4 overflow-hidden rounded-lg"
+				>
+					<div
+						class="mb-4 border-b border-gray-200/25 dark:border-gray-700/25"
+					>
+						<ul
+							class="flex flex-wrap -mb-px text-sm font-medium text-center text-gray-600 border-b border-gray-400 dark:border-gray-500 dark:text-gray-300"
+							id="default-tab"
+							data-tabs-toggle="#default-tab-content"
+							role="tablist"
+						>
+							<li class="me-2" role="presentation">
+								<button
+									class="inline-block p-4 border-b-2 rounded-t-lg text-primary-600 bg-gray-100/75 dark:bg-gray-600/75 dark:text-gray-100"
+									id="quotation-local-tab"
+									data-tabs-target="#quotation-local"
+									type="button"
+									role="tab"
+									aria-controls="quotation-local"
+									aria-selected="false">Local</button
+								>
+							</li>
+							<li class="me-2" role="presentation">
+								<button
+									class="inline-block p-4 border-b-2 rounded-t-lg"
+									id="quotation-import-tab"
+									data-tabs-target="#quotation-import"
+									type="button"
+									role="tab"
+									aria-controls="quotation-import"
+									aria-selected="false">Importación</button
+								>
+							</li>
+						</ul>
+					</div>
+					<div id="default-tab-content">
+						<!-- Local -->
+						<div
+							class="hidden p-1 md:p-2 xl:p-4 rounded-lg bg-gray-50/25 dark:bg-gray-700/25"
+							id="quotation-local"
+							role="tabpanel"
+							aria-labelledby="quotation-local-tab"
+						>
+							<div
+								class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-4"
+							>
+								<div
+									class="grid grid-cols-3 xl:grid-cols-4 gap-4"
+								>
+									<div class="mb-4 col-span-3">
+										<label
+											for="quotation-product"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Producto</label
+										>
+										<input
+											type="text"
+											name="quotation-product"
+											id="quotation-product"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											placeholder="Producto a cotizar"
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="quotation-quantity"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Cantidad</label
+										>
+										<input
+											type="number"
+											name="quotation-quantity"
+											id="quotation-quantity"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											step="1"
+											value="1"
+											placeholder="Cantidad a cotizar"
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="quotation-price"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Precio</label
+										>
+										<input
+											type="number"
+											name="quotation-price"
+											id="quotation-price"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											step="any"
+											value="0"
+											placeholder="Precio a cotizar"
+										/>
+									</div>
+									<div class="mb-4 col-span-2">
+										<label
+											for="weight"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Peso</label
+										>
+										<div class="relative">
+											<div
+												class="absolute inset-y-0 end-0 flex items-center"
+											>
+												<select
+													name="measureUnit"
+													id="measureUnit"
+													class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 select2"
+												>
+													<option
+														value="gr"
+														selected=""
+														>Gramos</option
+													>
+													<option value="kg"
+														>Kilogramos</option
+													>
+													<option value="lb"
+														>Libras</option
+													>
+													<option value="oz"
+														>Onzas</option
+													>
+												</select>
+											</div>
+											<input
+												type="number"
+												name="weight"
+												id="weight"
+												class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+												placeholder="0.00"
+												min="0.01"
+												value="0.00"
+												step="any"
+											/>
+										</div>
+									</div>
+								</div>
+								<div
+									class="grid grid-cols-1 xl:grid-cols-2 gap-4"
+								>
+									<div class="mb-4">
+										<label
+											for="quotation-store"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Tiendas</label
+										>
+										<select
+											name="quotation-store"
+											id="quotation-store"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+										>
+											<option value="0"
+												>Seleccione tienda</option
+											>
+											{
+												suppliers.map((supplier) => (
+													<option value={supplier.id}>
+														{supplier.name}
+													</option>
+												))
+											}
+										</select>
+									</div>
+									<div class="mb-4">
+										<label
+											for="quotation-store"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Clienes</label
+										>
+										<select
+											name="quotation-store"
+											id="quotation-store"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+										>
+											<option value="0"
+												>Seleccione cliente</option
+											>
+											{
+												clients.map((client) => (
+													<option value={client.id}>
+														{client.name}
+													</option>
+												))
+											}
+										</select>
+									</div>
+									<div
+										class="mb-4 flex justify-end space-x-4"
+									>
+										<button
+											id="btnAddQuotation"
+											class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md"
+											type="button">Guardar</button
+										>
+									</div>
+								</div>
+							</div>
+						</div>
+						<!-- Importación -->
+						<div
+							class="hidden p-1 md:p-0 rounded-lg bg-gray-50/25 dark:bg-gray-700/25"
+							id="quotation-import"
+							role="tabpanel"
+							aria-labelledby="quotation-import-tab"
+						>
+							<div
+								class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-4"
+							>
+								<div
+									class="grid grid-cols-1 gap-1 md:grid-cols-2 md:gap-4"
+								>
+									<div class="mb-4 col-span-2">
+										<label
+											for="quotation-product"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Producto</label
+										>
+										<input
+											type="text"
+											name="quotation-product"
+											id="quotation-product"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											placeholder="Producto a cotizar"
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="quotation-quantity"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Cantidad</label
+										>
+										<input
+											type="number"
+											name="quotation-quantity"
+											id="quotation-quantity"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											step="1"
+											placeholder="Cantidad a cotizar"
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="quotation-price"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Precio</label
+										>
+										<input
+											type="number"
+											name="quotation-price"
+											id="quotation-price"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											step="any"
+											placeholder="Precio a cotizar"
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="quotation-shipping"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Envío</label
+										>
+										<input
+											type="number"
+											name="quotation-shipping"
+											id="quotation-shipping"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											step="any"
+											placeholder="Envío"
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="weight"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Peso</label
+										>
+										<div class="relative">
+											<div
+												class="absolute inset-y-0 end-0 flex items-center"
+											>
+												<select
+													name="measureUnit"
+													id="measureUnit"
+													class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 select2"
+												>
+													<option
+														value="gr"
+														selected=""
+														>Gramos</option
+													>
+													<option value="kg"
+														>Kilogramos</option
+													>
+													<option value="lb"
+														>Libras</option
+													>
+													<option value="oz"
+														>Onzas</option
+													>
+												</select>
+											</div>
+											<input
+												type="number"
+												name="weight"
+												id="weight"
+												class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+												placeholder="0.00"
+												min="0.01"
+												value="0.00"
+												step="any"
+											/>
+										</div>
+									</div>
+								</div>
+								<div
+									class="grid grid-cols-1 gap-1 xl:grid-cols-2 md:gap-4"
+								>
+									<div class="mb-4">
+										<label
+											for="quotation-category"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Categorías</label
+										>
+										<select
+											name="quotation-category"
+											id="quotation-category"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+										>
+											<option value="0"
+												>Seleccione categoría</option
+											>
+											{
+												suppliers.map((supplier) => (
+													<option value={supplier.id}>
+														{supplier.name}
+													</option>
+												))
+											}
+										</select>
+									</div>
+									<div class="mb-4">
+										<label
+											for="quotation-date"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Fecha Entrega</label
+										>
+										<input
+											type="date"
+											name="quotation-date"
+											id="quotation-date"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											step="any"
+											placeholder="Fecha Entrega"
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="quotation-store"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Tiendas</label
+										>
+										<select
+											name="quotation-store"
+											id="quotation-store"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+										>
+											<option value="0"
+												>Seleccione tienda</option
+											>
+											{
+												suppliers.map((supplier) => (
+													<option value={supplier.id}>
+														{supplier.name}
+													</option>
+												))
+											}
+										</select>
+									</div>
+									<div class="mb-4">
+										<label
+											for="quotation-country"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>País</label
+										>
+										<select
+											name="quotation-country"
+											id="quotation-country"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+										>
+											<option value="0"
+												>Seleccione país</option
+											>
+											{
+												suppliers.map((supplier) => (
+													<option value={supplier.id}>
+														{supplier.name}
+													</option>
+												))
+											}
+										</select>
+									</div>
+								</div>
+								<div
+									class="grid grid-cols-1 gap-1 xl:grid-cols-2 md:gap-4"
+								>
+									<div class="mb-4">
+										<label
+											for="quotation-client"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Clienes</label
+										>
+										<select
+											name="quotation-client"
+											id="quotation-client"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+										>
+											<option value="0"
+												>Seleccione cliente</option
+											>
+											{
+												clients.map((client) => (
+													<option value={client.id}>
+														{client.name}
+													</option>
+												))
+											}
+										</select>
+										<label
+											for="quotation-client-text"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>ó digitelo</label
+										>
+										<input
+											type="text"
+											name="quotation-client-text"
+											id="quotation-client-text"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											step="any"
+											placeholder="Nombre del cliente"
+										/>
+									</div>
+									<div class="mb-4">
+										<label
+											for="quotation-link"
+											class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+											>Enlace</label
+										>
+										<input
+											type="text"
+											name="quotation-link"
+											id="quotation-link"
+											class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+											step="any"
+											placeholder="Enlace"
+										/>
+									</div>
+									<div
+										class="mb-4 flex justify-end space-x-4"
+									>
+										<button
+											id="btnAddProduct"
+											class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md"
+											type="button">Guardar</button
+										>
+									</div>
+								</div>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</section>
+</form>
