@@ -1,7 +1,7 @@
 ---
 import Layout from "../../layouts/app.layout.astro";
 import BreadCrumbs from "../../components/BreadCrumbs.astro";
-import QuotationForm from "../../components/quotations/QuotationForm.astro";
+import LazyQuotationForm from "../../components/quotations/LazyQuotationForm.astro";
 
 const breadcrumbs = [
 	{
@@ -9,13 +9,13 @@ const breadcrumbs = [
 		path: "/quotations",
 	},
 	{
-		lable: "Crear",
-		path: "/quotations/new",
+		lable: "Cotizar rápido",
+		path: "/quotations/lazy",
 	},
 ];
 ---
 
-<Layout title="Nueva cotización">
+<Layout title="Lazy Quotation">
 	<div
 		class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg"
 	>
@@ -33,7 +33,7 @@ const breadcrumbs = [
 		<div class="flex flex-col">
 			<div class="overflow-x-auto">
 				<div class="inline-block min-w-full align-middle">
-					<QuotationForm />
+					<LazyQuotationForm />
 				</div>
 			</div>
 		</div>

@@ -1,16 +1,100 @@
 ---
 import Layout from "../../layouts/app.layout.astro";
-import { db, eq, desc, Quotation } from "astro:db";
-import QuotationsList from "../../components/quotations/index.astro";
+import { db, eq, gt, desc, sql, between } from "astro:db";
+import {
+	Quotation,
+	Supplier,
+	Country,
+	User,
+	Client,
+	Product,
+	Currier,
+	Category,
+	DaiCategoryProduct,
+} from "astro:db";
+import QuotationsList from "../../components/quotations/QuotationList.astro";
 import BreadCrumbs from "../../components/BreadCrumbs.astro";
 import Search from "../../components/Search.astro";
 
-const data = db
-	.select()
+const data = await db
+	.select({
+		quotationNumber: Quotation.number,
+		quoter: {
+			id: User.id,
+			name: User.name,
+		},
+		client: {
+			id: Client.id,
+			name: Client.name,
+		},
+		product: {
+			id: Product.id,
+			name: Product.name,
+		},
+		currier: {
+			id: Currier.id,
+			name: Currier.name,
+		},
+		store: {
+			id: Supplier.id,
+			name: Supplier.name,
+		},
+		country: {
+			id: Country.id,
+			name: Country.name,
+		},
+		purchaseDate: Quotation.purchase_date,
+		ingressDate: Quotation.ingress_date,
+		processedDate: Quotation.processed_date,
+		expectedArrivalDate: Quotation.expected_arrival_date,
+		arrivalDate: Quotation.arrival_date,
+	})
 	.from(Quotation)
-	.where(eq(Quotation.status, 1))
+	.leftJoin(Supplier, eq(Supplier.id, Quotation.store_id))
+	.leftJoin(Country, eq(Country.id, Quotation.country_id))
+	.leftJoin(Client, eq(Client.id, Quotation.client_id))
+	.leftJoin(Product, eq(Product.id, Quotation.product_id))
+	.leftJoin(Currier, eq(Currier.id, Quotation.currier_id))
+	.leftJoin(User, eq(User.id, Quotation.quoter_id))
+	// Select all quotation in the last 30 days
+	.where(between(Quotation.created_at, new Date(), new Date(30)))
 	.orderBy(desc(Quotation.created_at))
-	.limit(10);
+	.all();
+
+const categories = await db
+	.select({
+		id: Category.id,
+		name: Category.name,
+		dai: DaiCategoryProduct.dai,
+		licenses: DaiCategoryProduct.licenses,
+		eco_tax: DaiCategoryProduct.eco_tax,
+	})
+	.from(Category)
+	.innerJoin(
+		DaiCategoryProduct,
+		eq(Category.id, DaiCategoryProduct.category_id),
+	)
+	.where(eq(Category.active, true))
+	.orderBy(Category.name);
+const countries = await db
+	.select({
+		id: Country.id,
+		name: Country.name,
+		tlc: Country.tlc,
+		impex: Country.impex,
+		additional: Country.additional,
+	})
+	.from(Country);
+const stores = await db
+	.select({
+		id: Supplier.id,
+		name: Supplier.name,
+		taxes: Supplier.taxes,
+		discount: Supplier.discount,
+		status: Supplier.status,
+	})
+	.from(Supplier)
+	.all();
 
 const breadcrumbs = [
 	{
@@ -20,33 +104,33 @@ const breadcrumbs = [
 ];
 ---
 
-<Layout title="Quotations" />
-<div
-	class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg"
->
+<Layout title="Quotations">
 	<div
-		class="p-4 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5"
+		class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg"
 	>
-		<div class="w-full mb-1">
-			<BreadCrumbs
-				routes={breadcrumbs}
-				currentRoute={Astro.url.pathname}
-				headerTitle="Quotations"
-			/>
-			<div class="items-center justify-between flex">
-				<div class="flex items-center mb-4 sm:mb-0">
-					<Search
-						action="search"
-						id="productSearch"
-						placeholder="en productos"
-						method="get"
-					/>
-				</div>
-				<div
-					class="flex items-center mb-4 sm:mb-0 ml-auto space-x-1 sm:space-x-2"
-				>
-					<a
-						class="inline-flex
+		<div
+			class="p-4 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5"
+		>
+			<div class="w-full mb-1">
+				<BreadCrumbs
+					routes={breadcrumbs}
+					currentRoute={Astro.url.pathname}
+					headerTitle="Cotizaciones"
+				/>
+				<div class="items-center justify-between flex">
+					<div class="flex items-center mb-4 sm:mb-0">
+						<Search
+							action="search"
+							id="productSearch"
+							placeholder="en productos"
+							method="get"
+						/>
+					</div>
+					<div
+						class="flex items-center mb-4 sm:mb-0 ml-auto space-x-1 sm:space-x-2"
+					>
+						<a
+							class="inline-flex
 							items-center
 							justify-center
 							w-1/2
@@ -59,35 +143,460 @@ const breadcrumbs = [
 							focus:ring-4
 							sm:w-auto
 							text-white
-							bg-purple-700
-							hover:bg-purple-800
-							focus:ring-purple-300
-							dark:bg-purple-600
-							dark:hover:bg-purple-700
-							dark:focus:ring-purple-800"
-						href="/products/create"
-					>
-						<svg
-							class="w-5 h-5 sm:mr-2 sm:-ml-1"
-							fill="currentColor"
-							viewBox="0 0 20 20"
-							xmlns="http://www.w3.org/2000/svg"
-							><path
-								fill-rule="evenodd"
-								d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
-								clip-rule="evenodd"></path></svg
+							bg-violet-900
+							hover:bg-violet-800
+							focus:ring-violet-700
+							dark:bg-violet-600
+							dark:hover:bg-violet-500
+							dark:focus:ring-violet-400"
+							href="/quotations/calculator"
 						>
-						<span class="hidden md:block">Agregar</span>
-					</a>
+							<span
+								class="material-symbols-outlined w-5 h-5 sm:mr-2 sm:-ml-1"
+							>
+								calculate
+							</span>
+							<span class="hidden md:block">Calculadora</span>
+						</a>
+						<button
+							class="inline-flex
+							items-center
+							justify-center
+							w-1/2
+							px-3
+							py-2
+							text-sm
+							font-medium
+							text-center
+							rounded-lg
+							focus:ring-4
+							sm:w-auto
+							text-white
+							bg-pink-900
+							hover:bg-pink-800
+							focus:ring-pink-700
+							dark:bg-pink-600
+							dark:hover:bg-pink-500
+							dark:focus:ring-pink-400"
+							data-drawer-target="drawer-create-lazy"
+							data-drawer-show="drawer-create-lazy"
+							aria-controls="drawer-create-lazy"
+							data-drawer-placement="right"
+						>
+							<span
+								class="material-symbols-outlined w-5 h-5 sm:mr-2 sm:-ml-1"
+							>
+								acute
+							</span>
+							<span class="hidden md:block">Lazy</span>
+						</button>
+						<button
+							class="inline-flex
+							items-center
+							justify-center
+							w-1/2
+							px-3
+							py-2
+							text-sm
+							font-medium
+							text-center
+							rounded-lg
+							focus:ring-4
+							sm:w-auto
+							text-white
+							bg-purple-900
+							hover:bg-purple-800
+							focus:ring-purple-700
+							dark:bg-purple-600
+							dark:hover:bg-purple-500
+							dark:focus:ring-purple-400"
+							data-drawer-target="drawer-create-quick"
+							data-drawer-show="drawer-create-quick"
+							aria-controls="drawer-create-quick"
+							data-drawer-placement="right"
+						>
+							<span
+								class="material-symbols-outlined w-5 h-5 sm:mr-2 sm:-ml-1"
+							>
+								timer
+							</span>
+							<span class="hidden md:block">Rápida</span>
+						</button>
+						<a
+							class="inline-flex
+							items-center
+							justify-center
+							w-1/2
+							px-3
+							py-2
+							text-sm
+							font-medium
+							text-center
+							rounded-lg
+							focus:ring-4
+							sm:w-auto
+							text-white
+							bg-indigo-700
+							hover:bg-indigo-600
+							focus:ring-indigo-500
+							dark:bg-indigo-600
+							dark:hover:bg-indigo-700
+							dark:focus:ring-indigo-800"
+							href="/quotations/new"
+						>
+							<svg
+								class="w-5 h-5 sm:mr-2 sm:-ml-1"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								xmlns="http://www.w3.org/2000/svg"
+								><path
+									fill-rule="evenodd"
+									d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+									clip-rule="evenodd"></path></svg
+							>
+							<span class="hidden md:block">Normal</span>
+						</a>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div class="flex flex-col">
+			<div class="overflow-x-auto">
+				<div class="inline-block min-w-full align-middle">
+					<QuotationsList quotations={data} />
 				</div>
 			</div>
 		</div>
 	</div>
-	<div class="flex flex-col">
-		<div class="overflow-x-auto">
-			<div class="inline-block min-w-full align-middle">
-				<QuotationsList quotations={data} />
+	<!-- Lazy Quotation Drawer -->
+	<div
+		id="drawer-create-lazy"
+		class="fixed
+			top-0
+			right-0
+			z-40
+			w-full
+			h-screen
+			max-w-xs
+			p-6
+			overflow-y-auto
+			transition-transform
+			translate-x-full
+			rounded-l-md
+			bg-primary-800/50
+			dark:bg-primary-700/50
+			shadow-purple-500/50"
+		tabindex="-1"
+		aria-labelledby="drawer-label"
+		aria-hidden="true"
+	>
+		<h5
+			id="drawer-label"
+			class="inline-flex items-center mb-6 text-sm font-semibold text-gray-500 uppercase dark:text-gray-400"
+		>
+			Cotización Lazy
+		</h5>
+		<button
+			type="button"
+			data-drawer-dismiss="drawer-create-lazy"
+			aria-controls="drawer-create-lazy"
+			class="text-gray-400 bg-transparent hover:bg-danger-200 hover:text-danger-900 rounded-lg text-sm p-1.5 absolute top-2.5 right-2.5 inline-flex items-center dark:hover:bg-danger-600 dark:hover:text-white"
+		>
+			<svg
+				aria-hidden="true"
+				class="w-5 h-5 -ml-1 sm:mr-1"
+				fill="none"
+				stroke="currentColor"
+				viewBox="0 0 24 24"
+				xmlns="http://www.w3.org/2000/svg"
+				><path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					stroke-width="2"
+					d="M6 18L18 6M6 6l12 12"></path></svg
+			>
+			Cancelar
+		</button>
+		<form id="createLazyForm" class="max-w-lg rounded-lg shadow p-2">
+			<div class="mb-4">
+				<label
+					for="lazyQuotationProduct"
+					class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
+					>Producto</label
+				>
+				<input
+					type="text"
+					id="lazyQuotationProduct"
+					name="lazyQuotationProduct"
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					placeholder="Nombre del producto"
+					required
+				/>
 			</div>
-		</div>
+
+			<div class="mb-4">
+				<label
+					for="lazyQuotationComment"
+					class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
+					>Description/Especificaciones</label
+				>
+				<textarea
+					id="lazyQuotationComment"
+					name="lazyQuotationComment"
+					rows="3"
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					placeholder="Comentario"></textarea>
+			</div>
+
+			<div class="flex justify-end space-x-4">
+				<button
+					type="button"
+					data-drawer-dismiss="drawer-create-lazy"
+					aria-controls="drawer-create-lazy"
+					class="px-4 py-2 text-gray-200 bg-danger-400 rounded-md hover:bg-danger-500"
+				>
+					Cancel
+				</button>
+				<button
+					type="submit"
+					class="px-4 py-2 text-white bg-primary-500 rounded-md hover:bg-primary-600"
+				>
+					Create
+				</button>
+			</div>
+		</form>
 	</div>
-</div>
+	<!-- Quick Quotation Drawer -->
+	<div
+		id="drawer-create-quick"
+		class="fixed
+			top-0
+			right-0
+			z-40
+			w-full
+			h-screen
+			max-w-xs
+			p-6
+			overflow-y-auto
+			transition-transform
+			translate-x-full
+			rounded-l-md
+			bg-primary-800/50
+			dark:bg-primary-700/50
+			shadow-purple-500/50"
+		tabindex="-1"
+		aria-labelledby="drawer-label"
+		aria-hidden="true"
+	>
+		<h5
+			id="drawer-label"
+			class="inline-flex items-center mb-6 text-sm font-semibold text-gray-500 uppercase dark:text-gray-400"
+		>
+			Cotización Rápida
+		</h5>
+		<button
+			type="button"
+			data-drawer-dismiss="drawer-create-quick"
+			aria-controls="drawer-create-quick"
+			class="text-gray-400 bg-transparent hover:bg-danger-200 hover:text-danger-900 rounded-lg text-sm p-1.5 absolute top-2.5 right-2.5 inline-flex items-center dark:hover:bg-danger-600 dark:hover:text-white"
+		>
+			<svg
+				aria-hidden="true"
+				class="w-5 h-5 -ml-1 sm:mr-1"
+				fill="none"
+				stroke="currentColor"
+				viewBox="0 0 24 24"
+				xmlns="http://www.w3.org/2000/svg"
+				><path
+					stroke-linecap="round"
+					stroke-linejoin="round"
+					stroke-width="2"
+					d="M6 18L18 6M6 6l12 12"></path></svg
+			>
+			Cancelar
+		</button>
+		<form id="createLazyForm" class="max-w-lg rounded-lg shadow p-2">
+			<div class="mb-4">
+				<label
+					for="quickQuotationProduct"
+					class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
+					>Producto</label
+				>
+				<input
+					type="text"
+					id="quickQuotationProduct"
+					name="quickQuotationProduct"
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					placeholder="Nombre de la Categoría"
+					required
+				/>
+			</div>
+
+			<div class="mb-4">
+				<label
+					for="quantity"
+					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					>Cantidad</label
+				>
+				<input
+					type="number"
+					id="quantity"
+					name="quantity"
+					step="1"
+					required
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					value="1"
+				/>
+			</div>
+
+			<div class="mb-4">
+				<label
+					for="price"
+					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					>Precio (USD)</label
+				>
+				<input
+					type="number"
+					id="price"
+					name="price"
+					step="any"
+					required
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					value="1.00"
+				/>
+			</div>
+
+			<div class="mb-4">
+				<label
+					for="weight"
+					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					>Peso (kg)</label
+				>
+				<input
+					type="number"
+					id="weight"
+					name="weight"
+					step="any"
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					value="0.454"
+				/>
+			</div>
+
+			<div class="mb-4">
+				<label
+					for="shipping"
+					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					>Envío (USD)</label
+				>
+				<input
+					type="number"
+					id="shipping"
+					name="shipping"
+					step="any"
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+					value="0.00"
+				/>
+			</div>
+
+			<div class="mb-4">
+				<label
+					for="store"
+					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					>Tienda</label
+				>
+				<select
+					id="store"
+					name="store"
+					required
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				>
+					<option value="">--- Selecione una tienda ---</option>
+					{
+						stores.map((store) => (
+							<option
+								value={store.id}
+								data-taxes={store.taxes}
+								data-discount={store.discount}
+							>
+								{store.name}
+							</option>
+						))
+					}
+				</select>
+			</div>
+
+			<div class="mb-4">
+				<label
+					for="category"
+					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					>Categoría de Producto</label
+				>
+				<select
+					id="category"
+					name="category"
+					required
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				>
+					<option value="">--- Selecione una categoría ---</option>
+					{
+						categories.map((category) => (
+							<option
+								value={category.id}
+								data-dai={category.dai}
+								data-licenses={category.licenses}
+								data-eco-tax={category.eco_tax}
+							>
+								{category.name}
+							</option>
+						))
+					}
+				</select>
+			</div>
+
+			<div class="mb-4">
+				<label
+					for="country"
+					class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+					>País de Origen</label
+				>
+				<select
+					id="country"
+					name="country"
+					required
+					class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				>
+					<option value="">--- Selecione un país ---</option>
+					{
+						countries.map((country) => (
+							<option
+								value={country.id}
+								data-tlc={country.tlc}
+								data-impex={country.impex}
+								data-additional={country.additional}
+							>
+								{country.name}
+							</option>
+						))
+					}
+				</select>
+			</div>
+
+			<div class="flex justify-end space-x-4">
+				<button
+					type="button"
+					data-drawer-dismiss="drawer-create-quick"
+					aria-controls="drawer-create-quick"
+					class="px-4 py-2 text-gray-200 bg-danger-400 rounded-md hover:bg-danger-500"
+				>
+					Cancel
+				</button>
+				<button
+					type="submit"
+					class="px-4 py-2 text-white bg-primary-500 rounded-md hover:bg-primary-600"
+				>
+					Create
+				</button>
+			</div>
+		</form>
+	</div>
+</Layout>
