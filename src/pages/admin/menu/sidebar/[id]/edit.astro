@@ -1,9 +1,8 @@
 ---
 import Layout from "../../../../../layouts/app.layout.astro";
 import BreadCrumbs from "../../../../../components/BreadCrumbs.astro";
-import { db, eq, SidebarMenu } from "astro:db";
+import { db, eq, sql, SidebarMenu } from "astro:db";
 import { showError, showSuccess } from "../../../../../lib/utils/notifications";
-import { ne } from "astro:db";
 
 const { id } = Astro.params;
 const sidebarMenu = await db
@@ -13,7 +12,9 @@ const sidebarMenu = await db
 const menuItems = await db
 	.select()
 	.from(SidebarMenu)
-	.where(ne(SidebarMenu.parent_id, Number(id)))
+	.where(
+		sql`${SidebarMenu.parent_id} IS NULL OR ${SidebarMenu.parent_id} = 0`,
+	)
 	.orderBy(SidebarMenu.name);
 
 if (!sidebarMenu) {
@@ -63,7 +64,11 @@ const breadcrumbs = [
 	<div class="flex flex-col">
 		<div class="overflow-x-auto">
 			<div class="inline-block min-w-full align-middle">
-				<form action="POST" id="createForm" class="max-w-lg bg-gray-50/50 dark:bg-gray-700/50 rounded-lg shadow p-6">
+				<form
+					action="POST"
+					id="createForm"
+					class="max-w-lg bg-gray-50/50 dark:bg-gray-700/50 rounded-lg shadow p-6"
+				>
 					<input type="hidden" name="sidebar_menu_id" value={id} />
 					<div class="space-y-4">
 						<div>
@@ -181,7 +186,13 @@ const breadcrumbs = [
 								<option value="">None (Top Level)</option>
 								{
 									menuItems.map((item) => (
-										<option value={item.id} selected={item.id === sidebarMenu[0].parent_id}>
+										<option
+											value={item.id}
+											selected={
+												item.id ===
+												sidebarMenu[0].parent_id
+											}
+										>
 											{item.name}
 										</option>
 									))
