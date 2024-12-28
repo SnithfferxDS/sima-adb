@@ -1,4 +1,5 @@
 ---
+import { isCurrentPath } from '@Utils/navigation';
 interface MenuItem {
   id: number;
   name: string;
@@ -12,6 +13,7 @@ interface Props {
   items: MenuItem[];
 }
 
+const currentPath = Astro.url.pathname;
 const { items } = Astro.props;
 
 /* sidebarMenu.map((item) => {
@@ -65,6 +67,7 @@ function buildMenuHierarchy(menuItems: MenuItem[]) {
   return rootItems;
 }
 const menuHerarchy = buildMenuHierarchy(items);
+console.log("url: ",currentPath);
 ---
 
 <aside
@@ -95,9 +98,8 @@ const menuHerarchy = buildMenuHierarchy(items);
         min-h-0
         pt-6
         border-r shadow-lg shadow-primary-500/75
-		text-primary
-        dark:text-white
-        bg-gradient-to-b from-primary-900 to-primary-600
+		text-white
+        bg-gradient-to-b from-primary-500 to-primary-300
         dark:from-primary-600 dark:to-primary-200
         border-secondary-500/50
         dark:border-secondary-700/50"
@@ -122,7 +124,7 @@ const menuHerarchy = buildMenuHierarchy(items);
 									class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
 								>
 									<svg
-										class="w-5 h-5 text-primary-600 dark:text-gray-100"
+										class="w-5 h-5 text-primary-900 dark:text-gray-100"
 										fill="currentColor"
 										viewBox="0 0 20 20"
 										xmlns="http://www.w3.org/2000/svg"
@@ -146,7 +148,7 @@ const menuHerarchy = buildMenuHierarchy(items);
                                     p-2.5
                                     bg-secondary-400
                                     border-secondary-500
-                                    text-primary-500 dark:text-gray-200
+                                    text-gray-100
                                     focus:ring-secondary-600
                                     focus:border-secondary-600
                                     dark:bg-secondary-300
@@ -166,7 +168,7 @@ const menuHerarchy = buildMenuHierarchy(items);
                             p-2 text-base
                             rounded-lg
                             group transition duration-75 focus:outline-offset-2
-                            text-primary-600 dark:text-gray-100
+                            text-gray-100
                             hover:bg-secondary-500
                             focus:outline-secondary-600
                             dark:hover:bg-secondary-400"
@@ -192,11 +194,12 @@ const menuHerarchy = buildMenuHierarchy(items);
 					<li>
 						<a
 							href="/dashboard"
-							class="flex items-center p-2 text-base rounded-lg group transition duration-75 focus:outline-offset-2
-                            text-primary-600 dark:text-gray-100
+							class={`flex items-center p-2 text-base rounded-lg group transition duration-75 focus:outline-offset-2
+                            text-gray-100
+                            ${isCurrentPath("/dashboard", currentPath) ? "bg-secondary-500" : ""}
                             hover:bg-secondary-500
                             focus:outline-secondary-600
-                            dark:hover:bg-secondary-400"
+                            dark:hover:bg-secondary-400`}
 						>
 							<svg
 								class="w-6 h-6"
@@ -222,12 +225,15 @@ const menuHerarchy = buildMenuHierarchy(items);
 									<button
 										id={item.id.toString()}
 										type="button"
-										class="flex items-center p-2 w-full text-base font-normal 
-                                        rounded-lg transition duration-75 group text-primary-600 dark:text-gray-100
-                                        hover:bg-secondary-500
-                                        focus:outline-secondary-600 
-                                        focus:bg-secondary-600/80 
-                                        dark:hover:bg-secondary-400"
+										class={`flex items-center p-2 w-full text-base font-normal 
+                                        rounded-lg transition duration-75 group text-gray-100
+                                        	${
+												item.children.some(child => isCurrentPath(child.url || '', currentPath)) ? 'bg-secondary-500 active' : ''
+											} 
+											hover:bg-secondary-500
+											focus:outline-secondary-600
+											focus:bg-secondary-600/80
+											dark:hover:bg-secondary-400 menu-item`}
 											aria-controls={`${item.id}_${item.name}`}
 											data-collapse-toggle={`${item.id}_${item.name}`}
 										>
@@ -239,7 +245,7 @@ const menuHerarchy = buildMenuHierarchy(items);
 										</span>
 										<svg
 											aria-hidden="true"
-											class="w-6 h-6"
+											class="w-6 h-6 hover:rotate-45"
 											fill="currentColor"
 											viewBox="0 0 20 20"
 											xmlns="http://www.w3.org/2000/svg"
@@ -253,7 +259,7 @@ const menuHerarchy = buildMenuHierarchy(items);
 									</button>
 									<ul
 										id={`${item.id}_${item.name}`}
-										class="hidden py-2 space-y-2"
+										class="hidden py-2 space-y-2 submenu"
 									>
 										{item.children.map((submenuItem,index) => (
 												<li>
@@ -262,12 +268,14 @@ const menuHerarchy = buildMenuHierarchy(items);
 														href={
 															submenuItem.url
 														}
-														class="flex items-center p-2 pl-8 w-full 
+														class={`flex items-center p-2 pl-8 w-full 
 														text-base font-normal rounded-lg transition 
-														duration-75 group text-primary-500 dark:text-gray-300
+														duration-75 group text-gray-300 ${
+															isCurrentPath(submenuItem.url || '', currentPath) ? 'bg-secondary-600' : ''
+														}
 														hover:bg-secondary-600
 														focus:outline-secondary-700
-														dark:hover:bg-secondary-500"
+														dark:hover:bg-secondary-500`}
 													>
 														<span class="material-symbols-outlined">
 															{submenuItem.icon}
@@ -282,17 +290,18 @@ const menuHerarchy = buildMenuHierarchy(items);
 									<a
 										id={item.id.toString()}
 										href={item.url}
-										class="
+										class={`
 											flex
 											items-center
 											p-2
 											text-base
 											font-normal
 											rounded-lg
-											text-primary-600 dark:text-gray-100
+											text-gray-100
+											${isCurrentPath(item.url || '', currentPath) ? 'bg-secondary-500' : ''}
 											hover:bg-secondary-500
 											focus:outline-secondary-600
-											dark:hover:bg-secondary-400"
+											dark:hover:bg-secondary-400`}
 									>
 										<span class="material-symbols-outlined">
 											{item.icon}
@@ -312,7 +321,7 @@ const menuHerarchy = buildMenuHierarchy(items);
 </aside>
 
 <div
-	class="fixed inset-0 z-10 hidden bg-gray-900/50 dark:bg-gray-900/90"
+	class="fixed inset-0 z-10 hidden bg-gray-900/50 dark:bg-gray-900/50"
 	id="sidebarBackdrop"
 >
 </div>
@@ -374,4 +383,29 @@ const menuHerarchy = buildMenuHierarchy(items);
 			);
 		});
 	}
+
+	function initializeMenuItem(menuItem: HTMLElement) {
+		const button = menuItem.querySelector('button');
+		const submenu = menuItem.querySelector('.submenu');
+		const isActive = menuItem.classList.contains('active');
+    
+		if (isActive) {
+		submenu?.classList.remove('hidden');
+		}
+
+		button?.addEventListener('mouseenter', () => {
+		submenu?.classList.remove('hidden');
+		});
+
+		menuItem.addEventListener('mouseleave', () => {
+		if (!isActive) {
+			submenu?.classList.add('hidden');
+		}
+		});
+	}
+
+	// Initialize all menu items
+	document.querySelectorAll('.menu-item').forEach((menuItem) => {
+		initializeMenuItem(menuItem as HTMLElement);
+	});
 </script>
