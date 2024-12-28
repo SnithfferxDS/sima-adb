@@ -1,7 +1,7 @@
 ---
 // import { url } from "../lib/utils/functions";
 interface Route {
-	lable: string;
+	label: string;
 	path: string;
 }
 
@@ -22,7 +22,7 @@ const { routes, currentRoute, headerTitle } = Astro.props;
 			<li class="inline-flex items-center">
 				<a
 					href="/"
-					class="inline-flex items-center text-gray-500 hover:text-primary-700 dark:text-gray-400 dark:hover:text-gray-300"
+					class="inline-flex items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
 				>
 					<svg
 						class="w-5 h-5 mr-2.5"
@@ -50,7 +50,7 @@ const { routes, currentRoute, headerTitle } = Astro.props;
 				</svg>
 				<a
 					href="/dashboard"
-					class="inline-flex items-center text-gray-500 hover:text-primary-700 dark:text-gray-400 dark:hover:text-gray-300"
+					class="inline-flex items-center text-gray-500 hover:text-gray-700 dark:text-gray-400 dark:hover:text-gray-300"
 				>
 					<svg
 						class="w-5 h-5 mr-2.5"
@@ -91,7 +91,7 @@ const { routes, currentRoute, headerTitle } = Astro.props;
 									/>
 								</svg>
 								<span
-									class="ml-1 text-primary-700 md:ml-2 dark:text-primary-500"
+									class="ml-1 text-primary-600 md:ml-2 dark:text-primary-800"
 									aria-current="page"
 								>
 									{headerTitle}
@@ -115,9 +115,9 @@ const { routes, currentRoute, headerTitle } = Astro.props;
 								</svg>
 								<a
 									href={route.path}
-									class="ml-1 text-gray-700 hover:text-primary-700 md:ml-2 dark:text-gray-400 dark:hover:text-gray-300"
+									class="ml-1 text-gray-500 hover:text-primary-600 md:ml-2 dark:text-gray-400 dark:hover:text-primary-500"
 								>
-									{route.lable}
+									{route.label}
 								</a>
 							</div>
 						</li>

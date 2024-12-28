@@ -1,0 +1,225 @@
+---
+import Layout from "@Layouts/app.layout.astro";
+import BreadCrumbs from "@Components/BreadCrumbs.astro";
+import { count, db, eq, inArray } from "astro:db";
+import { CommonName, Category, ProductRelations } from "astro:db";
+
+const { id } = Astro.params;
+
+const commonName = await db
+	.select()
+	.from(CommonName)
+	.where(eq(CommonName.id, Number(id)));
+
+const parentCategory = commonName[0].parent_id
+	? await db
+			.select()
+			.from(Category)
+			.where(eq(Category.id, commonName[0].parent_id))
+	: null;
+
+const categories = commonName[0].categories
+	? await db
+			.select()
+			.from(Category)
+			.where(
+				inArray(
+					Category.id,
+					JSON.parse(commonName[0].categories as string),
+				),
+			)
+	: [];
+
+const countProducts = await db
+	.select({ value: count(ProductRelations.id) })
+	.from(ProductRelations)
+	.where(eq(ProductRelations.common_name_id, Number(id)));
+
+const breadcrumbs = [
+	{
+		label: "Common Names",
+		path: "/common-names",
+	},
+	{
+		label: `${commonName[0].name}`,
+		path: `/common-names/${id}`,
+	},
+];
+---
+
+<Layout title={`${commonName[0].name} | Common Names`}>
+	<div
+		class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg"
+	>
+		<div
+			class="p-4 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5"
+		>
+			<div class="w-full mb-1">
+				<BreadCrumbs
+					routes={breadcrumbs}
+					currentRoute={Astro.url.pathname}
+					headerTitle={`Common Name: ${commonName[0].name}`}
+				/>
+			</div>
+		</div>
+		<div class="flex flex-col">
+			<div class="overflow-x-auto">
+				<div class="inline-block min-w-full align-middle">
+					<div
+						class="flex flex-col items-center rounded-lg shadow xl:flex-row xl:max-w-xl bg-white/25 dark:bg-gray-700/25"
+					>
+						<div
+							class="flex flex-col justify-between p-4 leading-normal w-full"
+						>
+							<h5
+								class="mb-2 text-2xl font-bold tracking-tight text-gray-900 dark:text-white"
+							>
+								{commonName[0].name}
+							</h5>
+
+							<div class="mb-4">
+								<h6
+									class="text-lg font-semibold text-gray-900 dark:text-white mb-2"
+								>
+									Parent Category
+								</h6>
+								{
+									parentCategory ? (
+										<span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm dark:bg-purple-900 dark:text-purple-200">
+											{parentCategory[0].name}
+										</span>
+									) : (
+										<p class="text-sm text-gray-600 dark:text-gray-400">
+											No parent category
+										</p>
+									)
+								}
+							</div>
+
+							<div class="mb-4">
+								<h6
+									class="text-lg font-semibold text-gray-900 dark:text-white mb-2"
+								>
+									Associated Categories
+								</h6>
+								{
+									categories.length > 0 ? (
+										<div class="flex flex-wrap gap-2">
+											{categories.map((category) => (
+												<span class="px-3 py-1 bg-purple-100 text-purple-800 rounded-full text-sm dark:bg-purple-900 dark:text-purple-200">
+													{category.name}
+												</span>
+											))}
+										</div>
+									) : (
+										<p class="text-sm text-gray-600 dark:text-gray-400">
+											No associated categories
+										</p>
+									)
+								}
+							</div>
+
+							<table
+								class="border border-gray-700 rounded-lg dark:border-gray-100 mb-4"
+							>
+								<thead>
+									<tr>
+										<th class="px-4 py-2">Position</th>
+										<th class="px-4 py-2">Products</th>
+										<th class="px-4 py-2">Status</th>
+										<th class="px-4 py-2"
+											>Description Status</th
+										>
+									</tr>
+								</thead>
+								<tbody>
+									<tr>
+										<td class="text-center px-4 py-2"
+											>{commonName[0].position}</td
+										>
+										<td class="text-center px-4 py-2"
+											>{countProducts[0].value}</td
+										>
+										<td class="text-center px-4 py-2">
+											<span
+												class={`px-3 py-1 rounded-full text-sm ${
+													commonName[0].active
+														? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+														: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+												}`}
+											>
+												{
+													commonName[0].active
+														? "Active"
+														: "Inactive"
+												}
+											</span>
+										</td>
+										<td class="text-center px-4 py-2">
+											<span
+												class={`px-3 py-1 rounded-full text-sm ${
+													commonName[0].desc_active
+														? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+														: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+												}`}
+											>
+												{
+													commonName[0].desc_active
+														? "Active"
+														: "Inactive"
+												}
+											</span>
+										</td>
+									</tr>
+								</tbody>
+							</table>
+
+							<div class="flex items-center gap-4">
+								<a
+									href={`/common-names/${commonName[0].id}/edit`}
+									class="inline-flex items-center px-4 py-2 bg-purple-700 text-white rounded-md hover:bg-purple-600 transition-colors"
+								>
+									<svg
+										xmlns="http://www.w3.org/2000/svg"
+										class="w-6 h-6"
+										aria-hidden="true"
+										fill="currentColor"
+										viewBox="0 -960 960 960"
+									>
+										<path
+											d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h357l-80 80H200v560h560v-278l80-80v358q0 33-23.5 56.5T760-120H200Zm280-360ZM360-360v-170l367-367q12-12 27-18t30-6q16 0 30.5 6t26.5 18l56 57q11 12 17 26.5t6 29.5q0 15-5.5 29.5T897-728L530-360H360Zm481-424-56-56 56 56ZM440-440h56l232-232-28-28-29-28-231 231v57Zm260-260-29-28 29 28 28 28-28-28Z"
+										></path>
+									</svg>
+									<span class="ml-2">Edit</span>
+								</a>
+								<a
+									href="/common-names"
+									class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+								>
+									<svg
+										class="w-6 h-6"
+										aria-hidden="true"
+										xmlns="http://www.w3.org/2000/svg"
+										fill="none"
+										viewBox="0 0 24 24"
+									>
+										<path
+											stroke="currentColor"
+											stroke-linecap="round"
+											stroke-linejoin="round"
+											stroke-width="2"
+											d="M5 12h14M5 12l4-4m-4 4 4 4"
+										></path>
+									</svg>
+									<span class="hidden md:block ml-2"
+										>Back</span
+									>
+								</a>
+							</div>
+						</div>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+</Layout>
