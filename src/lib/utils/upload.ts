@@ -1,7 +1,10 @@
 import { showError } from './notifications';
 import sharp from 'sharp';
-import path from 'path';
+// import path from 'path';
 import fs from 'fs/promises';
+import { UPLOADS } from '@Configs/constants';
+
+// upload file to server
 
 export async function uploadFile(file: File): Promise<string | null> {
   // For demo purposes, we'll simulate file upload and return a data URL
@@ -42,7 +45,7 @@ interface ImageProcessingOptions {
 }
 
 export async function processImage(
-  inputBuffer: Buffer, 
+  inputBuffer: Buffer,
   options: ImageProcessingOptions
 ): Promise<Buffer> {
   return sharp(inputBuffer)
@@ -69,31 +72,31 @@ export async function saveProductImage(
   isThumb = false
 ): Promise<string> {
   // Create base storage path
-  const storagePath = path.join('src', 'storage', 'uploads', upc);
-  
+  const storagePath = `${UPLOADS}${upc}`;
+
   // Ensure directory exists
   await fs.mkdir(storagePath, { recursive: true });
-  
+
   // Generate filename
   const filename = `${upc}_${index}${isThumb ? '_thumb' : ''}.webp`;
-  const filepath = path.join(storagePath, filename);
-  
+  const filepath = `${storagePath}/${filename}`;
+  console.log(filepath);
   // Save file
-  await fs.writeFile(filepath, imageBuffer);
-  
+  const saved = await fs.writeFile(filepath, imageBuffer);
+  console.log('saved : ', saved);
   return filepath;
 }
 
 export async function getNextImageIndex(upc: string): Promise<number> {
-  const storagePath = path.join('src', 'storage', 'uploads', upc);
-  
+  const storagePath = `${UPLOADS}${upc}`;
+
   try {
     const files = await fs.readdir(storagePath);
     const indices = files
       .filter(f => !f.includes('_thumb'))
       .map(f => parseInt(f.split('_')[1]))
       .filter(n => !isNaN(n));
-    
+
     return indices.length > 0 ? Math.max(...indices) + 1 : 1;
   } catch {
     return 1;
@@ -102,5 +105,6 @@ export async function getNextImageIndex(upc: string): Promise<number> {
 
 export async function saveImage(imageBuffer: Buffer, identifier: string, isThumb = false): Promise<string> {
   // Create base storage path
-  const storagePath = path.join('src', 'storage', 'uploads', identifier);
+  const storagePath = `${UPLOADS}${identifier}`;
+  return saveProductImage(imageBuffer, identifier, await getNextImageIndex(identifier), isThumb);
 }

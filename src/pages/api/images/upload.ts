@@ -1,5 +1,6 @@
 import type { APIRoute } from 'astro';
-import { processImage, createThumbnail, saveProductImage, getNextImageIndex } from '../../../lib/utils/upload';
+import { processImage, createThumbnail, saveProductImage, getNextImageIndex } from '@Utils/upload';
+import { UPLOADS } from '@Configs/constants';
 
 export const POST: APIRoute = async ({ request }) => {
   try {
@@ -8,7 +9,7 @@ export const POST: APIRoute = async ({ request }) => {
     const productId = formData.get('productId') as string;
 
     if (!imageFile || !productId) {
-      return new Response(JSON.stringify({ error: 'Missing required fields' }), { 
+      return new Response(JSON.stringify({ error: 'Missing required fields' }), {
         status: 400,
         headers: { 'Content-Type': 'application/json' }
       });
@@ -16,10 +17,10 @@ export const POST: APIRoute = async ({ request }) => {
 
     // Read file buffer
     const buffer = Buffer.from(await imageFile.arrayBuffer());
-    
+
     // Get next image index
     const index = await getNextImageIndex(productId);
-    
+
     // Process and save main image
     const processedImage = await processImage(buffer, {
       width: 800,
@@ -28,16 +29,16 @@ export const POST: APIRoute = async ({ request }) => {
       background: '#FFFFFF'
     });
     const mainPath = await saveProductImage(processedImage, productId, index);
-    
+    console.log("mainPath", mainPath);
     // Process and save thumbnail
     const thumbnail = await createThumbnail(buffer);
     const thumbPath = await saveProductImage(thumbnail, productId, index, true);
-
+    console.log("thumbPath", thumbPath);
     return new Response(JSON.stringify({
       success: true,
       id: `${productId}_${index}`,
-      mainUrl: `/storage/uploads/${productId}/${productId}_${index}.webp`,
-      thumbnailUrl: `/storage/uploads/${productId}/${productId}_${index}_thumb.webp`
+      mainUrl: `${UPLOADS}${productId}/${productId}_${index}.webp`,
+      thumbnailUrl: `${UPLOADS}${productId}/${productId}_${index}_thumb.webp`
     }), {
       status: 200,
       headers: { 'Content-Type': 'application/json' }
