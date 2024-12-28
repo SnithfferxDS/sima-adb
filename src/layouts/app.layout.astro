@@ -27,28 +27,26 @@ const { title } = Astro.props;
 	<Navbar />
 	<div
 		class="flex
-        pt-16
+        pt-12
         overflow-hidden
 		text-gray-800
         dark:text-white
-        bg-gradient-to-b from-primary-900 to-primary-600
+        bg-gradient-to-b from-gray-50 to-gray-300
         dark:from-primary-600 dark:to-primary-200"
 	>
 		<div
 			id="main-content"
 			class="relative
-            w-full
-            h-full
-            overflow-y-auto
-            min-h-screen
-            mx-auto
-            rounded-md
-            m-3
-            shadow-md
-            lg:ml-64"
+				w-full
+				h-full
+            	overflow-y-auto
+            	min-h-screen
+            	mx-auto
+            	rounded-lg
+            	shadow-md
+            	lg:ml-64"
 		>
-			<!-- BREADCRUMBS -->
-			<div class="px-4 py-2 rounded-md">
+			<div class="mx-1 pb-2 mb-2 rounded-lg md:mx-4 md:pb-4 md:mb-4 md:flex md:items-center">
 				<slot />
 			</div>
 			<Footer />
