@@ -7,7 +7,7 @@ import { db, Category } from "astro:db";
 const categories = await db.select().from(Category).orderBy(Category.name);
 const breadcrumbs = [
 	{
-		lable: "Categorías",
+		label: "Categorías",
 		path: "/categories",
 	},
 ];
@@ -127,7 +127,7 @@ const breadcrumbs = [
 						class="min-w-full divide-y divide-gray-200"
 						id="default-table"
 					>
-						<thead class="bg-primary-400 text-white">
+						<thead class="bg-primary-400/75 text-white">
 							<tr>
 								<th scope="col">
 									<span
