@@ -1,0 +1,293 @@
+---
+import Layout from "@Layouts/app.layout.astro";
+import BreadCrumbs from "@Components/BreadCrumbs.astro";
+import { db, eq } from "astro:db";
+import {
+	Quotation,
+	QuotationDetail,
+	Client,
+	Product,
+	Currier,
+	Status,
+	User,
+} from "astro:db";
+
+const { id } = Astro.params;
+
+// Get quotation with related data
+const quotation = await db
+	.select()
+	.from(Quotation)
+	.where(eq(Quotation.id, Number(id)));
+
+if (!quotation[0]) {
+	return Astro.redirect("/404");
+}
+
+// Get related details
+const details = await db
+	.select()
+	.from(QuotationDetail)
+	.where(eq(QuotationDetail.quotation_id, Number(id)));
+
+// Get client info
+const client = await db
+	.select()
+	.from(Client)
+	.where(eq(Client.id, quotation[0].client_id));
+
+// Get product info
+const product = await db
+	.select()
+	.from(Product)
+	.where(eq(Product.id, quotation[0].product_id));
+
+// Get currier info
+const currier = await db
+	.select()
+	.from(Currier)
+	.where(eq(Currier.id, quotation[0].currier_id));
+
+// Get status info
+const status = await db
+	.select()
+	.from(Status)
+	.where(eq(Status.id, quotation[0].status));
+
+// Get quoter info
+const quoter = await db
+	.select()
+	.from(User)
+	.where(eq(User.id, quotation[0].quoter_id));
+
+const breadcrumbs = [
+	{
+		label: "Quotations",
+		path: "/quotations",
+	},
+	{
+		label: `Quotation ${quotation[0].number}`,
+		path: `/quotations/${id}`,
+	},
+];
+
+// Format date function
+const formatDate = (date: Date) => {
+	return new Date(date).toLocaleDateString("es-ES", {
+		year: "numeric",
+		month: "long",
+		day: "numeric",
+	});
+};
+---
+
+<Layout title={`Quotation ${quotation[0].number} | Details`}>
+	<div
+		class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg"
+	>
+		<div
+			class="p-4 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5"
+		>
+			<div class="w-full mb-1">
+				<BreadCrumbs
+					routes={breadcrumbs}
+					currentRoute={Astro.url.pathname}
+					headerTitle={`Quotation ${quotation[0].number}`}
+				/>
+			</div>
+		</div>
+
+		<div class="flex flex-col p-4">
+			<div class="mb-6">
+				<h2
+					class="text-2xl font-bold text-gray-900 dark:text-white mb-4"
+				>
+					Quotation Information
+				</h2>
+
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+					<div>
+						<h3 class="text-lg font-semibold mb-2">
+							General Details
+						</h3>
+						<div class="space-y-2">
+							<p>
+								<strong>Number:</strong>
+								{quotation[0].number}
+							</p>
+							<p>
+								<strong>Type:</strong>
+								{quotation[0].quotation_type}
+							</p>
+							<p>
+								<strong>Status:</strong>
+								<span
+									class={`px-3 py-1 rounded-full text-sm ${
+										status[0].active
+											? "bg-green-100 text-green-800 dark:bg-green-900 dark:text-green-200"
+											: "bg-red-100 text-red-800 dark:bg-red-900 dark:text-red-200"
+									}`}
+								>
+									{status[0].name}
+								</span>
+							</p>
+							<p><strong>Quoter:</strong> {quoter[0].name}</p>
+							<p>
+								<strong>Created:</strong>
+								{formatDate(quotation[0].created_at)}
+							</p>
+						</div>
+					</div>
+
+					<div>
+						<h3 class="text-lg font-semibold mb-2">
+							Client Information
+						</h3>
+						<div class="space-y-2">
+							<p><strong>Name:</strong> {client[0].name}</p>
+							<p>
+								<strong>Increase:</strong>
+								{client[0].increase}%
+							</p>
+							<p>
+								<strong>Discount:</strong>
+								{client[0].discount}%
+							</p>
+						</div>
+					</div>
+				</div>
+			</div>
+
+			<div class="mb-6">
+				<h3 class="text-lg font-semibold mb-2">Shipping Details</h3>
+				<div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+					<div>
+						<p>
+							<strong>Expected Arrival:</strong>
+							{formatDate(quotation[0].expected_arrival_date)}
+						</p>
+						{
+							quotation[0].arrival_date && (
+								<p>
+									<strong>Actual Arrival:</strong>{" "}
+									{formatDate(quotation[0].arrival_date)}
+								</p>
+							)
+						}
+					</div>
+					<div>
+						<p><strong>Currier:</strong> {currier[0].name}</p>
+						<p>
+							<strong>Initial Cost:</strong> ${
+								quotation[0].initial_cost
+							}
+						</p>
+						<p>
+							<strong>Final Cost:</strong> ${
+								quotation[0].final_cost
+							}
+						</p>
+					</div>
+				</div>
+			</div>
+
+			<div class="mb-6">
+				<h3 class="text-lg font-semibold mb-4">Quotation Details</h3>
+				<div class="overflow-x-auto">
+					<table
+						class="w-full text-sm text-left text-gray-500 dark:text-gray-400"
+					>
+						<thead
+							class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400"
+						>
+							<tr>
+								<th class="px-4 py-3">Invoice</th>
+								<th class="px-4 py-3">Product Price</th>
+								<th class="px-4 py-3">Quantity</th>
+								<th class="px-4 py-3">Taxes</th>
+								<th class="px-4 py-3">Discount</th>
+								<th class="px-4 py-3">Shipping</th>
+								<th class="px-4 py-3">Total</th>
+							</tr>
+						</thead>
+						<tbody>
+							{
+								details.map((detail) => (
+									<tr class="bg-white border-b dark:bg-gray-800 dark:border-gray-700">
+										<td class="px-4 py-3">
+											{detail.invoice_number}
+										</td>
+										<td class="px-4 py-3">
+											${detail.product_price}
+										</td>
+										<td class="px-4 py-3">
+											{detail.product_quantity}
+										</td>
+										<td class="px-4 py-3">
+											${detail.product_taxes}
+										</td>
+										<td class="px-4 py-3">
+											${detail.product_discount}
+										</td>
+										<td class="px-4 py-3">
+											${detail.product_shipping}
+										</td>
+										<td class="px-4 py-3">
+											$
+											{detail.product_price *
+												detail.product_quantity +
+												detail.product_taxes -
+												detail.product_discount +
+												detail.product_shipping}
+										</td>
+									</tr>
+								))
+							}
+						</tbody>
+					</table>
+				</div>
+			</div>
+
+			<div class="flex items-center gap-4 mt-4">
+				<a
+					href={`/quotations/${quotation[0].id}/edit`}
+					class="inline-flex items-center px-4 py-2 bg-purple-700 text-white rounded-md hover:bg-purple-600 transition-colors"
+				>
+					<svg
+						xmlns="http://www.w3.org/2000/svg"
+						class="w-6 h-6"
+						aria-hidden="true"
+						fill="currentColor"
+						viewBox="0 -960 960 960"
+					>
+						<path
+							d="M200-120q-33 0-56.5-23.5T120-200v-560q0-33 23.5-56.5T200-840h357l-80 80H200v560h560v-278l80-80v358q0 33-23.5 56.5T760-120H200Zm280-360ZM360-360v-170l367-367q12-12 27-18t30-6q16 0 30.5 6t26.5 18l56 57q11 12 17 26.5t6 29.5q0 15-5.5 29.5T897-728L530-360H360Zm481-424-56-56 56 56ZM440-440h56l232-232-28-28-29-28-231 231v57Zm260-260-29-28 29 28 28 28-28-28Z"
+						></path>
+					</svg>
+					<span class="hidden md:block ml-2">Edit</span>
+				</a>
+
+				<a
+					href="/quotations"
+					class="inline-flex items-center px-4 py-2 bg-gray-600 text-white rounded-md hover:bg-gray-700 transition-colors"
+				>
+					<svg
+						class="w-6 h-6"
+						aria-hidden="true"
+						xmlns="http://www.w3.org/2000/svg"
+						fill="none"
+						viewBox="0 0 24 24"
+					>
+						<path
+							stroke="currentColor"
+							stroke-linecap="round"
+							stroke-linejoin="round"
+							stroke-width="2"
+							d="M5 12h14M5 12l4-4m-4 4 4 4"></path>
+					</svg>
+					<span class="hidden md:block ml-2">Back</span>
+				</a>
+			</div>
+		</div>
+	</div>
+</Layout>
