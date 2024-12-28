@@ -1,4 +1,5 @@
 ---
+import "@Assets/styles.css";
 interface Props {
 	data: any[];
 	columns: any[];
@@ -45,7 +46,7 @@ const { data, columns } = Astro.props;
 			</th>
 		</tr>
 	</thead>
-	<tbody class="divide-y divide-gray-200 bg-gray-300">
+	<tbody class="divide-y divide-gray-200 bg-gray-300 dark:bg-gray-700">
 		{
 			data.map((item) => (
 				<tr>
@@ -203,7 +204,3 @@ const { data, columns } = Astro.props;
 		});
 	});
 </script>
-
-<style is:inline>
-	@import url("/assets/styles.css");
-</style>

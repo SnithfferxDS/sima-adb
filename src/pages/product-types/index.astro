@@ -1,5 +1,5 @@
 ---
-import Layout from "../../layouts/app.layout.astro";
+import Layout from "@Layouts/app.layout.astro";
 import Table from "@Components/Table.astro";
 import { db, eq, ProductType, Category } from "astro:db";
 import BreadCrumbs from "@Components/BreadCrumbs.astro";
@@ -218,19 +218,25 @@ const newCats = await Promise.all(
 		<div class="flex flex-col">
 			<div class="overflow-x-auto">
 				<div class="inline-block min-w-full align-middle">
-					<Table
-						resource="product-types"
-						data={productTypes}
-						columns={[
-							{ name: "id", label: "ID", sortable: true },
-							{ name: "name", label: "Nombre", sortable: true },
-							{
-								name: "categories",
-								label: "Categorías",
-								sortable: false,
-							},
-						]}
-					/>
+					<div class="mt-8 flex flex-col">
+						<Table
+							resource="product-types"
+							data={productTypes}
+							columns={[
+								{ name: "id", label: "ID", sortable: true },
+								{
+									name: "name",
+									label: "Nombre",
+									sortable: true,
+								},
+								{
+									name: "categories",
+									label: "Categorías",
+									sortable: false,
+								},
+							]}
+						/>
+					</div>
 				</div>
 			</div>
 		</div>
