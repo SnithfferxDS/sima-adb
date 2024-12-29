@@ -235,3 +235,17 @@ export interface SearchableProduct {
 	mpn: string;
 	upc: string;
 }
+
+export interface MenuItem {
+	id: number;
+	name: string;
+	url?: string;
+	icon?: string;
+	parent_id?: number;
+	position: number;
+	children: MenuItem[];
+}
+
+export interface Props {
+	items: MenuItem[];
+}

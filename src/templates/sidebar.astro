@@ -1,16 +1,19 @@
 ---
-import { isCurrentPath } from '@Utils/navigation';
+import { isCurrentPath } from "@Utils/navigation";
+// import { SidebarMenu } from 'astro:db';
+import SidebarMenuItem from "@Components/shared/SidebarMenuItem.astro";
 interface MenuItem {
-  id: number;
-  name: string;
-  url?: string;
-  icon?: string;
-  parent_id?: number;
-  position: number;
+	id: number;
+	name: string;
+	url?: string;
+	icon?: string;
+	parent_id?: number;
+	position: number;
+	children: MenuItem[];
 }
 
 interface Props {
-  items: MenuItem[];
+	items: MenuItem[];
 }
 
 const currentPath = Astro.url.pathname;
@@ -41,33 +44,33 @@ interface Submenu {
 
 // Organize items into a hierarchy
 function buildMenuHierarchy(menuItems: MenuItem[]) {
-  const itemMap = new Map<number, MenuItem & { children: MenuItem[] }>();
-  const rootItems: (MenuItem & { children: MenuItem[] })[] = [];
+	const itemMap = new Map<number, MenuItem & { children: MenuItem[] }>();
+	const rootItems: (MenuItem & { children: MenuItem[] })[] = [];
 
-  // First pass: Create enhanced items with children arrays
-  menuItems.forEach(item => {
-    itemMap.set(item.id, { ...item, children: [] });
-  });
+	// First pass: Create enhanced items with children arrays
+	menuItems.forEach((item) => {
+		itemMap.set(item.id, { ...item, children: [] });
+	});
 
-  // Second pass: Organize into hierarchy
-  menuItems.forEach(item => {
-    const enhancedItem = itemMap.get(item.id)!;
-    if (item.parent_id && itemMap.has(item.parent_id)) {
-      itemMap.get(item.parent_id)!.children.push(enhancedItem);
-    } else {
-      rootItems.push(enhancedItem);
-    }
-  });
+	// Second pass: Organize into hierarchy
+	menuItems.forEach((item) => {
+		const enhancedItem = itemMap.get(item.id)!;
+		if (item.parent_id && itemMap.has(item.parent_id)) {
+			itemMap.get(item.parent_id)!.children.push(enhancedItem);
+		} else {
+			rootItems.push(enhancedItem);
+		}
+	});
 
-  // Sort items by position
-  const sortByPosition = (a: MenuItem, b: MenuItem) => a.position - b.position;
-  rootItems.sort(sortByPosition);
-  rootItems.forEach(item => item.children.sort(sortByPosition));
+	// Sort items by position
+	const sortByPosition = (a: MenuItem, b: MenuItem) =>
+		a.position - b.position;
+	rootItems.sort(sortByPosition);
+	rootItems.forEach((item) => item.children.sort(sortByPosition));
 
-  return rootItems;
+	return rootItems;
 }
 const menuHerarchy = buildMenuHierarchy(items);
-console.log("url: ",currentPath);
 ---
 
 <aside
@@ -87,7 +90,7 @@ console.log("url: ",currentPath);
     drop-shadow-md lg:drop-shadow-none
     transition-width
     shadow-md
-    pt-14"
+    pt-12"
 	aria-label="Sidebar"
 >
 	<div
@@ -97,12 +100,13 @@ console.log("url: ",currentPath);
         flex-1
         min-h-0
         pt-6
-        border-r shadow-lg shadow-primary-500/75
+        border-r
+		shadow-md
+		shadow-primary-500/75
 		text-white
-        bg-gradient-to-b from-primary-500 to-primary-300
+        bg-gradient-to-b from-primary-600 to-primary-300
         dark:from-primary-600 dark:to-primary-200
-        border-secondary-500/50
-        dark:border-secondary-700/50"
+        border-primary-500/50 dark:border-primary-700/50"
 	>
 		<div
 			class:list={[
@@ -219,74 +223,14 @@ console.log("url: ",currentPath);
 						</a>
 					</li>
 					{
-						menuHerarchy.map((item) => (
-							<li>
-								{item.children.length > 0 ? (
-									<button
-										id={item.id.toString()}
-										type="button"
-										class={`flex items-center p-2 w-full text-base font-normal 
-                                        rounded-lg transition duration-75 group text-gray-100
-                                        	${
-												item.children.some(child => isCurrentPath(child.url || '', currentPath)) ? 'bg-secondary-500 active' : ''
-											} 
-											hover:bg-secondary-500
-											focus:outline-secondary-600
-											focus:bg-secondary-600/80
-											dark:hover:bg-secondary-400 menu-item`}
-											aria-controls={`${item.id}_${item.name}`}
-											data-collapse-toggle={`${item.id}_${item.name}`}
-										>
-										<span class="material-symbols-outlined">
-											{item.icon}
-										</span>
-										<span class="flex-1 ml-3 text-left whitespace-nowrap">
-											{item.name}
-										</span>
-										<svg
-											aria-hidden="true"
-											class="w-6 h-6 hover:rotate-45"
-											fill="currentColor"
-											viewBox="0 0 20 20"
-											xmlns="http://www.w3.org/2000/svg"
-										>
-											<path
-												fill-rule="evenodd"
-												d="M5.293 7.293a1 1 0 011.414 0L10 10.586l3.293-3.293a1 1 0 111.414 1.414l-4 4a1 1 0 01-1.414 0l-4-4a1 1 0 010-1.414z"
-												clip-rule="evenodd"
-											/>
-										</svg>
-									</button>
-									<ul
-										id={`${item.id}_${item.name}`}
-										class="hidden py-2 space-y-2 submenu"
-									>
-										{item.children.map((submenuItem,index) => (
-												<li>
-													<a
-														id={index.toString()}
-														href={
-															submenuItem.url
-														}
-														class={`flex items-center p-2 pl-8 w-full 
-														text-base font-normal rounded-lg transition 
-														duration-75 group text-gray-300 ${
-															isCurrentPath(submenuItem.url || '', currentPath) ? 'bg-secondary-600' : ''
-														}
-														hover:bg-secondary-600
-														focus:outline-secondary-700
-														dark:hover:bg-secondary-500`}
-													>
-														<span class="material-symbols-outlined">
-															{submenuItem.icon}
-														</span>
-														<span class="ml-3">{submenuItem.name}</span>
-													</a>
-												</li>
-											),
-										)}
-									</ul>
-								) : (
+						menuHerarchy.map((item) =>
+							item.children.length > 0 ? (
+								<SidebarMenuItem
+									menuItem={item}
+									currentPath={currentPath}
+								/>
+							) : (
+								<li>
 									<a
 										id={item.id.toString()}
 										href={item.url}
@@ -298,7 +242,7 @@ console.log("url: ",currentPath);
 											font-normal
 											rounded-lg
 											text-gray-100
-											${isCurrentPath(item.url || '', currentPath) ? 'bg-secondary-500' : ''}
+											${isCurrentPath(item.url || "", currentPath) ? "bg-secondary-500" : ""}
 											hover:bg-secondary-500
 											focus:outline-secondary-600
 											dark:hover:bg-secondary-400`}
@@ -306,13 +250,11 @@ console.log("url: ",currentPath);
 										<span class="material-symbols-outlined">
 											{item.icon}
 										</span>
-										<span class="ml-3">
-											{item.name}
-										</span>
+										<span class="ml-3">{item.name}</span>
 									</a>
-								)}
-							</li>
-						))
+								</li>
+							),
+						)
 					}
 				</ul>
 			</div>
@@ -383,29 +325,28 @@ console.log("url: ",currentPath);
 			);
 		});
 	}
-
 	function initializeMenuItem(menuItem: HTMLElement) {
-		const button = menuItem.querySelector('button');
-		const submenu = menuItem.querySelector('.submenu');
-		const isActive = menuItem.classList.contains('active');
-    
+		const button = menuItem.querySelector("button");
+		const submenu = menuItem.querySelector(".submenu");
+		const isActive = menuItem.classList.contains("active");
+
 		if (isActive) {
-		submenu?.classList.remove('hidden');
+			submenu?.classList.remove("hidden");
 		}
 
-		button?.addEventListener('mouseenter', () => {
-		submenu?.classList.remove('hidden');
+		button?.addEventListener("mouseenter", () => {
+			submenu?.classList.remove("hidden");
 		});
 
-		menuItem.addEventListener('mouseleave', () => {
-		if (!isActive) {
-			submenu?.classList.add('hidden');
-		}
+		menuItem.addEventListener("mouseleave", () => {
+			if (!isActive) {
+				submenu?.classList.add("hidden");
+			}
 		});
 	}
 
 	// Initialize all menu items
-	document.querySelectorAll('.menu-item').forEach((menuItem) => {
+	document.querySelectorAll(".menu-item").forEach((menuItem) => {
 		initializeMenuItem(menuItem as HTMLElement);
 	});
 </script>

@@ -34,7 +34,7 @@
         "src/templates/*"
       ],
       "@Types/*": [
-        "types/*"
+        "src/types/*"
       ],
       "@Utils/*": [
         "src/lib/utils/*"
