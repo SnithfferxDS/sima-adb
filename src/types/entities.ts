@@ -1,3 +1,4 @@
+export type DBTables = 'products' | 'brands' | 'categories' | 'suppliers' | 'purchases' | 'purchase_details' | 'variants' | 'variant_options' | 'variant_relations' | 'product_types' | 'metadata' | 'metadata_relations' | 'metadata_values' | 'metadata_values_relations' | 'images' | 'product_relations' | 'dai_category_product' | 'countries' | 'searchable_products' | 'menu_items';
 export interface CommonName {
 	id: number;
 	name: string;

@@ -1,0 +1,93 @@
+---
+// GoogleTaxonomyForm.astro
+import { googleTaxonomyData } from "../../data/googleTaxonomy";
+
+interface Props {
+	selectedCategory?: string;
+}
+
+const { selectedCategory = "" } = Astro.props;
+---
+
+<div class="google-taxonomy-form">
+	<label
+		for="google-category"
+		class="block text-sm font-medium text-gray-700"
+	>
+		Google Product Category
+	</label>
+	<div class="mt-1 relative">
+		<input
+			type="text"
+			id="google-category"
+			name="google_category"
+			class="block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:ring-indigo-500 focus:border-indigo-500"
+			placeholder="Search for a category..."
+			value={selectedCategory}
+			autocomplete="off"
+		/>
+		<div
+			class="suggestions hidden absolute z-10 w-full mt-1 bg-white shadow-lg max-h-60 rounded-md py-1 text-base overflow-auto"
+		>
+			<!-- Suggestions will be populated by JavaScript -->
+		</div>
+	</div>
+</div>
+
+<script>
+	const input = document.querySelector(
+		"#google-category",
+	) as HTMLInputElement;
+	const suggestionsContainer = document.querySelector(
+		".suggestions",
+	) as HTMLDivElement;
+
+	// Fetch Google Taxonomy data (you'll need to implement this)
+	const taxonomyData = [
+		"Animals > Pet Supplies",
+		"Arts & Entertainment",
+		"Baby & Toddler",
+		// ... more categories
+	];
+
+	function showSuggestions(query: string) {
+		const matches = taxonomyData.filter((item) =>
+			item.toLowerCase().includes(query.toLowerCase()),
+		);
+
+		suggestionsContainer.innerHTML = matches
+			.map(
+				(item) =>
+					`<div class="suggestion px-4 py-2 hover:bg-gray-100 cursor-pointer">${item}</div>`,
+			)
+			.join("");
+
+		suggestionsContainer.classList.toggle("hidden", matches.length === 0);
+	}
+
+	input.addEventListener("input", (e) => {
+		showSuggestions((e.target as HTMLInputElement).value);
+	});
+
+	suggestionsContainer.addEventListener("click", (e) => {
+		const target = e.target as HTMLElement;
+		if (target.classList.contains("suggestion")) {
+			input.value = target.textContent || "";
+			suggestionsContainer.classList.add("hidden");
+		}
+	});
+
+	// Hide suggestions when clicking outside
+	document.addEventListener("click", (e) => {
+		if (!input.contains(e.target as Node)) {
+			suggestionsContainer.classList.add("hidden");
+		}
+	});
+</script>
+
+<style>
+	.google-taxonomy-form {
+		max-width: 600px;
+		margin: 1rem auto;
+	}
+</style>
