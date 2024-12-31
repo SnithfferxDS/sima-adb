@@ -469,7 +469,7 @@ const ProductTypes = await db
 	};
 
 	// Get Description form usign the common name
-
+	// TODO: Get description by common name
 	const getDescriptionByCommonName = async () => {
 		updateProductName();
 		const productId = productIdInput.value;
@@ -656,7 +656,7 @@ const ProductTypes = await db
 	categorySelect?.addEventListener("change", async () => {
 		const categoryId = categorySelect.value;
 		console.log(categoryId);
-		const commonNames = await fetch("/api/data/resources", {
+		const response = await fetch("/api/data/resources", {
 			method: "POST",
 			headers: {
 				"Content-Type": "application/json",
@@ -668,17 +668,16 @@ const ProductTypes = await db
 				},
 			}),
 		}).then((res) => res.json());
-		console.log(commonNames);
-		/* 
-        commonNameSelect.innerHTML =
-            '<option value="">Selecione un nombre común</option>';
-        if (commonNames) {
-            commonNames.forEach((commonName: any) => {
-                const option = document.createElement("option");
-                option.value = commonName.id;
-                option.textContent = commonName.name;
-                commonNameSelect.appendChild(option);
-            });
-        } */
+
+		commonNameSelect.innerHTML =
+			'<option value="">-- Selecione un nombre común --</option>';
+		if (response) {
+			response.common_names.forEach((commonName: any) => {
+				const option = document.createElement("option");
+				option.value = commonName.id;
+				option.textContent = commonName.name;
+				commonNameSelect.appendChild(option);
+			});
+		}
 	});
 </script>
