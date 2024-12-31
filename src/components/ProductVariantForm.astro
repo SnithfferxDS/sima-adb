@@ -13,11 +13,11 @@ const VariantTypes = await db.select().from(VariantType).all();
 					<label
 						for="variantUPC"
 						class="block
-              mb-2
-              text-sm
-              font-medium
-              text-gray-900
-              dark:text-gray-200"
+						mb-2
+						text-sm
+						font-medium
+						text-gray-900
+						dark:text-gray-200"
 						>UPC</label
 					>
 					<div class="relative">
@@ -26,20 +26,20 @@ const VariantTypes = await db.select().from(VariantType).all();
 								data-tooltip-target="tooltip-gen-mpn"
 								type="button"
 								class="text-white
-                end-2.5
-                bottom-2.5
-                focus:ring-4
-                focus:outline-none
-                font-medium
-                rounded-lg
-                text-sm px-3 py-2.5
-                text-center
-                bg-primary-600
-                hover:bg-primary-700
-                focus:ring-primary-700
-                dark:bg-primary-600
-                dark:hover:bg-primary-700
-                dark:focus:ring-primary-700"
+									end-2.5
+									bottom-2.5
+									focus:ring-4
+									focus:outline-none
+									font-medium
+									rounded-lg
+									text-sm px-3 py-2.5
+									text-center
+									bg-primary-600
+									hover:bg-primary-700
+									focus:ring-primary-700
+									dark:bg-primary-600
+									dark:hover:bg-primary-700
+									dark:focus:ring-primary-700"
 								id="VariantUPCGenBtn"
 							>
 								<svg
@@ -78,11 +78,11 @@ const VariantTypes = await db.select().from(VariantType).all();
 					<label
 						for="variantMPN"
 						class="block
-              mb-2
-              text-sm
-              font-medium
-              text-gray-900
-              dark:text-gray-200"
+						mb-2
+						text-sm
+						font-medium
+						text-gray-900
+						dark:text-gray-200"
 						>MPN</label
 					>
 					<div class="relative">
@@ -91,20 +91,20 @@ const VariantTypes = await db.select().from(VariantType).all();
 								data-tooltip-target="tooltip-gen-mpn"
 								type="button"
 								class="text-white
-                end-2.5
-                bottom-2.5
-                focus:ring-4
-                focus:outline-none
-                font-medium
-                rounded-lg
-                text-sm px-3 py-2.5
-                text-center
-                bg-primary-600
-                hover:bg-primary-700
-                focus:ring-primary-700
-                dark:bg-primary-600
-                dark:hover:bg-primary-700
-                dark:focus:ring-primary-700"
+								end-2.5
+								bottom-2.5
+								focus:ring-4
+								focus:outline-none
+								font-medium
+								rounded-lg
+								text-sm px-3 py-2.5
+								text-center
+								bg-primary-600
+								hover:bg-primary-700
+								focus:ring-primary-700
+								dark:bg-primary-600
+								dark:hover:bg-primary-700
+								dark:focus:ring-primary-700"
 								id="VariantMPNGenBtn"
 							>
 								<svg
@@ -142,11 +142,11 @@ const VariantTypes = await db.select().from(VariantType).all();
 					<label
 						for="variantSKU"
 						class="block
-              mb-2
-              text-sm
-              font-medium
-              text-gray-900
-              dark:text-gray-200"
+						mb-2
+						text-sm
+						font-medium
+						text-gray-900
+						dark:text-gray-200"
 						>SKU</label
 					>
 					<div class="relative">
@@ -155,20 +155,20 @@ const VariantTypes = await db.select().from(VariantType).all();
 								data-tooltip-target="tooltip-gen-mpn"
 								type="button"
 								class="text-white
-                end-2.5
-                bottom-2.5
-                focus:ring-4
-                focus:outline-none
-                font-medium
-                rounded-lg
-                text-sm px-3 py-2.5
-                text-center
-                bg-primary-600
-                hover:bg-primary-700
-                focus:ring-primary-700
-                dark:bg-primary-600
-                dark:hover:bg-primary-700
-                dark:focus:ring-primary-700"
+								end-2.5
+								bottom-2.5
+								focus:ring-4
+								focus:outline-none
+								font-medium
+								rounded-lg
+								text-sm px-3 py-2.5
+								text-center
+								bg-primary-600
+								hover:bg-primary-700
+								focus:ring-primary-700
+								dark:bg-primary-600
+								dark:hover:bg-primary-700
+								dark:focus:ring-primary-700"
 								id="VariantSKUGenBtn"
 							>
 								<svg
@@ -244,23 +244,23 @@ const VariantTypes = await db.select().from(VariantType).all();
 				<button
 					type="submit"
 					class="text-center
-          py-2.5
-          px-3
-          border
-          border-transparent
-          text-sm
-          font-medium
-          rounded-lg
-          focus:outline-none
-          focus:ring-2
-          focus:ring-offset-2
-          text-white
-          bg-primary-600
-          hover:bg-primary-700
-          focus:ring-primary-800
-          dark:bg-primary-600
-          dark:hover:bg-primary-700
-          dark:focus:ring-primary-700"
+					py-2.5
+					px-3
+					border
+					border-transparent
+					text-sm
+					font-medium
+					rounded-lg
+					focus:outline-none
+					focus:ring-2
+					focus:ring-offset-2
+					text-white
+					bg-primary-600
+					hover:bg-primary-700
+					focus:ring-primary-800
+					dark:bg-primary-600
+					dark:hover:bg-primary-700
+					dark:focus:ring-primary-700"
 				>
 					Agregar Variante
 				</button>
@@ -270,15 +270,27 @@ const VariantTypes = await db.select().from(VariantType).all();
 </div>
 
 <script>
-	const variantForm = document.getElementById("variantForm");
-	const VariantType = document.getElementById("VariantType");
-	const variantValue = document.getElementById("variantValue");
-	const variantUPCGenBtn = document.getElementById("variantUPCGenBtn");
-	const variantSKUGenBtn = document.getElementById("variantSKUGenBtn");
-	const variantMPNGenBtn = document.getElementById("variantMPNGenBtn");
-	const upcInput = document.getElementById("variantUPC");
-	const mpnInput = document.getElementById("variantMPN");
-	const skuInput = document.getElementById("variantSKU");
+	const variantForm = document.getElementById(
+		"variantForm",
+	) as HTMLFormElement;
+	const VariantType = document.getElementById(
+		"VariantType",
+	) as HTMLSelectElement;
+	const variantValue = document.getElementById(
+		"variantValue",
+	) as HTMLInputElement;
+	const variantUPCGenBtn = document.getElementById(
+		"variantUPCGenBtn",
+	) as HTMLButtonElement;
+	const variantSKUGenBtn = document.getElementById(
+		"variantSKUGenBtn",
+	) as HTMLButtonElement;
+	const variantMPNGenBtn = document.getElementById(
+		"variantMPNGenBtn",
+	) as HTMLButtonElement;
+	const upcInput = document.getElementById("variantUPC") as HTMLInputElement;
+	const mpnInput = document.getElementById("variantMPN") as HTMLInputElement;
+	const skuInput = document.getElementById("variantSKU") as HTMLInputElement;
 
 	// Load variant values when type is selected
 	VariantType?.addEventListener("change", async (e) => {
@@ -291,7 +303,7 @@ const VariantTypes = await db.select().from(VariantType).all();
 				const values = await response.json();
 
 				if (variantValue) {
-					(variantValue as HTMLSelectElement).innerHTML =
+					variantValue.innerHTML =
 						'<option value="">Select Value</option>';
 					values.forEach((value: any) => {
 						const option = document.createElement("option");
@@ -299,15 +311,14 @@ const VariantTypes = await db.select().from(VariantType).all();
 						option.textContent = value.name;
 						variantValue.appendChild(option);
 					});
-					(variantValue as HTMLSelectElement).disabled = false;
+					variantValue.disabled = false;
 				}
 			} catch (error) {
 				console.error("Error loading variant values:", error);
 			}
 		} else if (variantValue) {
-			(variantValue as HTMLSelectElement).innerHTML =
-				'<option value="">Select Value</option>';
-			(variantValue as HTMLSelectElement).disabled = true;
+			variantValue.innerHTML = '<option value="">Select Value</option>';
+			variantValue.disabled = true;
 		}
 	});
 

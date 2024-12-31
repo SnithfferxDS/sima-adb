@@ -1,0 +1,373 @@
+---
+import { db } from "astro:db";
+import { Country } from "astro:db";
+const Origins = await db
+	.select({
+		id: Country.id,
+		name: Country.name,
+	})
+	.from(Country)
+	.all();
+---
+
+<div class="grid grid-cols-1 md:grid-cols-4 lg:grid-cols-4 gap-2 md:gap-4">
+	<div class="mb-4">
+		<label
+			for="coutry"
+			class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+			>Origen</label
+		>
+		<select
+			name="country"
+			id="country"
+			class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 select2"
+		>
+			<option value="0" selected="">-- Seleccionar País Origen --</option>
+			{
+				Origins.map((origin) => (
+					<option value={origin.id}>{origin.name}</option>
+				))
+			}
+		</select>
+	</div>
+
+	<div class="mb-4">
+		<label
+			for="weight"
+			class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+			>Peso</label
+		>
+		<div class="relative">
+			<div class="absolute inset-y-0 end-0 flex items-center">
+				<select
+					name="measureUnit"
+					id="measureUnit"
+					class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 select2"
+				>
+					<option value="gr" selected="">Gramos</option>
+					<option value="kg">Kilogramos</option>
+					<option value="lb">Libras</option>
+					<option value="oz">Onzas</option>
+				</select>
+			</div>
+			<input
+				type="number"
+				name="weight"
+				id="weight"
+				class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				placeholder="0.00"
+				min="0.01"
+				value="0.00"
+				step="any"
+			/>
+		</div>
+	</div>
+
+	<div class="mb-4 text-center my-8">
+		<label class="inline-flex items-center mb-2 cursor-pointer">
+			<input
+				id="objectCubicShape"
+				name="objectCubicShape"
+				type="checkbox"
+				value=""
+				class="sr-only peer"
+			/>
+			<div
+				class="relative
+																w-11
+																h-6
+																bg-gray-100/35
+																peer
+																peer-focus:outline-none
+																peer-focus:ring-4
+																peer-focus:ring-gray-300
+																peer-checked:after:translate-x-full
+																peer-checked:after:border-white
+																peer-checked:bg-secondary-600
+																rounded-full
+																rtl:peer-checked:after:-translate-x-full
+																after:content-['']
+																after:absolute after:top-[2px]
+																after:start-[2px]
+																after:bg-white
+																after:border-gray-300
+																after:border
+																after:rounded-full
+																after:w-5
+																after:h-5
+																after:transition-all
+																dark:peer-focus:ring-gray-800
+																dark:bg-gray-500/35
+																dark:border-gray-600"
+			>
+			</div>
+			<span
+				class="ms-3 text-sm font-medium text-gray-400 dark:text-gray-500"
+			>
+				Onjecto Cubico
+			</span>
+		</label>
+	</div>
+
+	<div class="mb-4 text-center my-8">
+		<label class="inline-flex items-center mb-2 cursor-pointer">
+			<input
+				id="objectCylinder"
+				name="objectCylinder"
+				type="checkbox"
+				value=""
+				class="sr-only peer"
+			/>
+			<div
+				class="relative
+																w-11
+																h-6
+																peer
+																peer-focus:outline-none
+																peer-focus:ring-4
+																peer-checked:after:translate-x-full
+																rounded-full
+																rtl:peer-checked:after:-translate-x-full
+																after:content-['']
+																after:absolute after:top-[2px]
+																after:start-[2px]
+																after:border
+																after:rounded-full
+																after:w-5
+																after:h-5
+																after:transition-all
+																bg-gray-100/35
+																peer-focus:ring-gray-300
+																peer-checked:after:border-white
+																peer-checked:bg-secondary-600
+																after:bg-white
+																after:border-gray-300
+																dark:peer-focus:ring-gray-800
+																dark:bg-gray-500/35
+																dark:border-gray-600"
+			>
+			</div>
+			<span
+				class="ms-3 text-sm font-medium text-gray-400 dark:text-gray-500"
+			>
+				Onjecto Cilíndrico
+			</span>
+		</label>
+	</div>
+
+	<div class="mb-4" id="widthField">
+		<label
+			for="width"
+			class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+			>Ancho</label
+		>
+		<div class="relative">
+			<div class="absolute inset-y-0 end-0 flex items-center">
+				<select
+					name="measureUnit"
+					id="measureUnit"
+					class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 select2"
+				>
+					<option value="mm" selected="">Milimetro</option>
+					<option value="cm">Centimetro</option>
+					<option value="in">Pulgada</option>
+					<option value="ft">Pies</option>
+					<option value="yd">Yardas</option>
+					<option value="mi">Millas</option>
+				</select>
+			</div>
+			<input
+				type="number"
+				name="width"
+				id="width"
+				class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				placeholder="0.00"
+				min="0.01"
+				value="0.00"
+				step="any"
+			/>
+		</div>
+	</div>
+
+	<div class="mb-4" id="heightField">
+		<label
+			for="height"
+			class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+			>Alto</label
+		>
+		<div class="relative">
+			<div class="absolute inset-y-0 end-0 flex items-center">
+				<select
+					name="measureUnit"
+					id="measureUnit"
+					class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 select2"
+				>
+					<option value="mm" selected="">Milimetro</option>
+					<option value="cm">Centimetro</option>
+					<option value="in">Pulgada</option>
+					<option value="ft">Pies</option>
+					<option value="yd">Yardas</option>
+					<option value="mi">Millas</option>
+				</select>
+			</div>
+			<input
+				type="number"
+				name="height"
+				id="height"
+				class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				placeholder="0.00"
+				min="0.01"
+				value="0.00"
+				step="any"
+			/>
+		</div>
+	</div>
+
+	<div class="mb-4" id="depthField">
+		<label
+			for="depth"
+			class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+			>Pofundidad</label
+		>
+		<div class="relative">
+			<div class="absolute inset-y-0 end-0 flex items-center">
+				<select
+					name="measureUnit"
+					id="measureUnit"
+					class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 select2"
+				>
+					<option value="mm" selected="">Milimetro</option>
+					<option value="cm">Centimetro</option>
+					<option value="in">Pulgada</option>
+					<option value="ft">Pies</option>
+					<option value="yd">Yardas</option>
+					<option value="mi">Millas</option>
+				</select>
+			</div>
+			<input
+				type="number"
+				name="depth"
+				id="depth"
+				class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				placeholder="0.00"
+				min="0.01"
+				value="0.00"
+				step="any"
+			/>
+		</div>
+	</div>
+
+	<div class="mb-4" id="outterDiameterField">
+		<label
+			for="outterDiameter"
+			class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+			>Diametro Externo</label
+		>
+		<div class="relative">
+			<div class="absolute inset-y-0 end-0 flex items-center">
+				<select
+					name="measureUnit"
+					id="measureUnit"
+					class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 select2"
+				>
+					<option value="mm" selected="">Milimetro</option>
+					<option value="cm">Centimetro</option>
+					<option value="in">Pulgada</option>
+					<option value="ft">Pies</option>
+					<option value="yd">Yardas</option>
+					<option value="mi">Millas</option>
+				</select>
+			</div>
+			<input
+				type="number"
+				name="outterDiameter"
+				id="outterDiameter"
+				class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				placeholder="0.00"
+				min="0.01"
+				value="0.00"
+				step="any"
+			/>
+		</div>
+	</div>
+
+	<div class="mb-4" id="innerDiameterField">
+		<label
+			for="innerDiameter"
+			class="block mb-2 text-sm font-medium text-gray-900 dark:text-white"
+			>Diametro Interno</label
+		>
+		<div class="relative">
+			<div class="absolute inset-y-0 end-0 flex items-center">
+				<select
+					name="measureUnit"
+					id="measureUnit"
+					class="bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500 select2"
+				>
+					<option value="mm" selected="">Milimetro</option>
+					<option value="cm">Centimetro</option>
+					<option value="in">Pulgada</option>
+					<option value="ft">Pies</option>
+					<option value="yd">Yardas</option>
+					<option value="mi">Millas</option>
+				</select>
+			</div>
+			<input
+				type="number"
+				name="innerDiameter"
+				id="innerDiameter"
+				class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+				placeholder="0.00"
+				min="0.01"
+				value="0.00"
+				step="any"
+			/>
+		</div>
+	</div>
+</div>
+<script>
+	const CubicObject = document.getElementById(
+		"objectCubicShape",
+	) as HTMLInputElement;
+	const CylinderObject = document.getElementById(
+		"objectCylinder",
+	) as HTMLInputElement;
+	const diameterInner = document.getElementById("innerDiameterField");
+	const diameterOutter = document.getElementById("outterDiameterField");
+	const categorySelect = document.getElementById(
+		"productCategories",
+	) as HTMLSelectElement;
+	const depth = document.getElementById("depthField");
+	const height = document.getElementById("heightField");
+	const width = document.getElementById("widthField");
+
+	if (depth) depth.style.display = "none";
+	if (height) height.style.display = "none";
+	if (width) width.style.display = "none";
+	if (diameterInner) diameterInner.style.display = "none";
+	if (diameterOutter) diameterOutter.style.display = "none";
+	// Hide measure elements
+	function hideFields(typo: string) {
+		if (typo === "cylinder") {
+			if (diameterInner) diameterInner.style.display = "none";
+			if (diameterOutter) diameterOutter.style.display = "none";
+			if (depth) depth.style.display = "block";
+			if (height) height.style.display = "block";
+			if (width) width.style.display = "block";
+			CubicObject.checked = false;
+		} else if (typo === "cubic") {
+			if (diameterInner) diameterInner.style.display = "block";
+			if (diameterOutter) diameterOutter.style.display = "block";
+			if (depth) depth.style.display = "block";
+			if (height) height.style.display = "none";
+			if (width) width.style.display = "none";
+			CylinderObject.checked = false;
+		}
+	}
+	CubicObject.addEventListener("change", () => {
+		hideFields("cubic");
+	});
+	CylinderObject.addEventListener("change", () => {
+		hideFields("cylinder");
+	});
+</script>

@@ -1,0 +1,20 @@
+---
+import ProductVariantUpload from "@Components/ProductVariantUpload.astro";
+import ProductVariantForm from "@Components/ProductVariantForm.astro";
+---
+
+<div class="grid grid-cols-1 gap-4">
+	<div class="col-span-1">
+		<ProductVariantForm />
+	</div>
+
+	<div class="col-span-12"></div>
+
+	<div class="col-span-6 sm:col-span-2">
+		<button
+			id="btnAddVariantsProduct"
+			class="bg-green-500 hover:bg-green-600 text-white font-bold py-2 px-4 rounded-md"
+			type="submit">Guardar</button
+		>
+	</div>
+</div>
