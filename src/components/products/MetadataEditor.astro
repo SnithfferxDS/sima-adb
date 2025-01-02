@@ -1,0 +1,109 @@
+---
+import ProductDetails from './ProductDetails.astro';
+import MetadataForm from './MetadataForm.astro';
+import LoadingSpinner from '../shared/Loading.astro';
+---
+
+<div class="space-y-6">
+  <div class="flex justify-between items-center">
+    <h2 class="text-lg font-medium text-gray-900">Edit Product Metadata</h2>
+    <button
+      id="backToSearch"
+      class="text-gray-600 hover:text-gray-900 transition-colors"
+    >
+      Back to Search
+    </button>
+  </div>
+
+  <div id="loadingState" class="py-12 text-center">
+    <LoadingSpinner size="lg" color="primary" />
+    <p class="text-gray-500 mt-4">Loading product details...</p>
+  </div>
+
+  <div id="errorState" class="hidden py-8 text-center">
+    <p class="text-red-500">Error loading product details</p>
+  </div>
+
+  <div id="contentState" class="hidden">
+    <div id="productDetails"></div>
+    <div id="metadataForm"></div>
+  </div>
+</div>
+
+<script>
+  class ProductMetadataEditor extends HTMLElement {
+    constructor() {
+      super();
+      this.init();
+    }
+
+    async init() {
+      const productId = this.getAttribute('product-id');
+      if (!productId) return;
+
+      try {
+        const [product, metadata] = await Promise.all([
+          this.fetchProduct(productId),
+          this.fetchMetadata(productId)
+        ]);
+
+        this.hideLoading();
+        this.renderContent(product, metadata);
+      } catch (error) {
+        console.error('Error loading product details:', error);
+        this.showError();
+      }
+    }
+
+    async fetchProduct(productId: string) {
+      const response = await fetch(`/api/products/${productId}`);
+      if (!response.ok) throw new Error('Failed to fetch product');
+      return response.json();
+    }
+
+    async fetchMetadata(productId: string) {
+      const response = await fetch(`/api/products/${productId}/metadata`);
+      if (!response.ok) throw new Error('Failed to fetch metadata');
+      return response.json();
+    }
+
+    hideLoading() {
+      document.getElementById('loadingState')?.classList.add('hidden');
+      document.getElementById('contentState')?.classList.remove('hidden');
+    }
+
+    showError() {
+      document.getElementById('loadingState')?.classList.add('hidden');
+      document.getElementById('errorState')?.classList.remove('hidden');
+    }
+
+    renderContent(product: any, metadata: any) {
+      const productDetails = document.getElementById('productDetails');
+      const metadataForm = document.getElementById('metadataForm');
+
+      if (productDetails && metadataForm) {
+        productDetails.innerHTML = this.renderProductDetails(product);
+        metadataForm.innerHTML = this.renderMetadataForm(metadata);
+      }
+    }
+
+    renderProductDetails(product: any) {
+      return `<product-details .product="${JSON.stringify(product)}"></product-details>`;
+    }
+
+    renderMetadataForm(metadata: any) {
+      return `<metadata-form .metadata="${JSON.stringify(metadata)}"></metadata-form>`;
+    }
+  }
+
+  customElements.define('product-metadata-editor', ProductMetadataEditor);
+
+  // Handle back button
+  document.getElementById('backToSearch')?.addEventListener('click', () => {
+    const searchResults = document.getElementById('searchResults');
+    const metadataEditor = document.getElementById('metadataEditor');
+
+    searchResults?.classList.remove('hidden');
+    metadataEditor?.classList.add('hidden');
+  });
+</script>

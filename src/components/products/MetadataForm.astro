@@ -1,0 +1,73 @@
+---
+import type { MetadataValue } from '@Types/entities';
+
+interface Props {
+  metadata: MetadataValue[];
+}
+
+const { metadata } = Astro.props;
+---
+
+<div class="bg-white p-6 rounded-lg shadow-md">
+  <h3 class="text-lg font-medium text-gray-900 mb-4">Metadata Values</h3>
+  <form id="metadataForm" class="space-y-4">
+    {metadata.map(meta => (
+      <div>
+        <label class="block text-sm font-medium text-gray-700">
+          {meta.name}
+          {meta.tooltip && (
+            <span class="text-gray-500 text-xs ml-1" title={meta.tooltip}>ⓘ</span>
+          )}
+        </label>
+        <input
+          type="text"
+          value={meta.value || ''}
+          data-metadata-id={meta.id}
+          class="mt-1 block w-full rounded-md border-gray-300 shadow-sm
+            focus:border-primary-500 focus:ring-primary-500"
+          pattern={meta.format}
+        />
+      </div>
+    ))}
+
+    <div class="flex justify-end pt-4">
+      <button
+        type="submit"
+        class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-600
+          transition-colors focus:outline-none focus:ring-2 focus:ring-primary-500"
+      >
+        Save Changes
+      </button>
+    </div>
+  </form>
+</div>
+
+<script>
+  const form = document.getElementById('metadataForm');
+
+  form?.addEventListener('submit', async (e) => {
+    e.preventDefault();
+
+    const inputs = document.querySelectorAll('[data-metadata-id]');
+    const values = Array.from(inputs).map(input => ({
+      id: parseInt((input as HTMLInputElement).dataset.metadataId!),
+      value: (input as HTMLInputElement).value
+    }));
+
+    try {
+      const productId = new URLSearchParams(window.location.search).get('id');
+      const response = await fetch(`/api/products/${productId}/metadata`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ values })
+      });
+
+      if (!response.ok) throw new Error('Failed to save metadata');
+
+      alert('Metadata saved successfully');
+    } catch (error) {
+      console.error('Error saving metadata:', error);
+      alert('Error saving metadata');
+    }
+  });
+</script>

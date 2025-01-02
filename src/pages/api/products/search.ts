@@ -1,12 +1,11 @@
 import type { APIRoute } from 'astro';
-import { db, eq, or, Product } from 'astro:db';
+import { db, eq, like, or, Product } from 'astro:db';
 
 export const GET: APIRoute = async ({ request }) => {
     const url = new URL(request.url);
-    const searchTerm = url.searchParams.get('term')?.toLowerCase();
-
+    const searchTerm = url.searchParams.get('q')?.toLowerCase();
     if (!searchTerm) {
-        return new Response(JSON.stringify({ error: 'Search term is required' }), { status: 400 });
+		return new Response(JSON.stringify({ error: 'Search term is required' }), { status: 400 });
     }
 
     const filteredProducts = await db.select({
@@ -17,7 +16,7 @@ export const GET: APIRoute = async ({ request }) => {
         upc: Product.upc,
     }).from(Product).where(
         or(
-            eq(Product.name, searchTerm),
+            like(Product.name, `%${searchTerm}%`),
             eq(Product.sku, searchTerm),
             eq(Product.mpn, searchTerm),
             eq(Product.upc, searchTerm)

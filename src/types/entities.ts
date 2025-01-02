@@ -250,3 +250,21 @@ export interface MenuItem {
 export interface Props {
 	items: MenuItem[];
 }
+
+export interface Product {
+	id: string;
+	name: string;
+	description?: string;
+	common_name_id: number;
+	category_id: number;
+	product_type_id: number;
+	active: boolean;
+  }
+
+  export interface MetadataValue {
+	id: number;
+	name: string;
+	tooltip?: string;
+	format?: string;
+	value?: string;
+  }

@@ -1,0 +1,31 @@
+---
+import type { Product } from '@Types/entities';
+
+interface Props {
+  product: Product;
+}
+
+const { product } = Astro.props;
+---
+
+<div class="bg-white p-6 rounded-lg shadow-md mb-6">
+  <div class="flex justify-between items-start mb-4">
+    <div>
+      <h2 class="text-xl font-semibold text-gray-900">{product.name}</h2>
+      <p class="text-sm text-gray-500 mt-1">ID: {product.id}</p>
+    </div>
+    <span
+      class={`px-2 py-1 text-xs font-semibold rounded-full ${
+        product.active
+          ? 'bg-green-100 text-green-800'
+          : 'bg-red-100 text-red-800'
+      }`}
+    >
+      {product.active ? 'Active' : 'Inactive'}
+    </span>
+  </div>
+
+  {product.description && (
+    <p class="text-gray-600 text-sm mb-4">{product.description}</p>
+  )}
+</div>
