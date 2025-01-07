@@ -29,6 +29,11 @@ interface ImportMetaEnv {
     readonly API_VERSION: number;
     readonly API_DEBUG: boolean;
     readonly API_TOKEN: string;
+    readonly APP_SMTP_HOST: string;
+    readonly APP_SMTP_PORT: string;
+    readonly APP_SMTP_USER: string;
+    readonly APP_SMTP_PASS: string;
+    readonly APP_SMTP_MAIL: string;
 }
 
 interface ImportMeta {

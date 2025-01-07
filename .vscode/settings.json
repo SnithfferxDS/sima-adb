@@ -21,6 +21,6 @@
             "database": "${workspaceFolder:sima-adb}/.astro/content.db"
         }
     ],
-    "sqltools.useNodeRuntime": false,
+    "sqltools.useNodeRuntime": true,
     "task.allowAutomaticTasks": "on"
 }
