@@ -12,8 +12,12 @@ const breadcrumbs = [
 ---
 
 <BaseLayout title="Shoping UI">
-	<div class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg">
-		<div class="p-4 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5">
+	<div
+		class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg"
+	>
+		<div
+			class="p-4 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5"
+		>
 			<div class="w-full mb-1">
 				<BreadCrumbs
 					routes={breadcrumbs}
@@ -25,19 +29,25 @@ const breadcrumbs = [
 						<input
 							type="text"
 							id="searchInput"
-							placeholder="Enter UPC or product name"
-							class="flex-1 rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+							placeholder="Digite UPC o Nombre de producto"
+							class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
 						/>
 						<button
 							id="searchButton"
 							class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-600 transition-colors"
 						>
-						Search
+							<span class="material-symbols-outlined">
+								search
+							</span>
+							<span class="sr-only">Search</span>
 						</button>
 					</div>
 
-					<div class="flex items-center mb-4 sm:mb-0 ml-auto space-x-1 sm:space-x-2">
-						<button type="button"
+					<div
+						class="flex items-center mb-4 sm:mb-0 ml-auto space-x-1 sm:space-x-2"
+					>
+						<button
+							type="button"
 							class="inline-flex
 							items-center
 							justify-center
@@ -86,7 +96,7 @@ const breadcrumbs = [
 			</div>
 		</div>
 	</div>
-</div>
+</BaseLayout>
 <!-- Create new product -->
 <div
 	id="drawer-create-default"
@@ -171,7 +181,6 @@ const breadcrumbs = [
 		</div>
 	</form>
 </div>
-</BaseLayout>
 
 <script>
 	const form = document.getElementById("createForm") as HTMLFormElement;
