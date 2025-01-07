@@ -1,7 +1,6 @@
 ---
-import Layout from "../../layouts/main.layout.astro";
+import Layout from "../../layouts/clean.layout.astro";
 import { APP_NAME, APP_SHORT_VERSION } from "@Configs/constants";
-import { asset } from "../../lib/utils/functions";
 import Footer from "../../templates/footer.guest.template.astro";
 
 let error = "";
@@ -9,8 +8,13 @@ let success = "";
 ---
 
 <Layout title="Register">
-	<div
-		class="flex flex-col items-center justify-center px-6 pt-8 mx-auto pt:mt-0
+	<!-- <div
+		class="flex
+		flex-col
+		items-center
+		justify-center
+		min-h-screen
+		align-middle
         bg-gradient-to-b
 		text-gray-800
         dark:text-white
@@ -18,200 +22,254 @@ let success = "";
 		to-primary-600
         dark:from-secondary-300
 		dark:to-primary-300"
+	> -->
+	<a
+		href="/"
+		class="flex items-center justify-center mb-8 text-2xl font-semibold lg:mb-10 dark:text-white"
 	>
-		<a
-			href="/"
-			class="flex items-center justify-center mb-8 text-2xl font-semibold lg:mb-10 dark:text-white"
-		>
-			<img
-				src="/assets/img/logos/logo.png"
-				alt="FlowBite Logo"
-				class="mr-4 h-11"
-			/>
-			<span>{APP_NAME} v{APP_SHORT_VERSION}</span>
-		</a>
-		<!-- Card -->
-		<div
-			class="p-6 space-y-8 sm:p-8 sm:mx-auto sm:w-full sm:max-w-sm bg-white/25 rounded-lg shadow dark:bg-gray-800/25"
-		>
-			<h2 class="text-2xl font-bold text-gray-900 dark:text-white">
-				Cree su cuenta
-			</h2>
-			{
-				error && (
-					<div
-						class="mb-4 p-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
-						role="alert"
-					>
-						{error}
-					</div>
-				)
-			}
-
-			{
-				success && (
-					<div
-						class="mb-4 p-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
-						role="alert"
-					>
-						{success}
-					</div>
-				)
-			}
-
-			<form class="space-y-6" method="POST" id="createForm">
-				<div class="grid grid-cols-2 gap-4">
-					<div>
-						<label
-							for="person_name"
-							class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
-						>
-							Nombre
-						</label>
-						<input
-							id="person_name"
-							name="person_name"
-							type="text"
-							required
-							class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-gray-700 dark:text-white dark:ring-gray-600"
-						/>
-					</div>
-					<div>
-						<label
-							for="person_lastname"
-							class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
-						>
-							Apellido
-						</label>
-						<input
-							id="person_lastname"
-							name="person_lastname"
-							type="text"
-							required
-							class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-gray-700 dark:text-white dark:ring-gray-600"
-						/>
-					</div>
-				</div>
-
-				<div>
-					<label
-						for="user_name"
-						class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
-					>
-						Nombre de usuario
-					</label>
-					<input
-						id="user_name"
-						name="user_name"
-						type="text"
-						autocomplete="user_name"
-						class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-gray-700 dark:text-white dark:ring-gray-600"
-					/>
-				</div>
-
-				<div>
-					<label
-						for="email"
-						class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
-					>
-						Dirección Email
-					</label>
-					<input
-						id="email"
-						name="email"
-						type="email"
-						autocomplete="email"
-						required
-						class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-gray-700 dark:text-white dark:ring-gray-600"
-					/>
-				</div>
-
-				<div>
-					<label
-						for="phone"
-						class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
-					>
-						Teléfono (opcional)
-					</label>
-					<input
-						id="phone"
-						name="phone"
-						type="tel"
-						class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-gray-700 dark:text-white dark:ring-gray-600"
-					/>
-				</div>
-
-				<div>
-					<label
-						for="password"
-						class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
-					>
-						Contraseña
-					</label>
-					<input
-						id="password"
-						name="password"
-						type="password"
-						autocomplete="new-password"
-						required
-						class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-gray-700 dark:text-white dark:ring-gray-600"
-					/>
-				</div>
-
-				<div>
-					<label
-						for="confirmPassword"
-						class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
-					>
-						Confirmar Contraseña
-					</label>
-					<input
-						id="confirmPassword"
-						name="confirmPassword"
-						type="password"
-						autocomplete="new-password"
-						required
-						class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-gray-700 dark:text-white dark:ring-gray-600"
-					/>
-				</div>
-
-				<div>
-					<button
-						type="submit"
-						class="inline-flex items-center w-1/2 justify-center rounded-md bg-indigo-600 px-3 py-1.5 mb-3 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-indigo-500 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-indigo-600"
-					>
-						Registrarse
-					</button>
-					<a
-						href="/"
-						class="inline-flex items-center justify-center w-1/2 px-3 py-1.5 mb-3 text-sm font-medium text-center rounded-md focus:ring-4 sm:w-auto text-white bg-gray-700 hover:bg-gray-800 focus:ring-gray-300 dark:bg-gray-600 dark:hover:bg-gray-700 dark:focus:ring-gray-800"
-					>
-						cancelar
-					</a>
-				</div>
-			</form>
-
-			<p class="mt-10 text-center text-sm text-gray-500 mb-3">
-				¿Ya tiene cuenta?
-				<a
-					href="/auth/login"
-					class="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
+		<img
+			src="/assets/img/logos/logo.png"
+			alt="FlowBite Logo"
+			class="mr-4 h-11"
+		/>
+		<span>{APP_NAME} v{APP_SHORT_VERSION}</span>
+	</a>
+	<!-- Card -->
+	<div
+		class="p-6 space-y-8 sm:p-8 sm:mx-auto sm:w-full sm:max-w-sm bg-white/25 rounded-lg shadow dark:bg-gray-800/25"
+	>
+		<h2 class="text-2xl font-bold text-gray-900 dark:text-white">
+			Cree su cuenta
+		</h2>
+		{
+			error && (
+				<div
+					class="mb-4 p-4 text-sm text-red-800 rounded-lg bg-red-50 dark:bg-gray-800 dark:text-red-400"
+					role="alert"
 				>
-					Iniciar sesión
+					{error}
+				</div>
+			)
+		}
+
+		{
+			success && (
+				<div
+					class="mb-4 p-4 text-sm text-green-800 rounded-lg bg-green-50 dark:bg-gray-800 dark:text-green-400"
+					role="alert"
+				>
+					{success}
+				</div>
+			)
+		}
+
+		<form class="space-y-6" method="POST" id="createForm">
+			<div class="grid grid-cols-2 gap-4">
+				<div>
+					<label
+						for="person_name"
+						class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
+					>
+						Nombre
+					</label>
+					<input
+						id="person_name"
+						name="person_name"
+						type="text"
+						required
+						class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-gray-700 dark:text-white dark:ring-gray-600"
+					/>
+				</div>
+				<div>
+					<label
+						for="person_lastname"
+						class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
+					>
+						Apellido
+					</label>
+					<input
+						id="person_lastname"
+						name="person_lastname"
+						type="text"
+						required
+						class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-gray-700 dark:text-white dark:ring-gray-600"
+					/>
+				</div>
+			</div>
+
+			<div>
+				<label
+					for="user_name"
+					class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
+				>
+					Nombre de usuario
+				</label>
+				<input
+					id="user_name"
+					name="user_name"
+					type="text"
+					autocomplete="user_name"
+					class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-gray-700 dark:text-white dark:ring-gray-600"
+				/>
+			</div>
+
+			<div>
+				<label
+					for="email"
+					class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
+				>
+					Dirección Email
+				</label>
+				<input
+					id="email"
+					name="email"
+					type="email"
+					autocomplete="email"
+					required
+					class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-gray-700 dark:text-white dark:ring-gray-600"
+				/>
+			</div>
+
+			<div>
+				<label
+					for="phone"
+					class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
+				>
+					Teléfono (opcional)
+				</label>
+				<input
+					id="phone"
+					name="phone"
+					type="tel"
+					class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-gray-700 dark:text-white dark:ring-gray-600"
+				/>
+			</div>
+
+			<div>
+				<label
+					for="password"
+					class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
+				>
+					Contraseña
+				</label>
+				<input
+					id="password"
+					name="password"
+					type="password"
+					autocomplete="new-password"
+					required
+					class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-gray-700 dark:text-white dark:ring-gray-600"
+				/>
+			</div>
+
+			<div>
+				<label
+					for="confirmPassword"
+					class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
+				>
+					Confirmar Contraseña
+				</label>
+				<input
+					id="confirmPassword"
+					name="confirmPassword"
+					type="password"
+					autocomplete="new-password"
+					required
+					class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-gray-700 dark:text-white dark:ring-gray-600"
+				/>
+			</div>
+
+			<div>
+				<button
+					type="submit"
+					class="inline-flex
+					mr-2
+					justify-center
+					rounded-md
+					px-3
+					py-1.5
+					mb-3
+					text-sm
+					font-semibold
+					leading-6
+					shadow-sm
+					focus-visible:outline
+					focus-visible:outline-2
+					focus-visible:outline-offset-2
+					bg-indigo-600
+					text-white
+					hover:bg-indigo-500
+					focus-visible:outline-indigo-600"
+				>
+					Registrarse
+				</button>
+				<button
+					type="button"
+					id="btnMigrate"
+					class="inline-flex
+					mr-2
+					justify-center
+					rounded-md
+					px-3
+					py-1.5
+					mb-3
+					text-sm
+					font-semibold
+					leading-6
+					shadow-sm
+					focus-visible:outline
+					focus-visible:outline-2
+					focus-visible:outline-offset-2
+					bg-violet-500
+					text-white
+					hover:bg-violet-400
+					focus-visible:outline-violet-500"
+					data-drawer-target="drawer-migrate-default"
+					data-drawer-show="drawer-migrate-default"
+					aria-controls="drawer-migrate-default"
+					data-drawer-placement="right">Migrar</button
+				>
+				<a
+					href="/"
+					class="inline-flex
+					mr-2
+					justify-center
+					rounded-md
+					px-3
+					py-1.5
+					mb-3
+					text-sm
+					font-semibold leading-6
+					shadow-sm
+					focus-visible:outline
+					focus-visible:outline-2
+					focus-visible:outline-offset-2
+					text-center
+					text-white
+					bg-gray-700
+					hover:bg-gray-800
+					focus:ring-gray-300
+					dark:bg-gray-600
+					dark:hover:bg-gray-700
+					dark:focus:ring-gray-800"
+				>
+					cancelar
 				</a>
-			</p>
-			<button
-				type="button"
-				id="btnMigrate"
-				class="flex w-full hidden justify-center rounded-md bg-violet-500 px-3 py-1.5 text-sm font-semibold leading-6 text-white shadow-sm hover:bg-violet-400 focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-violet-500"
-				data-drawer-target="drawer-migrate-default"
-				data-drawer-show="drawer-migrate-default"
-				aria-controls="drawer-migrate-default"
-				data-drawer-placement="right">Migrar Usuario</button
+			</div>
+		</form>
+
+		<p class="mt-10 text-center text-sm text-gray-500 mb-3">
+			¿Ya tiene cuenta?
+			<a
+				href="/auth/login"
+				class="font-semibold leading-6 text-indigo-600 hover:text-indigo-500"
 			>
-		</div>
-		<Footer />
+				Iniciar sesión
+			</a>
+		</p>
 	</div>
+	<!-- <Footer /> -->
+	<!-- </div> -->
 	<!-- Drawer for migration -->
 	<div
 		id="drawer-migrate-default"
@@ -248,7 +306,7 @@ let success = "";
 		>
 			<svg
 				aria-hidden="true"
-				class="w-5 h-5 -ml-1 sm:mr-1"
+				class="w-5 h-5"
 				fill="none"
 				stroke="currentColor"
 				viewBox="0 0 24 24"
@@ -259,7 +317,6 @@ let success = "";
 					stroke-width="2"
 					d="M6 18L18 6M6 6l12 12"></path></svg
 			>
-			Cancelar
 		</button>
 		<form id="migrateForm" class="max-w-lg rounded-lg shadow p-6">
 			<div class="mb-4">
@@ -271,7 +328,7 @@ let success = "";
 				</label>
 				<input
 					id="user_migrate_name"
-					name="user_migraete_name"
+					name="user_migrate_name"
 					type="text"
 					autocomplete="user_migrate_name"
 					class="block w-full rounded-md border-0 py-1.5 text-gray-900 shadow-sm ring-1 ring-inset ring-gray-300 placeholder:text-gray-400 focus:ring-2 focus:ring-inset focus:ring-indigo-600 sm:text-sm sm:leading-6 dark:bg-gray-700 dark:text-white dark:ring-gray-600"
@@ -279,14 +336,14 @@ let success = "";
 			</div>
 			<div class="mb-4">
 				<label
-					for="password_migrate"
+					for="user_migrate_password"
 					class="block text-sm font-medium leading-6 text-gray-900 dark:text-gray-200"
 				>
 					Contraseña
 				</label>
 				<input
-					id="password_migrate"
-					name="password_migrate"
+					id="user_migrate_password"
+					name="user_migrate_password"
 					type="password"
 					autocomplete="new-password"
 					required
@@ -295,18 +352,18 @@ let success = "";
 			</div>
 			<div class="flex justify-end space-x-4">
 				<button
+					type="submit"
+					class="px-4 py-2 text-white bg-primary-700 rounded-md hover:bg-primary-500"
+				>
+					Migrar
+				</button>
+				<button
 					type="button"
 					data-drawer-dismiss="drawer-migrate-default"
 					aria-controls="drawer-migrate-default"
-					class="text-gray-400 bg-transparent hover:bg-danger-200 hover:text-danger-900 rounded-lg text-sm p-1.5 absolute top-2.5 right-2.5 inline-flex items-center dark:hover:bg-danger-600 dark:hover:text-white"
+					class="px-4 py-2 text-white bg-red-500 rounded-md hover:bg-red-600"
 				>
-					Cancel
-				</button>
-				<button
-					type="submit"
-					class="px-4 py-2 text-white bg-primary-500 rounded-md hover:bg-primary-600"
-				>
-					Create
+					Cancelar
 				</button>
 			</div>
 		</form>
@@ -393,8 +450,8 @@ let success = "";
 			e.preventDefault();
 			const formData = new FormData(migrateForm as HTMLFormElement);
 			const data = {
-				userName: formData.get("user_migraete_name"),
-				password: formData.get("password_migrate"),
+				userName: formData.get("user_migrate_name"),
+				password: formData.get("user_migrate_password"),
 			};
 			try {
 				const response = await fetch("/api/auth/user/migrate", {
