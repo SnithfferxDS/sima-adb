@@ -24,3 +24,7 @@ export const API_VERSION = import.meta.env.API_VERSION;
 export const API_DEBUG = import.meta.env.API_DEBUG;
 export const API_TOKEN = import.meta.env.API_TOKEN;
 export const UPLOADS = "/assets/uploads/";
+export const DATABASE_HOST = import.meta.env.DATABASE_HOST;
+export const DATABASE_USER = import.meta.env.DATABASE_USER;
+export const DATABASE_PASSWORD = import.meta.env.DATABASE_PASSWORD;
+export const DATABASE_NAME = import.meta.env.DATABASE_NAME;
