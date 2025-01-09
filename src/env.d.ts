@@ -34,6 +34,8 @@ interface ImportMetaEnv {
     readonly APP_SMTP_USER: string;
     readonly APP_SMTP_PASS: string;
     readonly APP_SMTP_MAIL: string;
+    readonly SHOPIFY_DB_URL: string;
+    readonly SHOPIFY_DB_TOKEN: string;
 }
 
 interface ImportMeta {
