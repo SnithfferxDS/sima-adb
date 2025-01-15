@@ -34,6 +34,20 @@ export class EmailService {
             throw new Error(`Failed to send email: ${error}`);
         }
     }
+
+    async sendPasswordReset(email: string, resetToken: string) {
+        const text = `
+            <p>Hello,</p>
+            <p>You are receiving this email because you (or someone else) has requested the reset of the password for your account.</p>
+            <p>Please click on the following link, or paste this into your browser to complete the process:</p>
+            <p><a href="https://example.com/reset-password?token=${resetToken}">Reset Password</a></p>
+            <p>If you did not request this, please ignore this email.</p>
+            <p>Thank you,</p>
+            <p>Example Team</p>
+        `;
+
+        await this.sendEmail(email, 'Reset Password', text);
+    }
 }
 
 export const emailService = new EmailService();

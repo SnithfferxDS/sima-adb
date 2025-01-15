@@ -1,24 +1,29 @@
-import type { AstroGlobal } from 'astro';
+import type { APIContext, AstroGlobal } from 'astro';
 import { defineMiddleware } from 'astro:middleware';
 import { getSession } from '../lib/session.ts';
-import { db, eq,User } from 'astro:db';
 
-export const onRequest = defineMiddleware(async ({ locals, request, redirect }) => {
-  const protectedPaths = ['/dashboard', '/dashboard/profile'];
-  const currentPath = new URL(request.url).pathname;
+export const onRequest = defineMiddleware((context, next) => {
+  const protectedRoutes = ['/admin', '/dashboard'];
 
-  // Check if the current path is protected
-  if (protectedPaths.some(path => currentPath.startsWith(path))) {
-    // In a real app, check the session/token
-    const isAuthenticated = false; // Replace with actual auth check
+  const { pathname } = context.url;
 
-    if (!isAuthenticated) {
-      return redirect('/auth/login');
-    }
+  // Skip auth check for non-protected routes
+  if (!protectedRoutes.some(route => pathname.startsWith(route))) {
+    return next();
   }
+  // Verficar si el usuario está autenticado
+  const authenticated = isAuthenticated(context);
+
+  if (!authenticated) {
+    // Redirect to login page
+    return context.redirect('/auth/login');
+  }
+
+  // Continue to the next middleware
+  next();
 });
 
-export async function isAuthenticated(Astro: AstroGlobal): Promise<boolean> {
+export async function isAuthenticated(Astro: AstroGlobal | APIContext): Promise<boolean> {
   const session = await getSession(Astro);
   return session !== null;
 }

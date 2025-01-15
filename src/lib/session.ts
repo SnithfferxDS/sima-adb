@@ -1,15 +1,15 @@
 import { SignJWT, jwtVerify } from 'jose';
+import type { JWTPayload } from 'jose';
 import { parse, serialize } from 'cookie';
-import type { AstroGlobal } from 'astro';
+import type { AstroGlobal, APIContext } from 'astro';
 
 const JWT_SECRET = new TextEncoder().encode(import.meta.env.JWT_SECRET || 'your-secret-key');
 const SESSION_NAME = 'session';
 const CSRF_TOKEN_NAME = 'csrf-token';
 
-export interface SessionData {
-    userId: string;
-    email: string;
-    name: string;
+export interface SessionData extends JWTPayload {
+    id: string;
+    level: number;
     signature: string;
 }
 
@@ -20,7 +20,7 @@ export async function createSession(data: SessionData): Promise<string> {
         .sign(JWT_SECRET);
 }
 
-export async function getSession(Astro: AstroGlobal): Promise<SessionData | null> {
+export async function getSession(Astro: AstroGlobal | APIContext): Promise<SessionData | null> {
     const cookies = parse(Astro.request.headers.get('cookie') || '');
     const token = cookies[SESSION_NAME];
 
