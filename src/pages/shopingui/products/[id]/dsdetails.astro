@@ -1,0 +1,213 @@
+---
+import Layout from "@Layouts/app.layout.astro";
+import {
+	API_EMAIL,
+	API_PASS,
+	API_TOKEN_NAME,
+	API_URL,
+	API_USER,
+} from "@Configs/constants";
+import { Image } from "astro:assets";
+
+const { id } = Astro.params;
+const apiToken = Astro.request.headers.get(API_TOKEN_NAME);
+
+let token = "";
+
+// if (!apiToken) {
+// 	return Astro.redirect("/auth/login");
+// }
+
+// temp solution
+const authResponse = await fetch(`${API_URL}/auth/login`, {
+	method: "POST",
+	body: JSON.stringify({
+		name: API_USER,
+		email: API_EMAIL,
+		password: API_PASS,
+	}),
+	headers: {
+		"Content-Type": "application/json",
+	},
+})
+	.then((res) => res.json())
+	.catch((err) => console.log("Error: ", err));
+if (authResponse && authResponse.token) {
+	token = authResponse.token;
+}
+
+const product = await fetch(`${API_URL}/products/${id}`, {
+	headers: {
+		Authorization: "Bearer " + token,
+	},
+})
+	.then((res) => res.json())
+	.catch((err) => console.log("Error: ", err));
+
+if (!product || product.length === 0)
+	return Astro.redirect("/shopingui/products/notFound");
+
+/* {
+    "id": 12606,
+    "productType": {
+        "id": 167,
+        "name": "Matriciales"
+    },
+    "category": {
+        "id": 23,
+        "name": "Impresoras",
+        "client": 4
+    },
+    "image": "bfdgg_1817.jpeg",
+    "name": "Impresora Epson TM-U220A Matricial",
+    "upc": "C31C513A8901",
+    "sku": "TM-U220A",
+    "specsLink": "https://epson.com.mx/Para-el-trabajo/Punto-de-Venta/Impresoras-de-Punto-de-Venta/Impresora-Epson-TM-U220-para-recibos-cocina-/p/C31C514653",
+    "defaultWarranty": "12",
+    "disabled": 0,
+    "weight": "",
+    "offerEnd": null,
+    "offer": "false",
+    "mpn": null,
+    "stocks": {
+        "min": 1,
+        "max": 3
+    },
+    "origin": null,
+    "priceCategory": 2,
+    "commonName": [
+        {
+            "id": 43,
+            "name": "Impresora Matricial",
+            "position": 1,
+            "storeCategory": {
+                "id": 5,
+                "name": "Impresoras",
+                "storeId": "42729963556",
+                "handle": "impresoras",
+                "isLinea": 0
+            }
+        }
+    ],
+    "store": {
+        "id": "4720566435973",
+        "price": 2,
+        "status": "4",
+        "combo": "",
+        "bundle": "",
+        "dsComputer": "",
+        "variantValue": 0,
+        "variantId": ""
+    },
+    "price": {
+        "cost": 260,
+        "added": {
+            "value": 60.6,
+            "asignedBy": "cjjs",
+            "updatedAt": "2022-12-06"
+        },
+        "price": 365.90078000000005
+    },
+    "metadata": [
+        {
+            "id": 360,
+            "name": "Modelo",
+            "value": "TM-U220A",
+            "position": 1,
+            "active": 1,
+            "isFeature": 0,
+            "format": "",
+            "tooltip": "",
+            "allowDescription": 1,
+            "group": {
+                "id": "22",
+                "name": "Información del Producto",
+                "order": 1
+            }
+        },
+        {
+            "id": 361,
+            "name": "Serie",
+            "value": "TM-U",
+            "position": 2,
+            "active": 1,
+            "isFeature": 0,
+            "format": null,
+            "tooltip": null,
+            "allowDescription": 1,
+            "group": {
+                "id": "22",
+                "name": "Información del Producto",
+                "order": 1
+            }
+        }
+    ],
+    "tags": []
+} */
+---
+
+<Layout title="DSIN | Product Details">
+	<div class="p-6 mx-auto">
+		<h1 class="text-2xl font-bold mb-6">
+			Detalles de Producto: {product.name}
+		</h1>
+		<section class="py-8 bg-white md:py-16 dark:bg-gray-900 antialiased">
+			<div class="max-w-screen-xl px-4 mx-auto 2xl:px-0">
+				<div class="lg:grid lg:grid-cols-2 lg:gap-8 xl:gap-16">
+					<div class="shrink-0 max-w-md lg:max-w-lg mx-auto">
+						<Image
+							src={`http://192.168.3.98/dsin/uploads/${product.image}`}
+							alt={`${product.name} image`}
+							width={500}
+							height={500}
+							class="w-full"
+						/>
+					</div>
+					<div class="mt-6 sm:mt-8 lg:mt-0">
+						<h1
+							class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white"
+						>
+							{product.name}
+						</h1>
+						<div class="mt-4 sm:items-center sm:gap-4 sm:flex">
+							<p
+								class="text-2xl font-extrabold text-gray-900 sm:text-3xl dark:text-white"
+							>
+								$ {product.price.value}
+							</p>
+							<div class="flex items-center gap-2 mt-2 sm:mt-0">
+								<div class="flex items-center gap-1">
+									{
+										// Product.tags is an array of strings with the tags of the product
+										product.tags.map((tag: string) => (
+											<span class="text-sm font-medium text-gray-900 dark:text-white">
+												{tag}
+											</span>
+										))
+									}
+								</div>
+							</div>
+						</div>
+						<div
+							class="mt-6 sm:gap-4 sm:items-center sm:flex sm:mt-8"
+						>
+							<a
+								href={`/api/shopingui/migrate?id=${product.id}`}
+								title="Migrate product"
+								class="flex items-center justify-center py-2.5 px-5 text-sm font-medium text-gray-900 focus:outline-none bg-white rounded-lg border border-gray-200 hover:bg-gray-100 hover:text-primary-700 focus:z-10 focus:ring-4 focus:ring-gray-100 dark:focus:ring-gray-700 dark:bg-gray-800 dark:text-gray-400 dark:border-gray-600 dark:hover:text-white dark:hover:bg-gray-700"
+								role="button"
+							>
+								<span class="material-symbols-outlined mr-2">
+									move_group
+								</span>Migrar
+							</a>
+						</div>
+						<hr
+							class="my-6 md:my-8 border-gray-200 dark:border-gray-800"
+						/>
+					</div>
+				</div>
+			</div>
+		</section>
+	</div>
+</Layout>

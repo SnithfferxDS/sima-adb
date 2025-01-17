@@ -20,6 +20,7 @@
 	async function handleSearch() {
 		const query = searchInput.value.trim();
 		if (!query) return;
+		if (query.length < 3) return;
 
 		try {
 			const response = await fetch(
@@ -62,7 +63,7 @@
 									<img src="/assets/img/no_photo.png" alt="Product Image" class="w-20 h-20 rounded-lg object-cover"/>
 									<div class="p-1">
 										<h3 class="font-semibold">
-											<a href="/products/shopingui/${product.id}/details" class="text-primary-600 dark:text-primary-300 text-balance">
+											<a href="/shopingui/products/${product.id}/dsdetails" class="text-primary-600 dark:text-primary-300 text-balance">
 												${product.name}
 											</a>
 										</h3>

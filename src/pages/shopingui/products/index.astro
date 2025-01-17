@@ -2,6 +2,17 @@
 import BaseLayout from "@Layouts/app.layout.astro";
 import BreadCrumbs from "@Components/BreadCrumbs.astro";
 import ProductSearch from "@Components/shopingui/SearchResults.astro";
+import CsrfToken from "@Components/CsrfToken.astro";
+import { isAuthenticated } from "@Middleware/auth";
+import { generateCsrfToken } from "@Lib/session";
+
+let csrfToken = "";
+
+if (!isAuthenticated(Astro)) {
+	return Astro.redirect("/auth/login");
+} else {
+	csrfToken = generateCsrfToken();
+}
 
 const breadcrumbs = [
 	{
@@ -29,6 +40,7 @@ const breadcrumbs = [
 					headerTitle="Tienda Shopify DSIN"
 				/>
 				<div class="items-center justify-between flex">
+					<CsrfToken token={csrfToken} />
 					<div class="flex items-center mb-4 sm:mb-0">
 						<input
 							type="text"
@@ -207,8 +219,11 @@ const breadcrumbs = [
 	form?.addEventListener("submit", async (e) => {
 		e.preventDefault();
 		const formData = new FormData(form as HTMLFormElement);
-		console.log(formData);
+		// console.log(formData);
 		try {
+			const csrfToken = document.querySelector(
+				"meta[name='csrf-token']",
+			) as HTMLMetaElement;
 			const response = await fetch("/api/shopingui/new", {
 				method: "POST",
 				headers: {
@@ -216,6 +231,7 @@ const breadcrumbs = [
 				},
 				body: JSON.stringify({
 					product: formData.get("product"),
+					csrf_token: csrfToken.content,
 				}),
 			});
 

@@ -1,5 +1,5 @@
 ---
-import Layout from "../../../../layouts/app.layout.astro";
+import Layout from "@Layouts/app.layout.astro";
 import { db } from "@DB/shopify/db";
 import { Products } from "@DB/shopify/db/schema";
 import { like, or, eq } from "drizzle-orm";
@@ -12,7 +12,7 @@ const product = await db
 	.get();
 
 if (!product || product.length === 0)
-	return Astro.redirect("/products/shopingui");
+	return Astro.redirect("/shopingui/products/notFound");
 ---
 
 <Layout title="Shopify | Product Details">

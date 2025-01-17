@@ -113,6 +113,8 @@ import SalesDonut from "@Components/shopingui/dashboard/SalesDonut.astro";
 	</div>
 </Layout>
 <script>
+	import { showError } from "@Lib/utils/notifications";
+
 	const searchInput = document.getElementById(
 		"shopinguiSearch",
 	) as HTMLInputElement;
@@ -125,14 +127,21 @@ import SalesDonut from "@Components/shopingui/dashboard/SalesDonut.astro";
 			const response = await fetch(
 				`/api/shopingui/search?terms=${encodeURIComponent(query)}`,
 			);
-			if (!response.ok) throw new Error("Search failed");
+			if (!response.ok) {
+				console.log("Error: ", response);
+				throw new Error("Search failed");
+			}
 
-			const results = await response.json();
-			console.log(results);
+			// const results = await response.json();
+			// console.log(results);
 
 			// Show results view
 		} catch (error) {
 			console.error("Error searching products:", error);
+			// Show error notification
+			if (error instanceof Error) {
+				showError(error.message);
+			}
 		}
 	}
 	searchButton?.addEventListener("click", handleSearch);
@@ -140,7 +149,7 @@ import SalesDonut from "@Components/shopingui/dashboard/SalesDonut.astro";
 		const input = document.getElementById(
 			"searchInput",
 		) as HTMLInputElement;
-		if (e.key === "Enter" || input.value.length > 2) {
+		if (e.key === "Enter" || input.value.length > 3) {
 			handleSearch();
 		}
 	});
