@@ -1,4 +1,10 @@
 ---
+import type {
+	ShopinguiMetadata,
+	ShopinguiMetadataGroups,
+	ShopinguiGroup,
+	ShopinguiMetadataGroup,
+} from "@Types/shopingui/metadata/MetadataSchema";
 import Layout from "@Layouts/app.layout.astro";
 import {
 	API_EMAIL,
@@ -7,6 +13,7 @@ import {
 	API_URL,
 	API_USER,
 } from "@Configs/constants";
+// import LoadingSpinner from "@Components/shared/Loading.astro";
 import { Image } from "astro:assets";
 
 const { id } = Astro.params;
@@ -47,103 +54,63 @@ const product = await fetch(`${API_URL}/products/${id}`, {
 if (!product || product.length === 0)
 	return Astro.redirect("/shopingui/products/notFound");
 
-/* {
-    "id": 12606,
-    "productType": {
-        "id": 167,
-        "name": "Matriciales"
-    },
-    "category": {
-        "id": 23,
-        "name": "Impresoras",
-        "client": 4
-    },
-    "image": "bfdgg_1817.jpeg",
-    "name": "Impresora Epson TM-U220A Matricial",
-    "upc": "C31C513A8901",
-    "sku": "TM-U220A",
-    "specsLink": "https://epson.com.mx/Para-el-trabajo/Punto-de-Venta/Impresoras-de-Punto-de-Venta/Impresora-Epson-TM-U220-para-recibos-cocina-/p/C31C514653",
-    "defaultWarranty": "12",
-    "disabled": 0,
-    "weight": "",
-    "offerEnd": null,
-    "offer": "false",
-    "mpn": null,
-    "stocks": {
-        "min": 1,
-        "max": 3
-    },
-    "origin": null,
-    "priceCategory": 2,
-    "commonName": [
-        {
-            "id": 43,
-            "name": "Impresora Matricial",
-            "position": 1,
-            "storeCategory": {
-                "id": 5,
-                "name": "Impresoras",
-                "storeId": "42729963556",
-                "handle": "impresoras",
-                "isLinea": 0
-            }
-        }
-    ],
-    "store": {
-        "id": "4720566435973",
-        "price": 2,
-        "status": "4",
-        "combo": "",
-        "bundle": "",
-        "dsComputer": "",
-        "variantValue": 0,
-        "variantId": ""
-    },
-    "price": {
-        "cost": 260,
-        "added": {
-            "value": 60.6,
-            "asignedBy": "cjjs",
-            "updatedAt": "2022-12-06"
-        },
-        "price": 365.90078000000005
-    },
-    "metadata": [
-        {
-            "id": 360,
-            "name": "Modelo",
-            "value": "TM-U220A",
-            "position": 1,
-            "active": 1,
-            "isFeature": 0,
-            "format": "",
-            "tooltip": "",
-            "allowDescription": 1,
-            "group": {
-                "id": "22",
-                "name": "Información del Producto",
-                "order": 1
-            }
-        },
-        {
-            "id": 361,
-            "name": "Serie",
-            "value": "TM-U",
-            "position": 2,
-            "active": 1,
-            "isFeature": 0,
-            "format": null,
-            "tooltip": null,
-            "allowDescription": 1,
-            "group": {
-                "id": "22",
-                "name": "Información del Producto",
-                "order": 1
-            }
-        }
-    ],
-    "tags": []
-} */
+// metadata
+// groups
+const groupIds = [
+	...new Set(
+		product.metadata
+			.map((m: ShopinguiMetadata) => m.group.id)
+			.filter(Boolean),
+	),
+];
+// console.log("group Ids: ", groupIds);
+// filter unique groups from metadata
+/*
+const groups =
+	groupIds.length > 0
+		? [...new Set(product.metadata.map((m: ShopinguiMetadata) => m.group))]
+		: 
+         [
+				...new Set(
+					product.metadata
+						.filter((m: ShopinguiMetadata) =>
+							groupIds.includes(m.group.id),
+						)
+						.map((m: ShopinguiMetadata) => m.group),
+				),
+			] as ShopinguiGroup[] */
+let groups: ShopinguiGroup[] = [];
+groupIds.forEach((id) => {
+	product.metadata.forEach((m: ShopinguiMetadata) => {
+		if (m.group.id === id) {
+			if (!groups.find((g) => g.id === m.group.id)) {
+				groups.push(m.group);
+			}
+		}
+	});
+});
+// console.log("groups: ", groups); // ouput groups:  [{ id: '22', name: 'Información del Producto', order: 1 },{ id: '22', name: 'Información del Producto', order: 1 }]
+// Organize metadata by group
+const groupedMetadata = groups.map((group: ShopinguiGroup) => ({
+	...group,
+	metadata: product.metadata.filter(
+		(m: ShopinguiMetadata) => m.group.id === group.id,
+	),
+}));
+// Add ungrouped metadata
+const ungroupedMetadata = product.metadata.filter(
+	(m: ShopinguiMetadata) => !m.group,
+) as ShopinguiMetadata[];
+if (ungroupedMetadata.length > 0) {
+	groupedMetadata.push({
+		id: 0,
+		name: "Other",
+		order: 0,
+		metadata: ungroupedMetadata,
+	});
+}
+// console.log("groups: ", groupedMetadata);
+const { metadata = groupedMetadata } = Astro.props;
 ---
 
 <Layout title="DSIN | Product Details">
@@ -151,7 +118,9 @@ if (!product || product.length === 0)
 		<h1 class="text-2xl font-bold mb-6">
 			Detalles de Producto: {product.name}
 		</h1>
-		<section class="py-8 bg-white md:py-16 dark:bg-gray-900 antialiased">
+		<section
+			class="py-8 md:py-16 bg-gray-50/25 dark:bg-gray-800/25 antialiased"
+		>
 			<div class="max-w-screen-xl px-4 mx-auto 2xl:px-0">
 				<div class="lg:grid lg:grid-cols-2 lg:gap-8 xl:gap-16">
 					<div class="shrink-0 max-w-md lg:max-w-lg mx-auto">
@@ -165,26 +134,145 @@ if (!product || product.length === 0)
 					</div>
 					<div class="mt-6 sm:mt-8 lg:mt-0">
 						<h1
-							class="text-xl font-semibold text-gray-900 sm:text-2xl dark:text-white"
+							class="text-xl font-semibold text-primary-200 sm:text-2xl dark:text-secondary-900"
 						>
 							{product.name}
 						</h1>
 						<div class="mt-4 sm:items-center sm:gap-4 sm:flex">
+							<div class="grid grid-cols-2 gap-2">
+								<div class="flex items-center gap-2">
+									<span
+										class="text-sm font-medium text-primary-200 dark:text-secondary-900"
+									>
+										<strong>Categoría:</strong>
+										<span
+											class="text-sm font-normal text-primary-600 dark:text-secondary-600"
+											>{product.category.name}</span
+										>
+									</span>
+									<span
+										class="text-sm font-medium text-primary-200 dark:text-secondary-900"
+									>
+										<strong>Tipo:</strong>
+										<span
+											class="text-sm font-normal text-primary-600 dark:text-secondary-600"
+											>{product.productType.name}</span
+										>
+									</span>
+								</div>
+								<div class="flex items-center gap-2">
+									<span
+										class="text-sm font-medium text-primary-300 dark:text-secondary-900"
+									>
+										<strong>Garantía:</strong>
+										<span
+											class="text-sm font-normal text-primary-600 dark:text-secondary-600"
+											>{
+												product.defaultWarranty > 1
+													? `${product.defaultWarranty} meses`
+													: `${product.defaultWarranty} mes`
+											}</span
+										>
+									</span>
+								</div>
+								<div class="flex items-center gap-2">
+									<span
+										class="text-sm font-medium text-primary-300 dark:text-secondary-900"
+									>
+										<strong>UPC:</strong>
+										<span
+											class="text-sm font-normal text-primary-600 dark:text-secondary-600"
+											>{product.upc}</span
+										>
+									</span>
+								</div>
+								<div class="flex items-center gap-2">
+									<span
+										class="text-sm font-medium text-primary-300 dark:text-secondary-900"
+									>
+										<strong>SKU:</strong>
+										<span
+											class="text-sm font-normal text-primary-600 dark:text-secondary-600"
+											>{product.sku}</span
+										>
+									</span>
+								</div>
+								{
+									product.mpn ? (
+										<span class="text-sm font-medium text-primary-300 dark:text-secondary-900">
+											<strong>SKU:</strong>
+											<span class="text-sm font-normal text-primary-600 dark:text-secondary-600">
+												{product.mpn}
+											</span>
+										</span>
+									) : (
+										<div class="flex items-center gap-2">
+											<span class="text-sm font-medium text-gray-900 dark:text-white">
+												MPN: No disponible
+											</span>
+										</div>
+									)
+								}
+								{
+									product.origin ? (
+										<span class="text-sm font-medium text-primary-300 dark:text-secondary-900">
+											<strong>SKU:</strong>
+											<span class="text-sm font-normal text-primary-600 dark:text-secondary-600">
+												{product.origin}
+											</span>
+										</span>
+									) : (
+										<div class="flex items-center gap-2">
+											<span class="text-sm font-medium text-gray-900 dark:text-white">
+												Origen: No disponible
+											</span>
+										</div>
+									)
+								}
+							</div>
+						</div>
+						<div class="mt-4 sm:items-center sm:gap-4 sm:flex">
 							<p
 								class="text-2xl font-extrabold text-gray-900 sm:text-3xl dark:text-white"
 							>
-								$ {product.price.value}
+								$ {Number(product.price.value).toFixed(2)}
 							</p>
 							<div class="flex items-center gap-2 mt-2 sm:mt-0">
-								<div class="flex items-center gap-1">
-									{
-										// Product.tags is an array of strings with the tags of the product
-										product.tags.map((tag: string) => (
+								{
+									product.offer ? (
+										<div class="flex items-center gap-1">
+											{product.offerEnd}
+										</div>
+									) : (
+										<div class="flex items-center gap-1">
 											<span class="text-sm font-medium text-gray-900 dark:text-white">
-												{tag}
+												{product.stocks.min} -{" "}
+												{product.stocks.max}
 											</span>
-										))
-									}
+										</div>
+									)
+								}
+							</div>
+							<div class="flex flex-col">
+								<div class="flex flex-row justify-between">
+									<div class="flex flex-col">
+										<div
+											class="flex flex-row justify-between"
+										>
+											<div class="flex flex-col">
+												{
+													// Product.tags is an array of strings with the tags of the product
+													product.tags.map(
+														(tag: string) => (
+															<span class="text-sm font-medium text-gray-900 dark:text-white">
+																{tag}
+															</span>
+														),
+													)
+												}
+											</div>
+										</div>
+									</div>
 								</div>
 							</div>
 						</div>
@@ -206,6 +294,72 @@ if (!product || product.length === 0)
 							class="my-6 md:my-8 border-gray-200 dark:border-gray-800"
 						/>
 					</div>
+				</div>
+				<div>
+					{
+						metadata ? (
+							metadata.map((group: ShopinguiMetadataGroup) => (
+								<div class="border-gray-200/25 dark:border-gray-700/25 rounded-lg p-6 transition-all duration-200 ease-in-out">
+									<h3 class="text-lg font-medium text-gray-900 mb-4">
+										{group.name}
+									</h3>
+									<div class="space-y-4">
+										{group.metadata.map((meta) => (
+											<div class="transition-all duration-200 ease-in-out">
+												<label
+													for={`metadata_${meta.id}`}
+													class="block text-sm font-medium text-gray-900 dark:text-white"
+												>
+													{meta.name}
+													{meta.tooltip ? (
+														<span
+															class="text-gray-500 text-xs ml-1"
+															title={meta.tooltip}
+														>
+															ⓘ
+														</span>
+													) : (
+														""
+													)}
+												</label>
+												<div class="mt-1 flex rounded-md shadow-sm">
+													<input
+														type="text"
+														id={`metadata_${meta.id}`}
+														name={`metadata_${meta.id}`}
+														class="flex-1 rounded-md 
+                                                        border 
+                                                        text-sm 
+                                                        block 
+                                                        w-full 
+                                                        p-2.5 
+                                                        bg-gray-50 
+                                                        border-gray-300 
+                                                        text-gray-900 
+                                                        focus:ring-primary-500 
+                                                        focus:border-primary-500 
+                                                        dark:bg-gray-700 
+                                                        dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+														pattern={
+															meta.format ||
+															undefined
+														}
+														value={meta.value}
+													/>
+												</div>
+											</div>
+										))}
+									</div>
+								</div>
+							))
+						) : (
+							<div id="emptyState" class="hidden">
+								<p class="text-sm text-gray-500 text-center py-8">
+									Sin metadatos
+								</p>
+							</div>
+						)
+					}
 				</div>
 			</div>
 		</section>
