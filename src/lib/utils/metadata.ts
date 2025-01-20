@@ -15,7 +15,7 @@ export async function fetchMetadataDescription(
   productTypeId: string
 ): Promise<MetadataGroup[]> {
   const response = await fetch(
-    `/api/metadata-description?commonNameId=${commonNameId}&categoryId=${categoryId}&productTypeId=${productTypeId}`
+    `/api/metadata/description?commonNameId=${commonNameId}&categoryId=${categoryId}&productTypeId=${productTypeId}`
   );
 
   if (!response.ok) {

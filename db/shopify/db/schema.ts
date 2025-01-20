@@ -63,9 +63,9 @@ export const status = sqliteTable('status', {
 export const brands = sqliteTable('brands', {
     id: integer({ mode: 'number' }).primaryKey(),
     name: text('name').notNull(),
-    description: text('description').notNull(),
-    logo: text('logo').notNull(),
-    active: integer({ mode: 'boolean' }).notNull(),
+    description: text('description'),
+    logo: text('logo'),
+    active: integer({ mode: 'boolean' }),
     createdAt: text('created_at').default(sql`(CURRENT_TIME)`),
     updatedAt: text('updated_at').default(sql`(CURRENT_TIME)`),
 });
@@ -127,7 +127,7 @@ export const Metadatas = sqliteTable('metadatas', {
 export const ProductType = sqliteTable('tmp_product_type', {
     id: integer({ mode: 'number' }).primaryKey(),
     name: text('name').notNull(),
-    category: text('categories').notNull(),
+    category: integer({ mode: 'number' }).notNull(),
     created_at: text('created_at').default(sql`(CURRENT_TIME)`),
     updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
 });
@@ -169,10 +169,10 @@ export const ProductImages = sqliteTable('tmp_product_images', {
 export const TProductRelations = sqliteTable('tmp_product_relations', {
     id: integer({ mode: 'number' }).primaryKey(),
     product_id: integer({ mode: 'number' }).notNull(),
-    image_id: integer({ mode: 'number' }).notNull(),
+    image_id: integer({ mode: 'number' }),
     brand_id: integer({ mode: 'number' }).notNull(),
     status_id: integer({ mode: 'number' }).notNull(),
-    variants_id: integer({ mode: 'number' }).notNull(),
+    variants_id: integer({ mode: 'number' }),
     price: integer({ mode: 'number' }).notNull(),
     store: integer({ mode: 'number' }),
     dsin: integer({ mode: 'number' }).notNull(),
