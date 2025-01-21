@@ -1,5 +1,4 @@
 import { sql } from 'drizzle-orm';
-import { int } from 'drizzle-orm/mysql-core';
 import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
 
 export const Products = sqliteTable('products', {
@@ -51,7 +50,7 @@ export const ProductRelations = sqliteTable('product_relations', {
     deletedAt: text('deleted_at').default(sql`(CURRENT_TIME)`)
 });
 
-export const status = sqliteTable('status', {
+export const Status = sqliteTable('status', {
     id: integer({ mode: 'number' }).primaryKey(),
     name: text('name').notNull(),
     description: text('description').notNull(),
@@ -60,7 +59,7 @@ export const status = sqliteTable('status', {
     updatedAt: text('updated_at').default(sql`(CURRENT_TIME)`),
 });
 
-export const brands = sqliteTable('brands', {
+export const Brands = sqliteTable('brands', {
     id: integer({ mode: 'number' }).primaryKey(),
     name: text('name').notNull(),
     description: text('description'),
@@ -70,7 +69,7 @@ export const brands = sqliteTable('brands', {
     updatedAt: text('updated_at').default(sql`(CURRENT_TIME)`),
 });
 
-export const commonNames = sqliteTable('common_names', {
+export const CommonNames = sqliteTable('common_names', {
     id: integer().primaryKey(),
     name: text(),
     position: integer().default(1),
@@ -124,18 +123,47 @@ export const Metadatas = sqliteTable('metadatas', {
     updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
 });
 
-export const ProductType = sqliteTable('tmp_product_type', {
-    id: integer({ mode: 'number' }).primaryKey(),
-    name: text('name').notNull(),
-    category: integer({ mode: 'number' }).notNull(),
+export const Prices = sqliteTable('prices', {
+    id: integer().primaryKey(),
+    cost: integer({ mode: 'number' }).notNull(),
+    added: integer({ mode: 'number' }).notNull(),
+    value: integer({ mode: 'number' }).notNull(),
+    asigned_by: text('asigned_by').notNull(),
+    active: integer({ mode: 'boolean' }).default(true),
     created_at: text('created_at').default(sql`(CURRENT_TIME)`),
     updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
 });
 
-export const ProductCategory = sqliteTable('tmp_product_category', {
-    id: integer({ mode: 'number' }).primaryKey(),
+export const TagsProducts = sqliteTable('tags_products', {
+    id: integer().primaryKey(),
+    tag_id: integer().notNull(),
+    product_id: integer().notNull(),
+    created_at: text('created_at').default(sql`(CURRENT_TIME)`),
+    updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
+});
+
+export const StoreInformation = sqliteTable('store_information', {
+    id: integer().primaryKey(),
     name: text('name').notNull(),
-    client: integer({ mode: 'number' }).notNull(),
+    price: integer({ mode: 'number' }).notNull(),
+    priceType: integer('price_type', { mode: 'number' }).notNull(),
+    offer: integer({ mode: 'boolean' }).notNull(),
+    status: text('status').notNull().default('1'),
+    combo: text('combo'),
+    bundle: text('bundle'),
+    dsComputer: text('dsComputer'),
+    variant: text('variant'),
+    created_at: text('created_at').default(sql`(CURRENT_TIME)`),
+    updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
+});
+
+export const MetadataProductAsociations = sqliteTable('metadata_product_asociations', {
+    id: integer({ mode: 'number' }).primaryKey(),
+    metadata_id: integer({ mode: 'number' }).notNull(),
+    product_id: integer({ mode: 'number' }).notNull(),
+    content: text('content').notNull(),
+    active: integer({ mode: 'boolean' }).notNull(),
+    allowDescription: integer({ mode: 'boolean' }).notNull(),
     created_at: text('created_at').default(sql`(CURRENT_TIME)`),
     updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
 });
@@ -151,7 +179,35 @@ export const Stocks = sqliteTable('tmp_stocks', {
     updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
 });
 
-export const Sucursals = sqliteTable('tmp_sucursales', {
+// TPMs
+export const ProductTypes = sqliteTable('tmp_product_type', {
+    id: integer({ mode: 'number' }).primaryKey(),
+    name: text('name').notNull(),
+    category: integer({ mode: 'number' }).notNull(),
+    created_at: text('created_at').default(sql`(CURRENT_TIME)`),
+    updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
+});
+
+export const ProductCategories = sqliteTable('tmp_product_category', {
+    id: integer({ mode: 'number' }).primaryKey(),
+    name: text('name').notNull(),
+    client: integer({ mode: 'number' }).notNull(),
+    created_at: text('created_at').default(sql`(CURRENT_TIME)`),
+    updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
+});
+
+export const ProductStocks = sqliteTable('tmp_stocks', {
+    id: integer({ mode: 'number' }).primaryKey(),
+    product_id: integer({ mode: 'number' }).notNull(),
+    min: integer({ mode: 'number' }).notNull(),
+    max: integer({ mode: 'number' }).notNull(),
+    qnt: integer({ mode: 'number' }).notNull(),
+    sucursal: integer({ mode: 'number' }).notNull(),
+    created_at: text('created_at').default(sql`(CURRENT_TIME)`),
+    updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
+});
+
+export const WharehouseSucursals = sqliteTable('tmp_sucursales', {
     id: integer({ mode: 'number' }).primaryKey(),
     name: text('name').notNull(),
     created_at: text('created_at').default(sql`(CURRENT_TIME)`),
@@ -193,7 +249,7 @@ export const TGroups = sqliteTable('tmp_groups', {
 
 export const TMetadatas = sqliteTable('tmp_metadatas', {
     id: integer().primaryKey(),
-    name: text(),
+    name: text().notNull(),
     position: integer({ mode: 'number' }).default(1),
     active: integer({ mode: 'boolean' }).default(true),
     allow_description: integer({ mode: 'boolean' }).default(true),
@@ -205,17 +261,6 @@ export const TMetadatas = sqliteTable('tmp_metadatas', {
     updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
 });
 
-export const Prices = sqliteTable('prices', {
-    id: integer().primaryKey(),
-    cost: integer({ mode: 'number' }).notNull(),
-    added: integer({ mode: 'number' }).notNull(),
-    value: integer({ mode: 'number' }).notNull(),
-    asigned_by: text('asigned_by').notNull(),
-    active: integer({ mode: 'boolean' }).default(true),
-    created_at: text('created_at').default(sql`(CURRENT_TIME)`),
-    updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
-});
-
 export const TPrices = sqliteTable('tmp_prices', {
     id: integer({ mode: 'number' }).primaryKey(),
     cost: integer({ mode: 'number' }).notNull(),
@@ -223,6 +268,40 @@ export const TPrices = sqliteTable('tmp_prices', {
     value: integer({ mode: 'number' }).notNull(),
     asigned_by: text('asigned_by').notNull(),
     active: integer({ mode: 'boolean' }).notNull(),
+    created_at: text('created_at').default(sql`(CURRENT_TIME)`),
+    updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
+});
+
+export const TMetadataProductAsociations = sqliteTable('tmp_metadata_product_asociations', {
+    id: integer({ mode: 'number' }).primaryKey(),
+    metadata_id: integer({ mode: 'number' }).notNull(),
+    product_id: integer({ mode: 'number' }).notNull(),
+    content: text('content').notNull(),
+    active: integer({ mode: 'boolean' }).notNull(),
+    allowDescription: integer({ mode: 'boolean' }).notNull(),
+    created_at: text('created_at').default(sql`(CURRENT_TIME)`),
+    updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
+});
+
+export const TStoreInformation = sqliteTable('tmp_store_information', {
+    id: integer().primaryKey(),
+    name: text('name').notNull(),
+    price: integer({ mode: 'number' }).notNull(),
+    priceType: integer('price_type', { mode: 'number' }).notNull(),
+    offer: integer({ mode: 'boolean' }).notNull(),
+    status: text('status').notNull().default('1'),
+    combo: text('combo'),
+    bundle: text('bundle'),
+    dsComputer: text('dsComputer'),
+    variant: text('variant'),
+    created_at: text('created_at').default(sql`(CURRENT_TIME)`),
+    updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
+});
+
+export const TTagsProducts = sqliteTable('tmp_tags_products', {
+    id: integer().primaryKey(),
+    tag_id: integer().notNull(),
+    product_id: integer().notNull(),
     created_at: text('created_at').default(sql`(CURRENT_TIME)`),
     updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
 });

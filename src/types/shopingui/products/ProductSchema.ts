@@ -3,15 +3,19 @@ export interface ShopinguiProductStockByWarehouse {
     name: string;
     qnt: number;
 }
+
+export interface ShopinguiStocksBySucursal {
+    [key: string]: ShopinguiProductStockByWarehouse[];
+}
 export interface ShopinguiProductStocks {
     total: {
         [key: string]: number;
     };
     sucursals: {
-        [key: string]: ShopinguiProductStockByWarehouse[]
-    } | {
-        [key: string]: number;
-    };
+        id: number;
+        name: string;
+        stocks: ShopinguiProductStockByWarehouse[]
+    }[];
 }
 
 export interface ShopinguiProduct {

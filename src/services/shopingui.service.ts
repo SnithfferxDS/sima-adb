@@ -1,5 +1,18 @@
 import { db } from '@DB/shopify/db';
-import { Products, TProductRelations, TPrices, Stocks, TMetadatas, Tags, brands, ProductCategory, ProductType } from '@DB/shopify/db/schema';
+import {
+    Products,
+    TProductRelations,
+    TPrices,
+    ProductStocks,
+    TMetadatas,
+    Tags,
+    Brands,
+    ProductCategories,
+    ProductTypes,
+    MetadataProductAsociations,
+    TTagsProducts
+} from '@DB/shopify/db/schema';
+import type { ShopinguiMetadata } from '@Types/shopingui/metadata/MetadataSchema';
 import type { ShopinguiProduct } from '@Types/shopingui/products/ProductSchema';
 import { like, or, eq } from 'drizzle-orm';
 
@@ -37,14 +50,12 @@ export class ShopinguiService {
         }
         // Insert product information
         const productDb = await db.insert(Products).values({
-            name: product.name || '',
-            upc: product.upc,
+            name: product.name,
+            handle: this.generateHandle(product),
+            longDescription: this.generateLongDescription(product),
+            shortDescription: this.generateShortDescription(product),
+            tags: JSON.stringify(product.tags),
             sku: product.sku,
-            mpn: product.mpn || null,
-            weight: weight || null,
-            weightUnit: wUnit || null,
-            warranty: product.defaultWarranty || null,
-            tags: JSON.stringify(product.tags || []),
         }).returning();
 
         if (productDb) {
@@ -55,10 +66,10 @@ export class ShopinguiService {
             if (product.brand) {
                 const brand = await db
                     .select()
-                    .from(brands)
-                    .where(eq(brands.name, product.brand.name));
+                    .from(Brands)
+                    .where(eq(Brands.name, product.brand.name));
                 if (brand.length === 0) {
-                    const brandDb = await db.insert(brands).values({
+                    const brandDb = await db.insert(Brands).values({
                         name: product.brand.name
                     }).returning();
                     brandId = brandDb[0].id;
@@ -69,10 +80,10 @@ export class ShopinguiService {
             if (product.category) {
                 const category = await db
                     .select()
-                    .from(ProductCategory)
-                    .where(eq(ProductCategory.name, product.category.name));
+                    .from(ProductCategories)
+                    .where(eq(ProductCategories.name, product.category.name));
                 if (category.length === 0) {
-                    await db.insert(ProductCategory).values({
+                    await db.insert(ProductCategories).values({
                         name: product.category.name,
                         client: product.category.client || 4
                     }).returning();
@@ -84,10 +95,10 @@ export class ShopinguiService {
             if (product.productType && product.productType.name) {
                 const productType = await db
                     .select()
-                    .from(ProductType)
-                    .where(eq(ProductType.name, product.productType.name));
+                    .from(ProductTypes)
+                    .where(eq(ProductTypes.name, product.productType.name));
                 if (productType.length === 0) {
-                    await db.insert(ProductType).values({
+                    await db.insert(ProductTypes).values({
                         name: product.productType.name,
                         category: categoryId
                     }).returning();
@@ -108,65 +119,161 @@ export class ShopinguiService {
             }
             // Adding product stocks
             if (product.stocks) {
-                product.stocks.sucursal
-                const productStocks = await db.insert(Stocks).values({
-                    product_id: productDb[0].id,
-                    min: product.stocks?.min ?? 0,
-                    max: product.stocks?.max ?? 0,
-                    qnt: product.stocks?.total.HQ ?? 0,
-                    sucursal: product.stocks?.total["Santa Ana"] ?? 0,
-                }).returning();
-                // Adding product metadata
-                const productMetadata = await db.insert(TMetadatas).values({
-                    name: product.metadata.name,
-                    value: product.metadata.value,
-                    position: product.metadata.position,
-                    active: product.metadata.active,
-                    isFeature: product.metadata.isFeature,
-                    format: product.metadata.format,
-                    tooltip: product.metadata.tooltip,
-                    id_group: product.metadata.group.id,
-                }).returning();
-                // Adding product tags
-                const productTags = await db.insert(Tags).values({
-                    name: product.tags[0],
-                }).returning();
-                // Adding relations
-                const productRelation = await db.insert(TProductRelations).values({
-                    product_id: productDb[0].id,
-                    dsin: product.id,
-                    brand_id: brandId,
-                    product_type_id: productTypeId,
-                    status_id: 1,
-                }).returning();
-
+                /* product.stocks.sucursals.map(sucursalStock => {
+                    const productStocks = await db.insert(Stocks).values({
+                        product_id: productDb[0].id,
+                        min: product.min ?? 0,
+                        max: product.max ?? 0,
+                        qnt: sucursalStock.stocks[0].qnt,
+                        sucursal: sucursalStock.name,
+                    })
+                }); */
+                // const productStocks = await db.insert(Stocks).values({
+                //     product_id: productDb[0].id,
+                //     min: product.stocks?.min ?? 0,
+                //     max: product.stocks?.max ?? 0,
+                //     qnt: product.stocks?.total.HQ ?? 0,
+                //     sucursal: product.stocks?.total["Santa Ana"] ?? 0,
+                // }).returning();
             }
-        }
+            // Adding product metadata
+            if (product.metadata) {
+                product.metadata.map(async metadata => {
+                    if (metadata.name !== null && metadata.name !== '') {
+                        const productMetadataExists = await db.select().from(TMetadatas).where(eq(TMetadatas.name, metadata.name));
+                        if (!productMetadataExists) {
+                            const productMetadata = await db.insert(TMetadatas).values({
+                                name: metadata.name,
+                                position: metadata.position,
+                                active: metadata.active,
+                                is_feature: metadata.isFeature,
+                                tooltip: metadata.tooltip,
+                                format: metadata.format,
+                                allow_description: metadata.allowDescription,
+                                group_id: metadata.group?.id,
+                            }).returning();
 
-        extractWeight(weight: string | null | undefined) {
-            let w = 0, u = '';
-            if (!weight) return { weight: 0.0, unit: 'g' };
-            // weight: "2.1kg" || "2.1lb" || "2.1oz" || "2.1g" || "2.1"
-            // substract from the last two characters
-            const lastChar = weight.substring(-1, -2);
-            const pLastChar = weight.substring(-2, -3);
-            if (isNaN(Number(lastChar))) {
-                if (isNaN(Number(pLastChar))) {
-                    u.concat(pLastChar, lastChar);
-                    w = Number(weight.substring(-2));
-                } else {
-                    u.concat(lastChar);
-                    w = Number(weight.substring(-1));
-                }
-            } else {
-                if (isNaN(Number(pLastChar)) && pLastChar === '.') {
-                    u = 'g';
-                    w = Number(weight);
-                } else {
-                    u = 'g';
-                    w = Number(weight);
-                }
+                            if (productMetadata) {
+                                if (metadata.value !== '') {
+                                    await db.insert(MetadataProductAsociations).values({
+                                        metadata_id: productMetadata[0].id,
+                                        product_id: productDb[0].id,
+                                        content: metadata.value,
+                                        active: metadata.active,
+                                        allowDescription: metadata.allowDescription,
+                                    });
+                                }
+                            }
+                        } else {
+                            if (metadata.value !== '') {
+                                await db.insert(MetadataProductAsociations).values({
+                                    metadata_id: productMetadataExists[0].id,
+                                    product_id: productDb[0].id,
+                                    content: metadata.value,
+                                    active: metadata.active,
+                                    allowDescription: metadata.allowDescription,
+                                });
+                            }
+                        }
+                    }
+                });
             }
-            return { weight: w, unit: u };
+            // saving tags if not exists
+            if (product.tags) {
+                product.tags.map(async tag => {
+                    const tagExists = await db.select().from(Tags).where(eq(Tags.name, tag));
+                    if (!tagExists) {
+                        const tagDb = await db.insert(Tags).values({
+                            name: tag,
+                        }).returning();
+                        await db.insert(TTagsProducts).values({
+                            tag_id: tagDb[0].id,
+                            product_id: productDb[0].id,
+                        });
+                    }
+                    await db.insert(TTagsProducts).values({
+                        tag_id: tagExists[0].id,
+                        product_id: productDb[0].id,
+                    });
+                });
+            }
         }
     }
+
+    extractWeight(weight: string | null | undefined) {
+        let w = 0, u = '';
+        if (!weight) return { weight: 0.0, unit: 'g' };
+        // weight: "2.1kg" || "2.1lb" || "2.1oz" || "2.1g" || "2.1"
+        // substract from the last two characters
+        const lastChar = weight.substring(-1, -2);
+        const pLastChar = weight.substring(-2, -3);
+        if (isNaN(Number(lastChar))) {
+            if (isNaN(Number(pLastChar))) {
+                u.concat(pLastChar, lastChar);
+                w = Number(weight.substring(-2));
+            } else {
+                u.concat(lastChar);
+                w = Number(weight.substring(-1));
+            }
+        } else {
+            if (isNaN(Number(pLastChar)) && pLastChar === '.') {
+                u = 'g';
+                w = Number(weight);
+            } else {
+                u = 'g';
+                w = Number(weight);
+            }
+        }
+        return { weight: w, unit: u };
+    }
+
+    generateHandle(products: ShopinguiProduct) { }
+
+    generateLongDescription(product: ShopinguiProduct) {
+        if (product.tags) {
+            const tags = product.tags.map(tag => `<span class="badge badge-pill badge-primary">${tag}</span>`).join('');
+        }
+        let contentTable = '';
+        if (product.metadata) {
+            let metadataString = '';
+            let featureString = '';
+            const groupIds = [
+                ...new Set(
+                    product.metadata
+                        .map((m: ShopinguiMetadata) => m.group?.id)
+                        .filter(Boolean),
+                ),
+            ];
+            groupIds.map(groupId => {
+                product.metadata.map(metadata => {
+                    if (metadata.group?.id === groupId) {
+                        if (metadata.value !== '0') {
+                            metadataString += `<tr><td class='tableCellMeta'>${metadata.name}</td><td class='tableCellMeta'>${metadata.value}</td></tr>`;
+                        } else {
+                            featureString += `<tr><td class='tableCellMeta'>${metadata.name}</td><td class='tableCellContent'>&#10004</td></tr>`;
+                        }
+                    }
+                });
+                contentTable += `<tr><td class="tableCellGroupTitle">`;
+            });
+        }
+        const body = `
+        <div class="col-sm-8 col-offset-sm-2 col-md-10 offset-md-1 mb-3">
+            <h6 class="tt-title-sub text-center"> ESPECIFICACIONES DEL PRODUCTO </h6>
+            <div class="div-drop">
+                <table
+                    id="table001"
+                    width="100%"
+                    class="NEW-TABLE TableOverride-1 tab-drag"
+                    style="margin: auto">
+                    <tbody></tbody>
+                </table>
+            </div>
+        </div>
+        <hr>
+        <div class='col-sm-8 col-offset-sm-2 col-md-10 offset-md-1 align-content-center mt-2'>
+            <h6 class='tt-title-sub text-center mb-2'>BÚSQUEDAS RELACIONADAS</h6>
+            <a class="btn btn-outline-primary mr-1 mb-2" href="https://digitalsolutions.com.sv/collections/"></a>
+        <style>.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link .active {background: #f5f5f5;border-bottom: 2px solid #036cbf;border-radius: 5px 5px 0px 0px;} .tableCellMeta {border: 1px solid #fbfbfb;padding: 3px 0px 3px 15px;vertical-align: middle;background-color: #fdfdfd;width: 50%;} .tableCellContent {text-align: center;border: 1px solid #fbfbfb;padding: 3px 0px 3px 15px;vertical-align: middle;background-color: #fafafa;width: 50%;} .tableCellGroupTitle {border: 1px solid #f8f8f8;padding: 3px 0px 3px 5px;vertical-align: middle;background-color: #f7f7f7;font-weight: 800;text-transform: uppercase;text-align: center;} .tableCellGroupTitleContent {border: 1px solid #fbfbfb;padding: 3px 0px 3px 15px;vertical-align: middle;background-color: #fafafa;width: 50%;}</style>`;
+    }
+}

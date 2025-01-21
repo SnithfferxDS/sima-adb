@@ -1,16 +1,17 @@
 export interface ShopinguiMetadata {
-    id: number;
-    name: string;
+    id: number | null;
+    name: string | null;
     value: string;
-    position: number;
-    active: boolean;
-    isFeature: boolean;
-    tooltip?: string;
-    format?: string;
+    position: number | null;
+    active: number | null;
+    isFeature: number | null;
+    tooltip: string | null;
+    format: string | null;
+    allowDescription: number | null;
     group: {
-        id: number;
-        name: string;
-        order: number;
+        id: string | null;
+        name: string | null;
+        order: number | null;
     };
 }
 

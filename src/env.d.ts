@@ -6,6 +6,7 @@ interface ImportMetaEnv {
     readonly APP_VERSION: string;
     readonly APP_URL: string;
     readonly APP_KEY: string;
+    readonly APP_SECRET: string;
     readonly APP_AUTHOR: string;
     readonly APP_FULL_NAME: string;
     readonly APP_SHORT_VERSION: number;
@@ -28,7 +29,10 @@ interface ImportMetaEnv {
     readonly API_KEY: string;
     readonly API_VERSION: number;
     readonly API_DEBUG: boolean;
-    readonly API_TOKEN: string;
+    API_TOKEN: string;
+    readonly API_USER: string;
+    readonly API_PASS: string;
+    readonly API_EMAIL: string;
     readonly APP_SMTP_HOST: string;
     readonly APP_SMTP_PORT: string;
     readonly APP_SMTP_USER: string;
