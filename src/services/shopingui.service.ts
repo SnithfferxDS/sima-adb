@@ -15,6 +15,7 @@ import {
 import type { ShopinguiMetadata } from '@Types/shopingui/metadata/MetadataSchema';
 import type { ShopinguiProduct } from '@Types/shopingui/products/ProductSchema';
 import { like, or, eq } from 'drizzle-orm';
+import slugify from 'slugify';
 
 export class ShopinguiService {
     async search(terms: string) {
@@ -50,12 +51,14 @@ export class ShopinguiService {
         }
         // Insert product information
         const productDb = await db.insert(Products).values({
-            name: product.name,
+            name: this.generateTitle(product),
+            upc: product.upc as string,
+            sku: product.sku as string,
+            mpn: product.mpn as string,
             handle: this.generateHandle(product),
             longDescription: this.generateLongDescription(product),
             shortDescription: this.generateShortDescription(product),
-            tags: JSON.stringify(product.tags),
-            sku: product.sku,
+            tags: JSON.stringify(product.tags)
         }).returning();
 
         if (productDb) {
@@ -73,8 +76,9 @@ export class ShopinguiService {
                         name: product.brand.name
                     }).returning();
                     brandId = brandDb[0].id;
+                } else {
+                    brandId = brand[0].id;
                 }
-                brandId = brand[0].id;
             }
             // Check if Category exists
             if (product.category) {
@@ -88,8 +92,9 @@ export class ShopinguiService {
                         client: product.category.client || 4
                     }).returning();
                     categoryId = category[0].id;
+                } else {
+                    categoryId = category[0].id;
                 }
-                categoryId = category[0].id;
             }
             // Check if ProductType exists
             if (product.productType && product.productType.name) {
@@ -98,13 +103,14 @@ export class ShopinguiService {
                     .from(ProductTypes)
                     .where(eq(ProductTypes.name, product.productType.name));
                 if (productType.length === 0) {
-                    await db.insert(ProductTypes).values({
+                    const productTypeDb = await db.insert(ProductTypes).values({
                         name: product.productType.name,
                         category: categoryId
                     }).returning();
+                    productTypeId = productTypeDb[0].id;
+                } else {
                     productTypeId = productType[0].id;
                 }
-                productTypeId = productType[0].id;
             }
             // Adding product price
             if (product.price) {
@@ -143,10 +149,10 @@ export class ShopinguiService {
                         const productMetadataExists = await db.select().from(TMetadatas).where(eq(TMetadatas.name, metadata.name));
                         if (!productMetadataExists) {
                             const productMetadata = await db.insert(TMetadatas).values({
-                                name: metadata.name,
+                                name: metadata.name as string,
                                 position: metadata.position,
                                 active: metadata.active,
-                                is_feature: metadata.isFeature,
+                                is_feature: metadata.isFeature && metadata.isFeature == 1 ? true : false,
                                 tooltip: metadata.tooltip,
                                 format: metadata.format,
                                 allow_description: metadata.allowDescription,
@@ -197,9 +203,22 @@ export class ShopinguiService {
                     });
                 });
             }
+            return productDb[0];
         }
+        return null;
     }
 
+    /**
+     * Extracts the weight and unit from a given weight string.
+     *
+     * @param weight - A string representing the weight, which may include a unit 
+     *                 (e.g., "2.1kg", "2.1lb", "2.1oz", "2.1g", or "2.1").
+     *                 If null or undefined, the function returns a default weight of 0.0 grams.
+     * @returns An object containing:
+     *          - weight: A number representing the extracted weight.
+     *          - unit: A string representing the unit of the weight (e.g., "kg", "lb", "oz", "g").
+     *                 If no unit is provided, defaults to "g".
+     */
     extractWeight(weight: string | null | undefined) {
         let w = 0, u = '';
         if (!weight) return { weight: 0.0, unit: 'g' };
@@ -227,11 +246,36 @@ export class ShopinguiService {
         return { weight: w, unit: u };
     }
 
-    generateHandle(products: ShopinguiProduct) { }
+    /**
+     * Generates a slug (handle) for a product based on its name, brand and sku/mpn.
+     *
+     * @param product - The product to generate the slug for.
+     * @returns The generated slug.
+     */
+    generateHandle(product: ShopinguiProduct) {
+        const commonName = product.commonName[0].name;
+        const brand = product.brand?.name;
+        let skuMpn = '';
+        if (product.sku) {
+            skuMpn = product.sku;
+        } else {
+            if (product.mpn) {
+                skuMpn = product.mpn;
+            }
+        }
+        const title = `${commonName} ${brand} ${skuMpn}`;
+        return slugify(title);
+    }
 
     generateLongDescription(product: ShopinguiProduct) {
+        let tags = '';
         if (product.tags) {
-            const tags = product.tags.map(tag => `<span class="badge badge-pill badge-primary">${tag}</span>`).join('');
+            tags = product.tags.map(tag => {
+                const tagSlug = slugify(tag);
+                return `<a class="btn btn-outline-primary mr-1 mb-2" href="${tagSlug}">
+                    <span class="badge badge-pill badge-primary">${tag}</span>
+                </a>`;
+            }).join('');
         }
         let contentTable = '';
         if (product.metadata) {
@@ -245,35 +289,79 @@ export class ShopinguiService {
                 ),
             ];
             groupIds.map(groupId => {
+                let groupName = '';
                 product.metadata.map(metadata => {
                     if (metadata.group?.id === groupId) {
                         if (metadata.value !== '0') {
-                            metadataString += `<tr><td class='tableCellMeta'>${metadata.name}</td><td class='tableCellMeta'>${metadata.value}</td></tr>`;
+                            metadataString += `<tr><td class="tableCellMeta">${metadata.name}</td><td class="tableCellMeta">${metadata.value}</td></tr>`;
                         } else {
-                            featureString += `<tr><td class='tableCellMeta'>${metadata.name}</td><td class='tableCellContent'>&#10004</td></tr>`;
+                            featureString += `<tr><td class="tableCellMeta">${metadata.name}</td><td class="tableCellContent">&#10004</td></tr>`;
                         }
+                        groupName = metadata.group.name as string;
                     }
                 });
-                contentTable += `<tr><td class="tableCellGroupTitle">`;
+                contentTable += `<tr><td class="tableCellGroupTitle">${groupName}</td><td class="tableCellGroupTitleContent"></td>${metadataString}${featureString}</tr>`;
             });
         }
-        const body = `
+        const commonName = product.commonName[0].name;
+        const commonNameSlug = slugify(commonName);
+        const brand = product.brand?.name;
+        const brandSlug = slugify(`${commonName} ${brand}`);
+
+        return `<style>.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link .active {background: #f5f5f5;border-bottom: 2px solid #036cbf;border-radius: 5px 5px 0px 0px;} .tableCellMeta {border: 1px solid #fbfbfb;padding: 3px 0px 3px 15px;vertical-align: middle;background-color: #fdfdfd;width: 50%;} .tableCellContent {text-align: center;border: 1px solid #fbfbfb;padding: 3px 0px 3px 15px;vertical-align: middle;background-color: #fafafa;width: 50%;} .tableCellGroupTitle {border: 1px solid #f8f8f8;padding: 3px 0px 3px 5px;vertical-align: middle;background-color: #f7f7f7;font-weight: 800;text-transform: uppercase;text-align: center;} .tableCellGroupTitleContent {border: 1px solid #fbfbfb;padding: 3px 0px 3px 15px;vertical-align: middle;background-color: #fafafa;width: 50%;}</style>
         <div class="col-sm-8 col-offset-sm-2 col-md-10 offset-md-1 mb-3">
-            <h6 class="tt-title-sub text-center"> ESPECIFICACIONES DEL PRODUCTO </h6>
-            <div class="div-drop">
-                <table
-                    id="table001"
-                    width="100%"
-                    class="NEW-TABLE TableOverride-1 tab-drag"
-                    style="margin: auto">
-                    <tbody></tbody>
-                </table>
-            </div>
-        </div>
-        <hr>
+        <h6 class="tt-title-sub text-center"> ESPECIFICACIONES DEL PRODUCTO </h6>
+        <div class="div-drop"><table id="table001" width="100%" class="NEW-TABLE TableOverride-1 tab-drag" style="margin: auto"><tbody>${contentTable}</tbody></table></div></div><hr>
         <div class='col-sm-8 col-offset-sm-2 col-md-10 offset-md-1 align-content-center mt-2'>
-            <h6 class='tt-title-sub text-center mb-2'>BÚSQUEDAS RELACIONADAS</h6>
-            <a class="btn btn-outline-primary mr-1 mb-2" href="https://digitalsolutions.com.sv/collections/"></a>
-        <style>.nav-tabs .nav-item.show .nav-link, .nav-tabs .nav-link .active {background: #f5f5f5;border-bottom: 2px solid #036cbf;border-radius: 5px 5px 0px 0px;} .tableCellMeta {border: 1px solid #fbfbfb;padding: 3px 0px 3px 15px;vertical-align: middle;background-color: #fdfdfd;width: 50%;} .tableCellContent {text-align: center;border: 1px solid #fbfbfb;padding: 3px 0px 3px 15px;vertical-align: middle;background-color: #fafafa;width: 50%;} .tableCellGroupTitle {border: 1px solid #f8f8f8;padding: 3px 0px 3px 5px;vertical-align: middle;background-color: #f7f7f7;font-weight: 800;text-transform: uppercase;text-align: center;} .tableCellGroupTitleContent {border: 1px solid #fbfbfb;padding: 3px 0px 3px 15px;vertical-align: middle;background-color: #fafafa;width: 50%;}</style>`;
+        <h6 class='tt-title-sub text-center mb-2'>BÚSQUEDAS RELACIONADAS</h6>
+        <a class="btn btn-outline-primary mr-1 mb-2" href="https://digitalsolutions.com.sv/collections/${commonNameSlug}">${commonName}</a>
+        <a class="btn btn-outline-primary mr-1 mb-2" href="https://digitalsolutions.com.sv/collections/${brandSlug}">${brand}</a>${tags}</div>`;
+    }
+
+    generateShortDescription(product: ShopinguiProduct) {
+        /* 
+        <p>
+            <strong>Almacenamiento</strong>
+            <br>&nbsp;&nbsp;&nbsp;&nbsp;&bull;&nbsp;&nbsp;<em>256GB SATA</em>
+            <br><br>
+        </p>
+        */
+        let metadataString = '';
+        let featureString = '';
+        let htmlString = '<p>';
+        const groupIds = [
+            ...new Set(
+                product.metadata
+                    .map((m: ShopinguiMetadata) => m.group?.id)
+                    .filter(Boolean),
+            ),
+        ];
+        const groupIdsLength = groupIds.length;
+        groupIds.map((groupId, index) => {
+            let groupName = '';
+            product.metadata.map(metadata => {
+                if (metadata.group?.id === groupId) {
+                    if (metadata.value !== '0') {
+                        metadataString += `<br>&nbsp;&nbsp;&nbsp;&nbsp;&bull;&nbsp;&nbsp;<strong>${metadata.name}</strong> : <em>${metadata.value}</em>`;
+                    } else {
+                        featureString += `<br>&nbsp;&nbsp;&nbsp;&nbsp;&bull;&nbsp;&nbsp;<strong>${metadata.name}</strong> : <em>&#10004</em>`;
+                    }
+                    groupName = `<strong>${metadata.group?.name}</strong>`;
+                }
+            });
+            htmlString += `<strong>${groupName}</strong><br>${metadataString}${featureString}`;
+            if (index < groupIdsLength) {
+                htmlString += `<br><br>`;
+            }
+        });
+        htmlString += '</p>';
+        return htmlString;
+    }
+
+    generateTitle(product: ShopinguiProduct) {
+        const commonName = product.commonName[0].name;
+        const brand = product.brand?.name;
+        const skuMpn = product.sku ?? product.mpn;
+        return `${commonName} ${brand} ${skuMpn}`;
     }
 }
