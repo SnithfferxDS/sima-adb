@@ -9,12 +9,16 @@ import {
     Brands,
     ProductCategories,
     ProductTypes,
-    MetadataProductAsociations,
+    TMetadataProductAsociations,
     TTagsProducts
 } from '@DB/shopify/db/schema';
+import type { ShopinguiBrand } from '@Types/shopingui/brands/schema';
+import type { ShopinguiCategory } from '@Types/shopingui/categories/schema';
 import type { ShopinguiMetadata } from '@Types/shopingui/metadata/MetadataSchema';
+import type { ShopinguiProductPrice } from '@Types/shopingui/product_price/schema';
+import type { ShopinguiProductType } from '@Types/shopingui/product_types/shcema';
 import type { ShopinguiProduct } from '@Types/shopingui/products/ProductSchema';
-import { like, or, eq } from 'drizzle-orm';
+import { like, or, eq, and } from 'drizzle-orm';
 import slugify from 'slugify';
 
 export class ShopinguiService {
@@ -38,6 +42,14 @@ export class ShopinguiService {
     }
 
     async addProductFromDS(product: ShopinguiProduct) {
+        // console.log(product);
+        if (!product.upc) {
+            return null;
+        }
+        const productExists = await db.select().from(Products).where(eq(Products.upc, product.upc));
+        if (productExists.length > 0) {
+            return productExists;
+        }
         const productWeight = this.extractWeight(product.weight);
         let wUnit = productWeight.unit, weight = productWeight.weight;
         if (wUnit === 'kg') {
@@ -52,76 +64,80 @@ export class ShopinguiService {
         // Insert product information
         const productDb = await db.insert(Products).values({
             name: this.generateTitle(product),
-            upc: product.upc as string,
-            sku: product.sku as string,
-            mpn: product.mpn as string,
             handle: this.generateHandle(product),
             longDescription: this.generateLongDescription(product),
             shortDescription: this.generateShortDescription(product),
-            tags: JSON.stringify(product.tags)
+            tags: JSON.stringify(product.tags),
+            sku: product.sku as string,
+            mpn: product.mpn as string,
+            upc: product.upc as string,
+            ean: product.upc as string,
+            weight: weight,
+            weightUnit: wUnit,
+            warranty: product.defaultWarranty as number
         }).returning();
 
         if (productDb) {
             let brandId = 0;
             let categoryId = 0;
             let productTypeId = 0;
+            let productPriceId = 0;
             // check if brand exists
             if (product.brand) {
-                const brand = await db
-                    .select()
-                    .from(Brands)
-                    .where(eq(Brands.name, product.brand.name));
-                if (brand.length === 0) {
-                    const brandDb = await db.insert(Brands).values({
-                        name: product.brand.name
-                    }).returning();
-                    brandId = brandDb[0].id;
-                } else {
-                    brandId = brand[0].id;
+                const brandDb = await this.saveBrand({
+                    id: null,
+                    name: product.brand.name as string,
+                    description: null, logo: null, active: true, createdAt: null, updatedAt: null
+                });
+                if (brandDb) {
+                    brandId = brandDb.id;
                 }
             }
             // Check if Category exists
             if (product.category) {
-                const category = await db
-                    .select()
-                    .from(ProductCategories)
-                    .where(eq(ProductCategories.name, product.category.name));
-                if (category.length === 0) {
-                    await db.insert(ProductCategories).values({
-                        name: product.category.name,
-                        client: product.category.client || 4
-                    }).returning();
-                    categoryId = category[0].id;
-                } else {
-                    categoryId = category[0].id;
+                const category = await this.saveCategory({
+                    name: product.category.name,
+                    client: product.category.client || 4,
+                    id: null, slug: null, description: null, parents: null,
+                    active: true, createdAt: null, updatedAt: null
+                });
+                if (category) {
+                    categoryId = category.id;
                 }
             }
             // Check if ProductType exists
             if (product.productType && product.productType.name) {
-                const productType = await db
-                    .select()
-                    .from(ProductTypes)
-                    .where(eq(ProductTypes.name, product.productType.name));
-                if (productType.length === 0) {
-                    const productTypeDb = await db.insert(ProductTypes).values({
-                        name: product.productType.name,
-                        category: categoryId
-                    }).returning();
-                    productTypeId = productTypeDb[0].id;
-                } else {
-                    productTypeId = productType[0].id;
+                const productType = await this.saveProductType({
+                    name: product.productType.name,
+                    category: categoryId,
+                    id: null, createdAt: null, updatedAt: null
+                });
+                if (productType) {
+                    productTypeId = productType.id;
                 }
             }
             // Adding product price
             if (product.price) {
-                const dsPrice = product.price;
-                const productPrice = await db.insert(TPrices).values({
-                    cost: dsPrice.cost,
-                    added: dsPrice.added?.value ?? 0,
-                    value: dsPrice.value,
-                    asigned_by: dsPrice.added?.asignedBy ?? 'Sin Información',
-                    active: true,
-                }).returning();
+                const productPriceExists = await this.saveProductPrice(
+                    productDb[0].id, {
+                    cost: product.price.cost,
+                    added: {
+                        value: product.price.added?.value ?? 0,
+                        asignedBy: product.price.added?.asignedBy ?? 'Sin Información'
+                    },
+                    value: product.price.value,
+                    category: product.priceCategory ?? 4,
+                    store: {
+                        regular_price: product.store.price.value,
+                        sale_price: product.store.price.value,
+                        offer: product.store.price.offer,
+                        price_category: product.priceCategory ?? 4
+                    },
+                    active: true
+                });
+                if (productPriceExists) {
+                    productPriceId = productPriceExists.id;
+                }
             }
             // Adding product stocks
             if (product.stocks) {
@@ -146,63 +162,29 @@ export class ShopinguiService {
             if (product.metadata) {
                 product.metadata.map(async metadata => {
                     if (metadata.name !== null && metadata.name !== '') {
-                        const productMetadataExists = await db.select().from(TMetadatas).where(eq(TMetadatas.name, metadata.name));
-                        if (!productMetadataExists) {
-                            const productMetadata = await db.insert(TMetadatas).values({
-                                name: metadata.name as string,
-                                position: metadata.position,
-                                active: metadata.active,
-                                is_feature: metadata.isFeature && metadata.isFeature == 1 ? true : false,
-                                tooltip: metadata.tooltip,
-                                format: metadata.format,
-                                allow_description: metadata.allowDescription,
-                                group_id: metadata.group?.id,
-                            }).returning();
-
-                            if (productMetadata) {
-                                if (metadata.value !== '') {
-                                    await db.insert(MetadataProductAsociations).values({
-                                        metadata_id: productMetadata[0].id,
-                                        product_id: productDb[0].id,
-                                        content: metadata.value,
-                                        active: metadata.active,
-                                        allowDescription: metadata.allowDescription,
-                                    });
-                                }
-                            }
-                        } else {
-                            if (metadata.value !== '') {
-                                await db.insert(MetadataProductAsociations).values({
-                                    metadata_id: productMetadataExists[0].id,
-                                    product_id: productDb[0].id,
-                                    content: metadata.value,
-                                    active: metadata.active,
-                                    allowDescription: metadata.allowDescription,
-                                });
-                            }
-                        }
+                        const productMetadataExists = await this.saveProductMetadata(productDb[0].id, metadata);
                     }
                 });
             }
             // saving tags if not exists
             if (product.tags) {
-                product.tags.map(async tag => {
-                    const tagExists = await db.select().from(Tags).where(eq(Tags.name, tag));
-                    if (!tagExists) {
-                        const tagDb = await db.insert(Tags).values({
-                            name: tag,
-                        }).returning();
-                        await db.insert(TTagsProducts).values({
-                            tag_id: tagDb[0].id,
-                            product_id: productDb[0].id,
-                        });
+                product.tags.map(async (tag: string) => {
+                    const tagDb = await this.saveTags(tag);
+                    if (tagDb) {
+                        await this.relateProductTags(productDb[0].id, tagDb.id);
                     }
-                    await db.insert(TTagsProducts).values({
-                        tag_id: tagExists[0].id,
-                        product_id: productDb[0].id,
-                    });
                 });
             }
+            // Product Relations
+            const productRelations = await this.saveProductRelations(productDb[0].id,
+                {
+                    brand: brandId,
+                    category: categoryId,
+                    product_type: productTypeId,
+                    price: productPriceId,
+                    store: (product.store.id as unknown) as number,
+                    dsin: product.id,
+                });
             return productDb[0];
         }
         return null;
@@ -363,5 +345,203 @@ export class ShopinguiService {
         const brand = product.brand?.name;
         const skuMpn = product.sku ?? product.mpn;
         return `${commonName} ${brand} ${skuMpn}`;
+    }
+
+    async saveBrand(brand: ShopinguiBrand) {
+        const brandExists = await db.select()
+            .from(Brands)
+            .where(eq(Brands.name, brand.name as string));
+        if (brandExists.length === 0) {
+            const brandDb = await db.insert(Brands).values({
+                name: brand.name as string,
+            }).returning();
+            if (brandDb.length > 0) {
+                return brandDb[0];
+            }
+        }
+        return brandExists[0];
+    }
+
+    async saveCategory(category: ShopinguiCategory) {
+        const categoryExists = await db.select()
+            .from(ProductCategories)
+            .where(eq(ProductCategories.name, category.name as string));
+        if (categoryExists.length === 0) {
+            const categoryDb = await db.insert(ProductCategories)
+                .values({
+                    name: category.name as string,
+                    client: category.client as number,
+                }).returning();
+            if (categoryDb.length > 0) {
+                return categoryDb[0];
+            }
+        }
+        return categoryExists[0];
+    }
+
+    async saveProductType(productType: ShopinguiProductType) {
+        const productTypeExists = await db.select()
+            .from(ProductTypes)
+            .where(eq(ProductTypes.name, productType.name as string));
+        if (productTypeExists.length === 0) {
+            const productTypeDb = await db.insert(ProductTypes)
+                .values({
+                    name: productType.name as string,
+                    category: productType.category as number,
+                }).returning();
+            if (productTypeDb.length > 0) {
+                return productTypeDb[0];
+            }
+        }
+        return productTypeExists[0];
+    }
+
+    async saveProductPrice(product: number, price: ShopinguiProductPrice) {
+        const productPriceExists = await db.select({
+            id: TProductRelations.price
+        })
+            .from(TProductRelations)
+            .where(eq(TProductRelations.product_id, product));
+        if (productPriceExists.length === 0) {
+            const productPrice = await db.insert(TPrices).values({
+                cost: price.cost,
+                added: price.added.value,
+                value: price.value,
+                asigned_by: price.added.asignedBy,
+                active: true,
+                category: price.category,
+                regularPrice: price.store.regular_price,
+                salePrice: price.store.sale_price,
+                offer: price.store.offer,
+            }).returning();
+            if (productPrice.length > 0) {
+                return productPrice[0];
+            }
+        }
+        return productPriceExists[0];
+    }
+
+    async updateProductPrice(price: number, data: ShopinguiProductPrice) {
+        const productPriceUpdated = await db.update(TPrices)
+            .set({
+                cost: data.cost,
+                added: data.added.value,
+                value: data.value,
+                asigned_by: data.added.asignedBy,
+                active: true,
+                category: data.category,
+                regularPrice: data.store.regular_price,
+                salePrice: data.store.sale_price,
+                offer: data.store.offer,
+            }).where(eq(TPrices.id, price));
+        if (productPriceUpdated) {
+            return true;
+        }
+        return false;
+    }
+
+    async saveTags(tag: string) {
+        const tagExists = await db.select().from(Tags).where(eq(Tags.name, tag));
+        if (!tagExists) {
+            const tagDb = await db.insert(Tags).values({
+                name: tag,
+            }).returning();
+            return tagDb[0];
+        }
+        return tagExists[0];
+    }
+
+    async relateProductTags(product: number, tag: number) {
+        return await db.insert(TTagsProducts).values({
+            tag_id: tag,
+            product_id: product,
+        });
+    }
+
+    async saveProductRelations(product: number, relations: {
+        brand: number,
+        category: number,
+        product_type: number,
+        price: number,
+        store: number,
+        dsin: number,
+    }) {
+        const productRelationsExists = await db.select().from(TProductRelations).where(eq(TProductRelations.product_id, product));
+        if (productRelationsExists.length === 0) {
+            const productRelations = await db.insert(TProductRelations).values({
+                product_id: product,
+                brand_id: relations.brand,
+                product_type_id: relations.product_type,
+                price: relations.price,
+                store: relations.store,
+                dsin: relations.dsin,
+                status_id: 1,
+            }).returning();
+            return productRelations[0];
+        }
+        return productRelationsExists[0];
+    }
+
+    // async saveProductStocks(product: number, stocks: ShopinguiProductStocks) {
+    //     const productStocksExists = await db.select().from(Stocks).where(eq(Stocks.product_id, product));
+    //     if (productStocksExists.length === 0) {
+    //         const productStocks = await db.insert(Stocks).values({
+    //             product_id: product,
+    //             min: stocks.min,
+    //             max: stocks.max,
+    //             qnt: stocks.qnt,
+    //             sucursal: stocks.sucursal,
+    //         }).returning();
+    //         return productStocks[0];
+    //     }
+    //     return productStocksExists[0];
+    // }
+
+    async saveProductMetadata(product: number, metadata: ShopinguiMetadata) {
+        const productMetadataExists = await db.select().from(TMetadatas).where(eq(TMetadatas.name, metadata.name as string));
+        if (productMetadataExists.length === 0) {
+            const productMetadata = await db.insert(TMetadatas).values({
+                name: metadata.name as string,
+                position: metadata.position as number,
+                active: metadata.active == 1 ? true : false,
+                is_feature: metadata.isFeature == 1 ? true : false,
+                tooltip: metadata.tooltip as string,
+                format: metadata.format as string,
+                id_group: parseInt(metadata.group?.id as string),
+            }).returning();
+
+            if (productMetadata) {
+                if (metadata.value !== '') {
+                    await this.saveProductMetadataRelations(
+                        productMetadata[0].id as number,
+                        product,
+                        metadata.value as string,
+                        metadata.active == 1 ? true : false,
+                        metadata.allowDescription == 1 ? true : false);
+                }
+            }
+            return productMetadata[0];
+        }
+        return productMetadataExists[0];
+    }
+
+    async saveProductMetadataRelations(metadata: number, product: number, content: string, active: boolean, allowDescription: boolean) {
+        const productMetadataRelationExists = await db.select()
+            .from(TMetadataProductAsociations)
+            .where(and(
+                eq(TMetadataProductAsociations.metadata_id, metadata),
+                eq(TMetadataProductAsociations.product_id, product),
+            ));
+        if (productMetadataRelationExists.length === 0) {
+            if (content !== '') {
+                await db.insert(TMetadataProductAsociations).values({
+                    metadata_id: metadata,
+                    product_id: product,
+                    content: content,
+                    active: active,
+                    allowDescription: allowDescription,
+                });
+            }
+        }
     }
 }
