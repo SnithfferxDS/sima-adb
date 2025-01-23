@@ -268,6 +268,10 @@ export const TPrices = sqliteTable('tmp_prices', {
     value: integer({ mode: 'number' }).notNull(),
     asigned_by: text('asigned_by').notNull(),
     active: integer({ mode: 'boolean' }).notNull(),
+    regularPrice: integer({ mode: 'number' }).notNull(),
+    salePrice: integer({ mode: 'number' }).notNull(),
+    offer: integer({ mode: 'boolean' }).notNull(),
+    category: integer({ mode: 'number' }).notNull(),
     created_at: text('created_at').default(sql`(CURRENT_TIME)`),
     updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
 });
@@ -304,4 +308,17 @@ export const TTagsProducts = sqliteTable('tmp_tags_products', {
     product_id: integer().notNull(),
     created_at: text('created_at').default(sql`(CURRENT_TIME)`),
     updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
+});
+
+export const TOffers = sqliteTable('tmp_offers', {
+    id: integer().primaryKey(),
+    offerId: integer().notNull().default(1),
+    productId: integer().notNull(),
+    startDate: integer('start_date', { mode: 'timestamp' }).notNull().default(sql`(CURRENT_TIME)`),
+    endDate: integer('end_date', { mode: 'timestamp' }).notNull().default(sql`(CURRENT_TIME)`),
+    closeDate: integer('close_date', { mode: 'timestamp' }).notNull().default(sql`(CURRENT_TIME)`),
+    status: integer().notNull().default(1),
+    deletedAt: integer().notNull(),
+    createdAt: text('created_at').default(sql`(CURRENT_TIME)`),
+    updatedAt: text('updated_at').default(sql`(CURRENT_TIME)`)
 });
