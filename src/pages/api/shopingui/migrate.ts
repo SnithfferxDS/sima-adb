@@ -55,10 +55,13 @@ export const GET: APIRoute = async ({ request }) => {
                 currentPage += parseInt(productsData.current);
                 try {
                     const products = await Promise.all(
-                        productsData.data.map(async (product: ShopinguiProduct) =>
-                            await shopinguiServices.addProductFromDS(product))
-                    )
-                        .catch((err) => console.log("Error: ", err));
+                        productsData.data.map(async (product: ShopinguiProduct) => {
+                            if (product !== null) {
+                                return await shopinguiServices.addProductFromDS(product);
+                            }
+                        }
+                        )
+                    ).catch((err) => console.log("Error: ", err));
                     if (products) {
                         console.info("Product Migrated: ", currentPage);
                     }
@@ -66,14 +69,14 @@ export const GET: APIRoute = async ({ request }) => {
                     throw new Error("Error: " + error);
                 }
             } else {
-                if (currentPage < totalPages) {
+                if (currentPage < 100) {
                     throw new Error("Failed to create product");
                 } else {
                     console.info("All products migrated");
                     break;
                 }
             }
-        } while (currentPage <= totalPages);
+        } while (currentPage <= 100);
         return new Response(JSON.stringify({ success: true }), { status: 201 });
     } catch (error) {
         return new Response(JSON.stringify({ error: 'Failed to create product' }), { status: 500 });

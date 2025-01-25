@@ -46,7 +46,7 @@ export class ShopinguiService {
         if (!product.upc) {
             return null;
         }
-        const productExists = await db.select().from(Products).where(eq(Products.upc, product.upc));
+        const productExists = await db.select().from(Products).where(eq(Products.upc, product.upc as string));
         if (productExists.length > 0) {
             return productExists;
         }
