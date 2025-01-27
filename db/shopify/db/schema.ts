@@ -2,7 +2,7 @@ import { sql } from 'drizzle-orm';
 import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
 
 export const Products = sqliteTable('products', {
-    id: integer({ mode: 'number' }).primaryKey(),
+    id: integer({ mode: 'number' }).primaryKey({ autoIncrement: true }),
     name: text('name').notNull(),
     handle: text('hadle'),
     longDescription: text('long_description'),
@@ -18,7 +18,7 @@ export const Products = sqliteTable('products', {
     width: real(),
     height: real(),
     length: real(),
-    warranty: integer({ mode: 'number' }),
+    warranty: integer({ mode: 'number' }).default(0),
     innerDiameter: real('inner_diameter'),
     outerDiameter: real('outer_diameter'),
     measureUnit: text('measure_unit'),
@@ -44,7 +44,7 @@ export const ProductRelations = sqliteTable('product_relations', {
     images: text('images').notNull(),
     prices: text('prices').notNull(),
     stocks: text('stocks').notNull(),
-    store: integer({ mode: 'number' }),
+    store: text(),
     createdAt: text('created_at').default(sql`(CURRENT_TIME)`),
     updatedAt: text('updated_at').default(sql`(CURRENT_TIME)`),
     deletedAt: text('deleted_at').default(sql`(CURRENT_TIME)`)
@@ -118,16 +118,16 @@ export const Metadatas = sqliteTable('metadatas', {
     is_feature: integer({ mode: 'boolean' }).default(false),
     format: text(),
     tooltip: text(),
-    id_group: integer(),
+    id_group: integer({ mode: 'number' }).default(1),
     created_at: text('created_at').default(sql`(CURRENT_TIME)`),
     updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
 });
 
 export const Prices = sqliteTable('prices', {
     id: integer().primaryKey(),
-    cost: integer({ mode: 'number' }).notNull(),
-    added: integer({ mode: 'number' }).notNull(),
-    value: integer({ mode: 'number' }).notNull(),
+    cost: real().notNull().default(0.0),
+    added: real().notNull().default(0.0),
+    value: real().notNull().default(0.0),
     asigned_by: text('asigned_by').notNull(),
     active: integer({ mode: 'boolean' }).default(true),
     created_at: text('created_at').default(sql`(CURRENT_TIME)`),
@@ -145,7 +145,7 @@ export const TagsProducts = sqliteTable('tags_products', {
 export const StoreInformation = sqliteTable('store_information', {
     id: integer().primaryKey(),
     name: text('name').notNull(),
-    price: integer({ mode: 'number' }).notNull(),
+    price: real().notNull().default(0.0),
     priceType: integer('price_type', { mode: 'number' }).notNull(),
     offer: integer({ mode: 'boolean' }).notNull(),
     status: text('status').notNull().default('1'),
@@ -230,7 +230,7 @@ export const TProductRelations = sqliteTable('tmp_product_relations', {
     status_id: integer({ mode: 'number' }).notNull(),
     variants_id: integer({ mode: 'number' }),
     price: integer({ mode: 'number' }).notNull(),
-    store: integer({ mode: 'number' }),
+    store: text(),
     dsin: integer({ mode: 'number' }).notNull(),
     product_type_id: integer({ mode: 'number' }).notNull(),
     created_at: text('created_at').default(sql`(CURRENT_TIME)`),
@@ -263,13 +263,13 @@ export const TMetadatas = sqliteTable('tmp_metadatas', {
 
 export const TPrices = sqliteTable('tmp_prices', {
     id: integer({ mode: 'number' }).primaryKey(),
-    cost: integer({ mode: 'number' }).notNull(),
-    added: integer({ mode: 'number' }).notNull(),
-    value: integer({ mode: 'number' }).notNull(),
+    cost: real().notNull().default(0.0),
+    added: real().notNull().default(0.0),
+    value: real().notNull().default(0.0),
     asigned_by: text('asigned_by').notNull(),
     active: integer({ mode: 'boolean' }).notNull(),
-    regularPrice: integer({ mode: 'number' }).notNull(),
-    salePrice: integer({ mode: 'number' }).notNull(),
+    regularPrice: real().notNull().default(0.0),
+    salePrice: real().notNull().default(0.0),
     offer: integer({ mode: 'boolean' }).notNull(),
     category: integer({ mode: 'number' }).notNull(),
     created_at: text('created_at').default(sql`(CURRENT_TIME)`),
@@ -290,7 +290,7 @@ export const TMetadataProductAsociations = sqliteTable('tmp_metadata_product_aso
 export const TStoreInformation = sqliteTable('tmp_store_information', {
     id: integer().primaryKey(),
     name: text('name').notNull(),
-    price: integer({ mode: 'number' }).notNull(),
+    price: real().notNull().default(0.0),
     priceType: integer('price_type', { mode: 'number' }).notNull(),
     offer: integer({ mode: 'boolean' }).notNull(),
     status: text('status').notNull().default('1'),

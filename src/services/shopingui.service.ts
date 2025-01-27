@@ -14,6 +14,7 @@ import {
 } from '@DB/shopify/db/schema';
 import type { ShopinguiBrand } from '@Types/shopingui/brands/schema';
 import type { ShopinguiCategory } from '@Types/shopingui/categories/schema';
+import type { ShopinguiCommonName } from '@Types/shopingui/common_name';
 import type { ShopinguiMetadata } from '@Types/shopingui/metadata/MetadataSchema';
 import type { ShopinguiProductPrice } from '@Types/shopingui/product_price/schema';
 import type { ShopinguiProductType } from '@Types/shopingui/product_types/shcema';
@@ -42,7 +43,7 @@ export class ShopinguiService {
     }
 
     async addProductFromDS(product: ShopinguiProduct) {
-        // console.log(product);
+        console.log("product", product.id);
         if (!product.upc) {
             return null;
         }
@@ -51,16 +52,18 @@ export class ShopinguiService {
             return productExists;
         }
         const productWeight = this.extractWeight(product.weight);
+        console.log("productWeight", productWeight);
         let wUnit = productWeight.unit, weight = productWeight.weight;
         if (wUnit === 'kg') {
-            weight = Number(productWeight) * 1000;
+            weight = Number(weight) * 1000;
         } else if (wUnit === 'lb') {
-            weight = Number(productWeight) * 2.20462;
+            weight = Number(weight) * 2.20462;
         } else if (wUnit === 'oz') {
-            weight = Number(productWeight) * 28.3495;
+            weight = Number(weight) * 28.3495;
         } else {
-            weight = Number(productWeight);
+            weight = Number(weight);
         }
+        console.log("weight", weight);
         // Insert product information
         const productDb = await db.insert(Products).values({
             name: this.generateTitle(product),
@@ -78,6 +81,7 @@ export class ShopinguiService {
         }).returning();
 
         if (productDb) {
+
             let brandId = 0;
             let categoryId = 0;
             let productTypeId = 0;
@@ -117,7 +121,7 @@ export class ShopinguiService {
                 }
             }
             // Adding product price
-            if (product.price) {
+            if (product.price !== null) {
                 const productPriceExists = await this.saveProductPrice(
                     productDb[0].id, {
                     cost: product.price.cost,
@@ -141,15 +145,15 @@ export class ShopinguiService {
             }
             // Adding product stocks
             if (product.stocks) {
-                /* product.stocks.sucursals.map(sucursalStock => {
-                    const productStocks = await db.insert(Stocks).values({
-                        product_id: productDb[0].id,
-                        min: product.min ?? 0,
-                        max: product.max ?? 0,
-                        qnt: sucursalStock.stocks[0].qnt,
-                        sucursal: sucursalStock.name,
-                    })
-                }); */
+                // product.stocks.sucursals.map(sucursalStock => {
+                //     const productStocks = await db.insert(Stocks).values({
+                //         product_id: productDb[0].id,
+                //         min: product.min ?? 0,
+                //         max: product.max ?? 0,
+                //         qnt: sucursalStock.stocks[0].qnt,
+                //         sucursal: sucursalStock.name,
+                //     })
+                // });
                 // const productStocks = await db.insert(Stocks).values({
                 //     product_id: productDb[0].id,
                 //     min: product.stocks?.min ?? 0,
@@ -182,9 +186,10 @@ export class ShopinguiService {
                     category: categoryId,
                     product_type: productTypeId,
                     price: productPriceId,
-                    store: (product.store.id as unknown) as number,
+                    store: (product.store.id as unknown) as string,
                     dsin: product.id,
                 });
+
             return productDb[0];
         }
         return null;
@@ -203,18 +208,20 @@ export class ShopinguiService {
      */
     extractWeight(weight: string | null | undefined) {
         let w = 0, u = '';
-        if (!weight) return { weight: 0.0, unit: 'g' };
-        // weight: "2.1kg" || "2.1lb" || "2.1oz" || "2.1g" || "2.1"
+        if (weight == null || weight == undefined || weight == '') return { weight: 0.0, unit: 'g' };
+        // weight: "2.1kg" || "2.1lb" || "2.1oz" || "2.1g" || "2.1" || "2.1 lb"
         // substract from the last two characters
-        const lastChar = weight.substring(-1, -2);
-        const pLastChar = weight.substring(-2, -3);
+        const lastChar = weight.substring(weight.length - 1, weight.length);
+        // console.log("lastChar", lastChar);
+        const pLastChar = weight.substring(weight.length - 2, weight.length);
+        // console.log("pLastChar", pLastChar);
         if (isNaN(Number(lastChar))) {
             if (isNaN(Number(pLastChar))) {
-                u.concat(pLastChar, lastChar);
-                w = Number(weight.substring(-2));
+                u += pLastChar + lastChar;
+                w = Number(weight.substring(weight.length - 2, weight.length - 1).trim());
             } else {
-                u.concat(lastChar);
-                w = Number(weight.substring(-1));
+                u += lastChar;
+                w = Number(weight.substring(weight.length - 1, weight.length).trim());
             }
         } else {
             if (isNaN(Number(pLastChar)) && pLastChar === '.') {
@@ -235,8 +242,12 @@ export class ShopinguiService {
      * @returns The generated slug.
      */
     generateHandle(product: ShopinguiProduct) {
-        const commonName = product.commonName[0].name;
-        const brand = product.brand?.name;
+        let commonName = 'Sin Nombre Común';
+        let common: ShopinguiCommonName | null = product.commonName.length > 0 ? product.commonName[0] : null;
+        if (common !== null) {
+            commonName = common.name ?? 'Sin Nombre Común';
+        }
+        const brand = product.brand?.name ?? '';
         let skuMpn = '';
         if (product.sku) {
             skuMpn = product.sku;
@@ -285,7 +296,11 @@ export class ShopinguiService {
                 contentTable += `<tr><td class="tableCellGroupTitle">${groupName}</td><td class="tableCellGroupTitleContent"></td>${metadataString}${featureString}</tr>`;
             });
         }
-        const commonName = product.commonName[0].name;
+        let commonName = 'Sin Nombre Común';
+        let common: ShopinguiCommonName | null = product.commonName.length > 0 ? product.commonName[0] : null;
+        if (common !== null) {
+            commonName = common.name ?? 'Sin Nombre Común';
+        }
         const commonNameSlug = slugify(commonName);
         const brand = product.brand?.name;
         const brandSlug = slugify(`${commonName} ${brand}`);
@@ -341,9 +356,20 @@ export class ShopinguiService {
     }
 
     generateTitle(product: ShopinguiProduct) {
-        const commonName = product.commonName[0].name;
-        const brand = product.brand?.name;
-        const skuMpn = product.sku ?? product.mpn;
+        let commonName = 'Sin Nombre Común';
+        let common: ShopinguiCommonName | null = product.commonName.length > 0 ? product.commonName[0] : null;
+        if (common !== null) {
+            commonName = common.name ?? 'Sin Nombre Común';
+        }
+        const brand = product.brand?.name ?? '';
+        let skuMpn = '';
+        if (product.sku) {
+            skuMpn = product.sku;
+        } else {
+            if (product.mpn) {
+                skuMpn = product.mpn;
+            }
+        }
         return `${commonName} ${brand} ${skuMpn}`;
     }
 
@@ -397,6 +423,7 @@ export class ShopinguiService {
     }
 
     async saveProductPrice(product: number, price: ShopinguiProductPrice) {
+        console.log("price", price);
         const productPriceExists = await db.select({
             id: TProductRelations.price
         })
@@ -463,9 +490,10 @@ export class ShopinguiService {
         category: number,
         product_type: number,
         price: number,
-        store: number,
+        store: string,
         dsin: number,
     }) {
+        console.log("relations", relations);
         const productRelationsExists = await db.select().from(TProductRelations).where(eq(TProductRelations.product_id, product));
         if (productRelationsExists.length === 0) {
             const productRelations = await db.insert(TProductRelations).values({
