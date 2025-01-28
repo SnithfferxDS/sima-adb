@@ -15,7 +15,7 @@ import {
 import type { ShopinguiBrand } from '@Types/shopingui/brands/schema';
 import type { ShopinguiCategory } from '@Types/shopingui/categories/schema';
 import type { ShopinguiCommonName } from '@Types/shopingui/common_name';
-import type { ShopinguiMetadata } from '@Types/shopingui/metadata/MetadataSchema';
+import type { ShopinguiMetadata, ShopinguiMetadatas } from '@Types/shopingui/metadata/MetadataSchema';
 import type { ShopinguiProductPrice } from '@Types/shopingui/product_price/schema';
 import type { ShopinguiProductType } from '@Types/shopingui/product_types/shcema';
 import type { ShopinguiProduct } from '@Types/shopingui/products/ProductSchema';
@@ -51,19 +51,18 @@ export class ShopinguiService {
         if (productExists.length > 0) {
             return productExists;
         }
-        const productWeight = this.extractWeight(product.weight);
-        console.log("productWeight", productWeight);
-        let wUnit = productWeight.unit, weight = productWeight.weight;
-        if (wUnit === 'kg') {
-            weight = Number(weight) * 1000;
-        } else if (wUnit === 'lb') {
-            weight = Number(weight) * 2.20462;
-        } else if (wUnit === 'oz') {
-            weight = Number(weight) * 28.3495;
-        } else {
-            weight = Number(weight);
-        }
-        console.log("weight", weight);
+        // const productWeight = this.extractWeight(product.weight);
+        // let wUnit = productWeight.unit, weight = isNaN(productWeight.weight) ? 0 : productWeight.weight;
+        // if (wUnit === 'kg') {
+        //     weight = Number(weight) * 1000;
+        // } else if (wUnit === 'lb') {
+        //     weight = Number(weight) * 2.20462;
+        // } else if (wUnit === 'oz') {
+        //     weight = Number(weight) * 28.3495;
+        // } else {
+        //     weight = Number(weight);
+        // }
+        // console.log("weight", weight);
         // Insert product information
         const productDb = await db.insert(Products).values({
             name: this.generateTitle(product),
@@ -75,8 +74,8 @@ export class ShopinguiService {
             mpn: product.mpn as string,
             upc: product.upc as string,
             ean: product.upc as string,
-            weight: weight,
-            weightUnit: wUnit,
+            weight: 0.0,
+            weightUnit: "g",
             warranty: product.defaultWarranty as number
         }).returning();
 
@@ -86,7 +85,7 @@ export class ShopinguiService {
             let categoryId = 0;
             let productTypeId = 0;
             let productPriceId = 0;
-            // check if brand exists
+            // check if brand
             if (product.brand) {
                 const brandDb = await this.saveBrand({
                     id: null,
@@ -164,32 +163,22 @@ export class ShopinguiService {
             }
             // Adding product metadata
             if (product.metadata) {
-                product.metadata.map(async metadata => {
-                    if (metadata.name !== null && metadata.name !== '') {
-                        const productMetadataExists = await this.saveProductMetadata(productDb[0].id, metadata);
-                    }
-                });
+                await this.saveProductMetadata(productDb[0].id, product.metadata);
             }
             // saving tags if not exists
             if (product.tags) {
-                product.tags.map(async (tag: string) => {
-                    const tagDb = await this.saveTags(tag);
-                    if (tagDb) {
-                        await this.relateProductTags(productDb[0].id, tagDb.id);
-                    }
-                });
+                await this.saveTags(product.id, product.tags);
             }
             // Product Relations
-            const productRelations = await this.saveProductRelations(productDb[0].id,
-                {
-                    brand: brandId,
-                    category: categoryId,
-                    product_type: productTypeId,
-                    price: productPriceId,
-                    store: (product.store.id as unknown) as string,
-                    dsin: product.id,
-                });
-
+            const productRelations = await this.saveProductRelations(productDb[0].id, {
+                brand: brandId,
+                category: categoryId,
+                product_type: productTypeId,
+                price: productPriceId,
+                store: (product.store.id as unknown) as string,
+                dsin: product.id,
+            });
+            // Return Product
             return productDb[0];
         }
         return null;
@@ -467,15 +456,27 @@ export class ShopinguiService {
         return false;
     }
 
-    async saveTags(tag: string) {
-        const tagExists = await db.select().from(Tags).where(eq(Tags.name, tag));
-        if (!tagExists) {
-            const tagDb = await db.insert(Tags).values({
-                name: tag,
-            }).returning();
-            return tagDb[0];
-        }
-        return tagExists[0];
+    async saveTags(product: number, tags: string[]) {
+        const result = await Promise.all(tags.map(async tag => {
+            const tagExists = await db
+                .select()
+                .from(Tags)
+                .where(eq(Tags.name, tag));
+            if (tagExists.length === 0) {
+                const tagDb = await db.insert(Tags).values({
+                    name: tag,
+                }).returning();
+                if (tagDb.length > 0) {
+                    await this.relateProductTags(product, tagDb[0].id);
+                    return tagDb[0];
+                }
+            } else {
+                const tagData = tagExists[0];
+                await this.relateProductTags(product, tagData.id);
+                return tagData;
+            }
+        }));
+        return result;
     }
 
     async relateProductTags(product: number, tag: number) {
@@ -525,32 +526,47 @@ export class ShopinguiService {
     //     return productStocksExists[0];
     // }
 
-    async saveProductMetadata(product: number, metadata: ShopinguiMetadata) {
-        const productMetadataExists = await db.select().from(TMetadatas).where(eq(TMetadatas.name, metadata.name as string));
-        if (productMetadataExists.length === 0) {
-            const productMetadata = await db.insert(TMetadatas).values({
-                name: metadata.name as string,
-                position: metadata.position as number,
-                active: metadata.active == 1 ? true : false,
-                is_feature: metadata.isFeature == 1 ? true : false,
-                tooltip: metadata.tooltip as string,
-                format: metadata.format as string,
-                id_group: parseInt(metadata.group?.id as string),
-            }).returning();
+    async saveProductMetadata(product: number, metadatas: ShopinguiMetadatas) {
+        const result = await Promise.all(metadatas.map(async metadata => {
+            const metadataExists = await db
+                .select()
+                .from(TMetadatas)
+                .where(eq(TMetadatas.name, metadata.name as string));
+            if (metadataExists.length === 0) {
+                const productMetadata = await db
+                    .insert(TMetadatas).values({
+                        name: metadata.name as string,
+                        position: metadata.position as number,
+                        active: metadata.active == 1 ? true : false,
+                        is_feature: metadata.isFeature == 1 ? true : false,
+                        tooltip: metadata.tooltip as string,
+                        format: metadata.format as string,
+                        id_group: parseInt(metadata.group?.id as string),
+                    }).returning();
 
-            if (productMetadata) {
+                if (productMetadata) {
+                    if (metadata.value !== '') {
+                        await this.saveProductMetadataRelations(
+                            productMetadata[0].id as number,
+                            product,
+                            metadata.value as string,
+                            metadata.active == 1 ? true : false,
+                            metadata.allowDescription == 1 ? true : false);
+                    }
+                }
+                return productMetadata[0];
+            } else {
                 if (metadata.value !== '') {
                     await this.saveProductMetadataRelations(
-                        productMetadata[0].id as number,
+                        metadataExists[0].id as number,
                         product,
                         metadata.value as string,
                         metadata.active == 1 ? true : false,
                         metadata.allowDescription == 1 ? true : false);
                 }
             }
-            return productMetadata[0];
-        }
-        return productMetadataExists[0];
+        }));
+        return result;
     }
 
     async saveProductMetadataRelations(metadata: number, product: number, content: string, active: boolean, allowDescription: boolean) {

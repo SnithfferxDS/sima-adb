@@ -1,26 +1,25 @@
 ---
-import Layout from "@Layouts/app.layout.astro";
-import TransactionsList from "@Components/shopingui/dashboard/TransactionList.astro";
-import StatsCard from "@Components/dashboard/StatsCard.astro";
-import TrendChart from "@Components/shopingui/dashboard/TrendChart.astro";
-import SalesDonut from "@Components/shopingui/dashboard/SalesDonut.astro";
+import Layout from '@Layouts/app.layout.astro';
+import TransactionsList from '@Components/shopingui/dashboard/TransactionList.astro';
+import StatsCard from '@Components/dashboard/StatsCard.astro';
+import TrendChart from '@Components/shopingui/dashboard/TrendChart.astro';
+import SalesDonut from '@Components/shopingui/dashboard/SalesDonut.astro';
+import { db } from '@DB/shopify/db';
+import { count } from 'drizzle-orm';
+import { Products } from '@DB/shopify/db/schema';
+
+const countProduct = await db.select({ value: count() }).from(Products);
 ---
 
 <Layout title="Shopify">
 	<div class="px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
 		<div class="sm:flex sm:items-center">
 			<div class="sm:flex-auto">
-				<h1
-					class="text-2xl font-semibold text-slate-900 dark:text-white"
-				>
-					Dashboard
-				</h1>
+				<h1 class="text-2xl font-semibold text-slate-900 dark:text-white">Store Dashboard</h1>
 			</div>
 			<div class="mt-4 sm:mt-0 sm:ml-16 sm:flex-none">
 				<div class="relative">
-					<div
-						class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none"
-					>
+					<div class="absolute inset-y-0 start-0 flex items-center ps-3 pointer-events-none">
 						<svg
 							class="w-4 h-4 text-gray-500 dark:text-gray-400"
 							aria-hidden="true"
@@ -33,8 +32,7 @@ import SalesDonut from "@Components/shopingui/dashboard/SalesDonut.astro";
 								stroke-linecap="round"
 								stroke-linejoin="round"
 								stroke-width="2"
-								d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"
-							></path>
+								d="m19 19-4-4m0-7A7 7 0 1 1 1 8a7 7 0 0 1 14 0Z"></path>
 						</svg>
 					</div>
 					<input
@@ -73,36 +71,16 @@ import SalesDonut from "@Components/shopingui/dashboard/SalesDonut.astro";
 	</div>
 	<div class="mt-8 flex flex-col">
 		<div class="grid grid-cols-2 sm:grid-cols-4 gap-4">
-			<StatsCard
-				title="Ordenes de Compra"
-				value={`1000`}
-				className="bg-blue-500 text-white"
-			/>
-			<StatsCard
-				title="Clientes"
-				value={"250"}
-				className="bg-yellow-500 text-white"
-			/>
-			<StatsCard
-				title="Productos"
-				value={`1500`}
-				className="bg-red-500 text-white"
-			/>
-			<StatsCard
-				title="Churn Rate"
-				value={`25%`}
-				className="bg-teal-500 text-white"
-			/>
+			<StatsCard title="Ordenes de Compra" value={`1000`} className="bg-blue-500 text-white" />
+			<StatsCard title="Clientes" value={'250'} className="bg-yellow-500 text-white" />
+			<StatsCard title="Productos" value={countProduct[0].value} className="bg-red-500 text-white" />
+			<StatsCard title="Ventas" value={`25%`} className="bg-teal-500 text-white" />
 		</div>
 		<div class="mt-8 grid grid-cols-1 sm:grid-cols-2 gap-6">
-			<div
-				class="rounded-lg p-6 bg-gray-50/25 dark:bg-gray-800/25 shadow-md"
-			>
+			<div class="rounded-lg p-6 bg-gray-50/25 dark:bg-gray-800/25 shadow-md">
 				<TrendChart />
 			</div>
-			<div
-				class="rounded-lg p-6 bg-gray-50/25 dark:bg-gray-800/25 shadow-md"
-			>
+			<div class="rounded-lg p-6 bg-gray-50/25 dark:bg-gray-800/25 shadow-md">
 				<SalesDonut />
 			</div>
 		</div>
@@ -113,23 +91,21 @@ import SalesDonut from "@Components/shopingui/dashboard/SalesDonut.astro";
 	</div>
 </Layout>
 <script>
-	import { showError } from "@Lib/utils/notifications";
+	import { showError } from '@Lib/utils/notifications';
 
-	const searchInput = document.getElementById(
-		"shopinguiSearch",
-	) as HTMLInputElement;
-	const searchButton = document.getElementById("shopinguiSearchButton");
+	const searchInput = document.getElementById('shopinguiSearch') as HTMLInputElement;
+	const searchButton = document.getElementById('shopinguiSearchButton');
 	async function handleSearch() {
 		const query = searchInput.value.trim();
 		if (!query) return;
 
 		try {
-			const response = await fetch(
-				`/api/shopingui/search?terms=${encodeURIComponent(query)}`,
+			const response = await fetch(`/api/shopingui/search?terms=${encodeURIComponent(query)}`).then(res =>
+				res.json()
 			);
-			if (!response.ok) {
-				console.log("Error: ", response);
-				throw new Error("Search failed");
+			if (!response) {
+				// console.log("Error: ", response);
+				throw new Error(response.error);
 			}
 
 			// const results = await response.json();
@@ -137,19 +113,17 @@ import SalesDonut from "@Components/shopingui/dashboard/SalesDonut.astro";
 
 			// Show results view
 		} catch (error) {
-			console.error("Error searching products:", error);
+			// console.error("Error searching products:", error);
 			// Show error notification
 			if (error instanceof Error) {
 				showError(error.message);
 			}
 		}
 	}
-	searchButton?.addEventListener("click", handleSearch);
-	searchInput?.addEventListener("keypress", (e) => {
-		const input = document.getElementById(
-			"searchInput",
-		) as HTMLInputElement;
-		if (e.key === "Enter" || input.value.length > 3) {
+	searchButton?.addEventListener('click', handleSearch);
+	searchInput?.addEventListener('keypress', e => {
+		const input = document.getElementById('searchInput') as HTMLInputElement;
+		if (e.key === 'Enter' || input.value.length > 3) {
 			handleSearch();
 		}
 	});

@@ -44,47 +44,50 @@ export const GET: APIRoute = async ({ request }) => {
             token = authResponse.token;
         }
         // Loop through all products
-        let currentPage = 1, totalPages = 0;
+        let currentProduct = 0, currentPage = 1, totalPages = 0, max = 0;
         do {
-            const response = await getProducts(token, currentPage);
+            const response = await getProducts(token, currentProduct);
             // console.log(response);
             if (response.ok) {
-                console.info("Initiating migration of page: ", currentPage);
                 const productsData = await response.json();
-                if (currentPage == 1) totalPages = parseInt(productsData.max);
-                currentPage += parseInt(productsData.current);
+                if (currentProduct == 0) {
+                    totalPages = parseInt(productsData.max) / 10;
+                    max = parseInt(productsData.max);
+                }
+                console.info("Initiating migration of page: ", currentPage, " of ", totalPages);
+                console.info("Total pages: ", totalPages);
                 try {
                     const products = await Promise.all(
                         productsData.data.map(async (product: ShopinguiProduct) => {
                             if (product !== null) {
-                                return await shopinguiServices.addProductFromDS(product);
+                                console.log("Product: ", product.id);
+                                await shopinguiServices.addProductFromDS(product);
                             }
-                        }
-                        )
+                            currentProduct += 1;
+                        })
                     ).catch((err) => console.log("Error: ", err));
                     if (products) {
-                        console.info("Product Migrated: ", currentPage);
+                        console.info("Product Migrated: ", currentProduct);
                     }
                 } catch (error) {
                     throw new Error("Error: " + error);
                 }
+                currentPage += 1;
             } else {
-                if (currentPage < 100) {
+                if (currentProduct < max) {
                     throw new Error("Failed to create product");
-                } else {
-                    console.info("All products migrated");
-                    break;
                 }
             }
-        } while (currentPage <= 100);
+        } while (currentProduct <= max);
         return new Response(JSON.stringify({ success: true }), { status: 201 });
     } catch (error) {
         return new Response(JSON.stringify({ error: 'Failed to create product' }), { status: 500 });
+    } finally {
+        console.info("Fin");
     }
 }
 
 async function getProducts(token: string, currentPage: number) {
-    console.log("Current page: ", currentPage);
     return await fetch(`${API_URL}/products/migrate?page=${currentPage}`, {
         headers: {
             Authorization: "Bearer " + token,
