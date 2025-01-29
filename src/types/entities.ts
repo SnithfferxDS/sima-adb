@@ -240,16 +240,13 @@ export interface SearchableProduct {
 export interface MenuItem {
 	id: number;
 	name: string;
-	url?: string;
-	icon?: string;
-	parent_id?: number;
+	url: string | null;
+	icon: string | null;
+	parent_id: number | null;
 	position: number;
-	children: MenuItem[];
 }
 
-export interface Props {
-	items: MenuItem[];
-}
+export type MenuItems = MenuItem[];
 
 export interface Product {
 	id: string;
@@ -259,12 +256,12 @@ export interface Product {
 	category_id: number;
 	product_type_id: number;
 	active: boolean;
-  }
+}
 
-  export interface MetadataValue {
+export interface MetadataValue {
 	id: number;
 	name: string;
 	tooltip?: string;
 	format?: string;
 	value?: string;
-  }
+}

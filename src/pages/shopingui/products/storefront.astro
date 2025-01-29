@@ -7,20 +7,20 @@ const breadcrumbs = [
 		path: '/shopingui'
 	},
 	{
-		label: 'Ofertas',
-		path: '/shopingui/offers'
+		label: 'Sincronizados',
+		path: '/shopingui/storefront'
 	}
 ];
 ---
 
-<BaseLayout title="Offers">
+<BaseLayout title="Storefront">
 	<div class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg">
 		<div class="p-4 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5">
 			<div class="w-full mb-1">
 				<BreadCrumbs
 					routes={breadcrumbs}
 					currentRoute={Astro.url.pathname}
-					headerTitle="Tienda Shopify | Promociones"
+					headerTitle="Tienda | Sincronizados"
 				/>
 			</div>
 		</div>

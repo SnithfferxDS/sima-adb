@@ -1,44 +1,36 @@
 ---
-import BaseLayout from "@Layouts/app.layout.astro";
-import BreadCrumbs from "@Components/BreadCrumbs.astro";
-import ProductSearch from "@Components/shopingui/SearchResults.astro";
-import CsrfToken from "@Components/CsrfToken.astro";
-import { isAuthenticated } from "@Middleware/auth";
-import { generateCsrfToken } from "@Lib/session";
+import BaseLayout from '@Layouts/app.layout.astro';
+import BreadCrumbs from '@Components/BreadCrumbs.astro';
+import ProductSearch from '@Components/shopingui/SearchResults.astro';
+import CsrfToken from '@Components/CsrfToken.astro';
+import { isAuthenticated } from '@Middleware/auth';
+import { generateCsrfToken } from '@Lib/session';
 
-let csrfToken = "";
+let csrfToken = '';
 
 if (!isAuthenticated(Astro)) {
-	return Astro.redirect("/auth/login");
+	return Astro.redirect('/auth/login');
 } else {
 	csrfToken = generateCsrfToken();
 }
 
 const breadcrumbs = [
 	{
-		label: "ShopinGUI",
-		path: "/shopingui",
+		label: 'e-Commerce',
+		path: '/shopingui'
 	},
 	{
-		label: "Productos",
-		path: "/shopingui/products",
-	},
+		label: 'Productos',
+		path: '/shopingui/products'
+	}
 ];
 ---
 
 <BaseLayout title="Shoping UI">
-	<div
-		class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg"
-	>
-		<div
-			class="p-4 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5"
-		>
+	<div class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg">
+		<div class="p-4 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5">
 			<div class="w-full mb-1">
-				<BreadCrumbs
-					routes={breadcrumbs}
-					currentRoute={Astro.url.pathname}
-					headerTitle="Tienda Shopify DSIN"
-				/>
+				<BreadCrumbs routes={breadcrumbs} currentRoute={Astro.url.pathname} headerTitle="Tienda Shopify DSIN" />
 				<div class="items-center justify-between flex">
 					<CsrfToken token={csrfToken} />
 					<div class="flex items-center mb-4 sm:mb-0">
@@ -52,16 +44,12 @@ const breadcrumbs = [
 							id="searchButton"
 							class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-600 transition-colors"
 						>
-							<span class="material-symbols-outlined">
-								search
-							</span>
+							<span class="material-symbols-outlined"> search </span>
 							<span class="sr-only">Search</span>
 						</button>
 					</div>
 
-					<div
-						class="flex items-center mb-4 sm:mb-0 ml-auto space-x-1 sm:space-x-2"
-					>
+					<div class="flex items-center mb-4 sm:mb-0 ml-auto space-x-1 sm:space-x-2">
 						<button
 							type="button"
 							class="inline-flex
@@ -133,13 +121,9 @@ const breadcrumbs = [
 >
 	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
 		<!-- Modal content -->
-		<div
-			class="relative shadow bg-primary-800/50 dark:bg-primary-700/50 shadow-purple-500/50 rounded-lg"
-		>
+		<div class="relative shadow bg-primary-800/50 dark:bg-primary-700/50 shadow-purple-500/50 rounded-lg">
 			<!-- Modal header -->
-			<div
-				class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700"
-			>
+			<div class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700">
 				<h5
 					id="modal-label"
 					class="inline-flex items-center mb-6 text-sm font-semibold text-gray-500 uppercase dark:text-gray-400"
@@ -151,11 +135,7 @@ const breadcrumbs = [
 					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-700 dark:hover:text-white"
 					data-modal-toggle="modal-create-default"
 				>
-					<svg
-						class="w-5 h-5"
-						fill="currentColor"
-						viewBox="0 0 20 20"
-						xmlns="http://www.w3.org/2000/svg"
+					<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"
 						><path
 							fill-rule="evenodd"
 							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
@@ -165,10 +145,7 @@ const breadcrumbs = [
 			</div>
 			<!-- Modal body -->
 			<div class="p-6 space-y-6">
-				<form
-					id="migrateProductForm"
-					class="max-w-lg rounded-lg shadow p-6"
-				>
+				<form id="migrateProductForm" class="max-w-lg rounded-lg shadow p-6">
 					<div class="mb-4">
 						<label
 							for="product"
@@ -185,17 +162,12 @@ const breadcrumbs = [
 						/>
 					</div>
 
-					<button
-						type="submit"
-						class="px-4 py-2 text-white bg-primary-500 rounded-md hover:bg-primary-600"
-					>
+					<button type="submit" class="px-4 py-2 text-white bg-primary-500 rounded-md hover:bg-primary-600">
 						Create
 					</button>
 				</form>
 				<!-- Modal footer -->
-				<div
-					class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700"
-				>
+				<div class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700">
 					<button
 						type="button"
 						data-modal-toggle="modal-create-default"
@@ -211,35 +183,31 @@ const breadcrumbs = [
 </div>
 
 <script>
-	import { showSuccess, showError } from "@Lib/utils/notifications";
-	const form = document.getElementById(
-		"migrateProductForm",
-	) as HTMLFormElement;
+	import { showSuccess, showError } from '@Lib/utils/notifications';
+	const form = document.getElementById('migrateProductForm') as HTMLFormElement;
 
-	form?.addEventListener("submit", async (e) => {
+	form?.addEventListener('submit', async e => {
 		e.preventDefault();
 		const formData = new FormData(form as HTMLFormElement);
 		// console.log(formData);
 		try {
-			const csrfToken = document.querySelector(
-				"meta[name='csrf-token']",
-			) as HTMLMetaElement;
-			const response = await fetch("/api/shopingui/new", {
-				method: "POST",
+			const csrfToken = document.querySelector("meta[name='csrf-token']") as HTMLMetaElement;
+			const response = await fetch('/api/shopingui/new', {
+				method: 'POST',
 				headers: {
-					"Content-Type": "application/json",
+					'Content-Type': 'application/json'
 				},
 				body: JSON.stringify({
-					product: formData.get("product"),
-					csrf_token: csrfToken.content,
-				}),
+					product: formData.get('product'),
+					csrf_token: csrfToken.content
+				})
 			});
 
 			if (response.ok) {
-				showSuccess("Producto migrado correctamente");
+				showSuccess('Producto migrado correctamente');
 			}
 		} catch (error) {
-			showError("Error al migrar producto");
+			showError('Error al migrar producto');
 		}
 	});
 </script>

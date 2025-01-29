@@ -10,7 +10,9 @@ import {
     ProductCategories,
     ProductTypes,
     TMetadataProductAsociations,
-    TTagsProducts
+    TTagsProducts,
+    ProductImages,
+    Status
 } from '@DB/shopify/db/schema';
 import type { ShopinguiBrand } from '@Types/shopingui/brands/schema';
 import type { ShopinguiCategory } from '@Types/shopingui/categories/schema';
@@ -182,6 +184,34 @@ export class ShopinguiService {
             return productDb[0];
         }
         return null;
+    }
+
+    async getAllProducts(page: number = 1, limit: number = 100) {
+        return await db.select({
+            id: Products.id,
+            dsin: TProductRelations.dsin,
+            name: Products.name,
+            short_desc: Products.shortDescription,
+            image_url: ProductImages.url,
+            price: TPrices.regularPrice,
+            brand: Brands.name,
+            category: ProductCategories.name,
+            product_type: ProductTypes.name,
+            store: {
+                id: TProductRelations.store,
+                price: TPrices.regularPrice,
+                offer: TPrices.offer,
+                status: Status.name,
+            }
+        }).from(Products)
+            .leftJoin(TProductRelations, eq(Products.id, TProductRelations.product_id))
+            .leftJoin(Brands, eq(Brands.id, TProductRelations.brand_id))
+            .leftJoin(ProductTypes, eq(ProductTypes.id, TProductRelations.product_type_id))
+            .leftJoin(TPrices, eq(TPrices.id, TProductRelations.price))
+            .leftJoin(ProductImages, eq(ProductImages.id, TProductRelations.image_id))
+            .leftJoin(Status, eq(Status.id, TProductRelations.status_id))
+            .leftJoin(ProductCategories, eq(ProductCategories.id, TProductRelations.category_id))
+            .limit(limit).offset((page - 1) * limit);
     }
 
     /**
@@ -438,6 +468,7 @@ export class ShopinguiService {
     }
 
     async updateProductPrice(price: number, data: ShopinguiProductPrice) {
+        console.log("price updated", price, data);
         const productPriceUpdated = await db.update(TPrices)
             .set({
                 cost: data.cost,
@@ -480,6 +511,7 @@ export class ShopinguiService {
     }
 
     async relateProductTags(product: number, tag: number) {
+        // console.log("tag", tag);
         return await db.insert(TTagsProducts).values({
             tag_id: tag,
             product_id: product,
@@ -505,6 +537,7 @@ export class ShopinguiService {
                 store: relations.store,
                 dsin: relations.dsin,
                 status_id: 1,
+                category_id: relations.category,
             }).returning();
             return productRelations[0];
         }

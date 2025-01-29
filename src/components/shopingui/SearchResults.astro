@@ -1,4 +1,13 @@
+---
+import Products from './ProductList.astro';
+---
+
 <div class="space-y-6">
+	<div id="productList" class="hidden">
+		<!-- Product list will be inserted here -->
+		<Products />
+	</div>
+
 	<div id="searchResults" class="hidden space-y-4">
 		<!-- Results will be inserted here -->
 	</div>
@@ -9,13 +18,11 @@
 </div>
 
 <script>
-	import type { SearchableProduct } from "@Types/shopingui/products/searchSchema";
-	const searchInput = document.getElementById(
-		"searchInput",
-	) as HTMLInputElement;
-	const searchButton = document.getElementById("searchButton");
-	const searchResults = document.getElementById("searchResults");
-	const metadataEditor = document.getElementById("metadataEditor");
+	import type { SearchableProduct } from '@Types/shopingui/products/searchSchema';
+	const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+	const searchButton = document.getElementById('searchButton');
+	const searchResults = document.getElementById('searchResults');
+	const metadataEditor = document.getElementById('metadataEditor');
 
 	async function handleSearch() {
 		const query = searchInput.value.trim();
@@ -23,10 +30,8 @@
 		if (query.length < 3) return;
 
 		try {
-			const response = await fetch(
-				`/api/shopingui/search?terms=${encodeURIComponent(query)}`,
-			);
-			if (!response.ok) throw new Error("Search failed");
+			const response = await fetch(`/api/shopingui/search?terms=${encodeURIComponent(query)}`);
+			if (!response.ok) throw new Error('Search failed');
 
 			const results = await response.json();
 			console.log(results);
@@ -87,47 +92,44 @@
 									</button>
 								</td>
 							</tr>
-							`,
+							`
 								)
-								.join("")}
+								.join('')}
 						</tbody>
 						</table>
 					</div>
 					`;
 			}
 
-			searchResults!.classList.remove("hidden");
-			metadataEditor!.classList.add("hidden");
+			searchResults!.classList.remove('hidden');
+			metadataEditor!.classList.add('hidden');
 
 			// Add event listeners to edit buttons
-			document.querySelectorAll(".edit-metadata").forEach((button) => {
-				button.addEventListener("click", (e) => {
-					const productId = (e.target as HTMLElement).dataset
-						.productId;
+			document.querySelectorAll('.edit-metadata').forEach(button => {
+				button.addEventListener('click', e => {
+					const productId = (e.target as HTMLElement).dataset.productId;
 					if (productId) {
-						console.log("Editing product: ", productId);
+						console.log('Editing product: ', productId);
 						showMetadataEditor(productId);
 					}
 				});
 			});
 		} catch (error) {
-			console.error("Error searching products:", error);
+			console.error('Error searching products:', error);
 			searchResults!.innerHTML = `<p class="text-center text-red-500 py-4">Error searching products</p>`;
 		}
 	}
 
 	async function showMetadataEditor(productId: string) {
 		metadataEditor!.innerHTML = `<product-metadata-editor product-id="${productId}"></product-metadata-editor>`;
-		metadataEditor!.classList.remove("hidden");
-		searchResults!.classList.add("hidden");
+		metadataEditor!.classList.remove('hidden');
+		searchResults!.classList.add('hidden');
 	}
 
-	searchButton?.addEventListener("click", handleSearch);
-	searchInput?.addEventListener("keypress", (e) => {
-		const input = document.getElementById(
-			"searchInput",
-		) as HTMLInputElement;
-		if (e.key === "Enter" || input.value.length > 2) {
+	searchButton?.addEventListener('click', handleSearch);
+	searchInput?.addEventListener('keypress', e => {
+		const input = document.getElementById('searchInput') as HTMLInputElement;
+		if (e.key === 'Enter' || input.value.length > 2) {
 			handleSearch();
 		}
 	});

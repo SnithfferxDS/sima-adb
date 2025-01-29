@@ -1,3 +1,4 @@
+import { categorySchema } from '@Lib/utils/validation';
 import { sql } from 'drizzle-orm';
 import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
 
@@ -216,8 +217,9 @@ export const WharehouseSucursals = sqliteTable('tmp_sucursales', {
 
 export const ProductImages = sqliteTable('tmp_product_images', {
     id: integer({ mode: 'number' }).primaryKey(),
-    product_id: integer({ mode: 'number' }).notNull(),
-    image_id: integer({ mode: 'number' }).notNull(),
+    store_id: text().notNull(),
+    url: text().notNull(),
+    position: integer({ mode: 'number' }).notNull(),
     created_at: text('created_at').default(sql`(CURRENT_TIME)`),
     updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
 });
@@ -228,11 +230,12 @@ export const TProductRelations = sqliteTable('tmp_product_relations', {
     image_id: integer({ mode: 'number' }),
     brand_id: integer({ mode: 'number' }).notNull(),
     status_id: integer({ mode: 'number' }).notNull(),
-    variants_id: integer({ mode: 'number' }),
+    variants: text('variants').default('[]'),
     price: integer({ mode: 'number' }).notNull(),
     store: text(),
     dsin: integer({ mode: 'number' }).notNull(),
     product_type_id: integer({ mode: 'number' }).notNull(),
+    category_id: integer({ mode: 'number' }).notNull(),
     created_at: text('created_at').default(sql`(CURRENT_TIME)`),
     updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
 });
