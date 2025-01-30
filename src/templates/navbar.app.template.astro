@@ -1,6 +1,6 @@
 ---
-import { APP_NAME, APP_SHORT_VERSION } from "../configs/constants";
-import ColorModeSwitch from "../components/Themeicon.astro";
+import { APP_NAME, APP_SHORT_VERSION } from '../configs/constants';
+import ColorModeSwitch from '../components/Themeicon.astro';
 ---
 
 <header>
@@ -17,15 +17,12 @@ import ColorModeSwitch from "../components/Themeicon.astro";
 	>
 		<div class="px-3 py-3 lg:px-5 lg:pl-3">
 			<div class="flex items-center justify-between">
-				<div
-					class="flex
+				<div class="flex
                     items-center
-                    justify-start"
-				>
+                    justify-start">
 					<button
 						id="toggleSidebarMobile"
 						aria-expanded="true"
-						data-drawer-toggle="sidebar"
 						aria-controls="sidebar"
 						class="p-2
                         rounded
@@ -70,11 +67,7 @@ import ColorModeSwitch from "../components/Themeicon.astro";
 						</svg>
 					</button>
 					<a href="/dashboard" class="flex ml-2 md:mr-24">
-						<img
-							src="/assets/img/logos/logo.png"
-							class="mr-2 h-8"
-							alt=""
-						/>
+						<img src="/assets/img/logos/logo.png" class="mr-2 h-8" alt="" />
 						<span
 							class="hidden md:block
 							self-center
@@ -144,9 +137,7 @@ import ColorModeSwitch from "../components/Themeicon.astro";
 										fill="currentColor"
 										viewBox="0 0 20 20"
 										xmlns="http://www.w3.org/2000/svg"
-										><path
-											d="M10 12a2 2 0 100-4 2 2 0 000 4z"
-										></path><path
+										><path d="M10 12a2 2 0 100-4 2 2 0 000 4z"></path><path
 											fill-rule="evenodd"
 											d="M.458 10C1.732 5.943 5.522 3 10 3s8.268 2.943 9.542 7c-1.274 4.057-5.064 7-9.542 7S1.732 14.057.458 10zM14 10a4 4 0 11-8 0 4 4 0 018 0z"
 											clip-rule="evenodd"></path></svg
@@ -178,19 +169,14 @@ import ColorModeSwitch from "../components/Themeicon.astro";
 								id="dropdown"
 							>
 								<div class="py-3 px-4">
-									<span
-										class="block text-sm font-semibold text-gray-900 dark:text-white"
+									<span class="block text-sm font-semibold text-gray-900 dark:text-white"
 										>User Name</span
 									>
-									<span
-										class="block text-sm text-gray-900 truncate dark:text-white"
+									<span class="block text-sm text-gray-900 truncate dark:text-white"
 										>name@email.com</span
 									>
 								</div>
-								<ul
-									class="py-1 text-gray-700 dark:text-gray-300"
-									aria-labelledby="dropdown"
-								>
+								<ul class="py-1 text-gray-700 dark:text-gray-300" aria-labelledby="dropdown">
 									<li>
 										<a
 											href="/dashboard"
@@ -219,10 +205,15 @@ import ColorModeSwitch from "../components/Themeicon.astro";
 											>Admin</a
 										>
 									</li>
+									<li>
+										<a
+											href="/shopingui"
+											class="block py-2 px-4 text-sm hover:bg-gray-100 dark:hover:bg-gray-600 dark:text-gray-400 dark:hover:text-white"
+											>Shopingui</a
+										>
+									</li>
 								</ul>
-								<ul
-									class="py-1 text-gray-700 dark:text-gray-300"
-								>
+								<ul class="py-1 text-gray-700 dark:text-gray-300">
 									<li>
 										<a
 											href="/auth/logout"
@@ -243,12 +234,7 @@ import ColorModeSwitch from "../components/Themeicon.astro";
 						aria-expanded="false"
 					>
 						<span class="sr-only">Open main menu</span>
-						<svg
-							class="w-6 h-6"
-							fill="currentColor"
-							viewBox="0 0 20 20"
-							xmlns="http://www.w3.org/2000/svg"
-						>
+						<svg class="w-6 h-6" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg">
 							<path
 								fill-rule="evenodd"
 								d="M3 5a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 10a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1zM3 15a1 1 0 011-1h12a1 1 0 110 2H4a1 1 0 01-1-1z"

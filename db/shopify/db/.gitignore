@@ -1,0 +1,5 @@
+*
+!.gitignore
+!schema.ts
+!index.ts
+!drizzle.config.ts

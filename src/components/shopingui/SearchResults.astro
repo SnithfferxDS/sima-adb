@@ -1,0 +1,136 @@
+---
+import Products from './ProductList.astro';
+---
+
+<div class="space-y-6">
+	<div id="productList" class="hidden">
+		<!-- Product list will be inserted here -->
+		<Products />
+	</div>
+
+	<div id="searchResults" class="hidden space-y-4">
+		<!-- Results will be inserted here -->
+	</div>
+
+	<div id="metadataEditor" class="hidden">
+		<!-- Metadata editor will be inserted here -->
+	</div>
+</div>
+
+<script>
+	import type { SearchableProduct } from '@Types/shopingui/products/searchSchema';
+	const searchInput = document.getElementById('searchInput') as HTMLInputElement;
+	const searchButton = document.getElementById('searchButton');
+	const searchResults = document.getElementById('searchResults');
+	const metadataEditor = document.getElementById('metadataEditor');
+
+	async function handleSearch() {
+		const query = searchInput.value.trim();
+		if (!query) return;
+		if (query.length < 3) return;
+
+		try {
+			const response = await fetch(`/api/shopingui/search?terms=${encodeURIComponent(query)}`);
+			if (!response.ok) throw new Error('Search failed');
+
+			const results = await response.json();
+			console.log(results);
+
+			if (results.success === false) {
+				searchResults!.innerHTML = `<p class="text-center text-red-500 py-4">Error searching products</p>`;
+			} else if (results.products.length === 0) {
+				searchResults!.innerHTML = `<p class="text-center text-gray-500 py-4">No products found</p>`;
+			} else {
+				searchResults!.innerHTML = `
+					<div class="bg-gray-50/5 dark:bg-gray-800/25 rounded-md shadow">
+						<table class="min-w-full divide-y table-fixed rounded-md divide-gray-300 text-white" id="default-table">
+						<thead class="text-xs text-gray-700 uppercase bg-gray-50 dark:bg-gray-700 dark:text-gray-400">
+							<tr>
+								<th scope="col" class="p-4"><div class="flex items-center"><input id="checkbox-all" type="checkbox" class="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600" /><label for="checkbox-all" class="sr-only" >checkbox</label></div></th>
+								<th scope="col" class="px-4 py-3">Producto</th>
+								<th scope="col" class="px-4 py-3">Tipo</th>
+								<th scope="col" class="px-4 py-3">Tienda</th>
+								<th scope="col" class="px-4 py-3">Actions</th>
+							</tr>
+						</thead>
+						<tbody class="divide-y divide-slate-300 bg-gray-200 dark:divide-slate-700 dark:bg-slate-600">
+							${results.products
+								.map(
+									(product: SearchableProduct) => `
+							<tr class="border-b dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-700">
+								<td class="w-4 px-4 py-3">
+									<div class="flex items-center">
+										<input id="checkbox-table-${product.id}"type="checkbox" onclick="event.stopPropagation()"class="w-4 h-4 bg-gray-100 border-gray-300 rounded text-primary-600 focus:ring-primary-500 dark:focus:ring-primary-600 dark:ring-offset-gray-800 focus:ring-2 dark:bg-gray-700 dark:border-gray-600"/>
+										<label for="checkbox-table-${product.id}" class="sr-only">checkbox</label>
+									</div>
+								</td>
+								<td scope="row" class="flex items-center px-4 py-2 font-medium text-gray-900 whitespace-nowrap dark:text-white">
+									<img src="/assets/img/no_photo.png" alt="Product Image" class="w-20 h-20 rounded-lg object-cover"/>
+									<div class="p-1">
+										<h3 class="font-semibold">
+											<a href="/shopingui/products/${product.id}/dsdetails" class="text-primary-600 dark:text-primary-300 text-balance">
+												${product.name}
+											</a>
+										</h3>
+										<p class="text-sm text-gray-500 dark:text-gray-400">${product.description}</p>
+										<div class="flex flex-col justify-center mt-2">
+											<span class="text-balance">upc: ${product.upc}</span>
+											<span class="text-primary-300 dark:text-primary-800">SKU: ${product.sku}</span>
+											<span class="text-primary-300 dark:text-primary-800">MPN: ${product.mpn}</span>
+										</div>
+									</div>
+								</td>
+								<td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-slate-900 dark:text-gray-100">
+									<span class="bg-primary-100 text-primary-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-primary-900 dark:text-primary-300">${product.product_type}</span>
+								</td>
+								<td class="whitespace-nowrap py-4 pl-4 pr-3 text-sm font-medium text-slate-900 dark:text-gray-100">
+									<span class="bg-primary-100 text-primary-800 text-xs font-medium px-2 py-0.5 rounded dark:bg-primary-900 dark:text-primary-300">${product.store?.active}</span>
+								</td>
+								<td class="px-6 py-4 text-sm">
+									<button class="text-primary hover:text-primary-600 edit-metadata" data-product-id="${product.id}">
+										Edit Metadata
+									</button>
+								</td>
+							</tr>
+							`
+								)
+								.join('')}
+						</tbody>
+						</table>
+					</div>
+					`;
+			}
+
+			searchResults!.classList.remove('hidden');
+			metadataEditor!.classList.add('hidden');
+
+			// Add event listeners to edit buttons
+			document.querySelectorAll('.edit-metadata').forEach(button => {
+				button.addEventListener('click', e => {
+					const productId = (e.target as HTMLElement).dataset.productId;
+					if (productId) {
+						console.log('Editing product: ', productId);
+						showMetadataEditor(productId);
+					}
+				});
+			});
+		} catch (error) {
+			console.error('Error searching products:', error);
+			searchResults!.innerHTML = `<p class="text-center text-red-500 py-4">Error searching products</p>`;
+		}
+	}
+
+	async function showMetadataEditor(productId: string) {
+		metadataEditor!.innerHTML = `<product-metadata-editor product-id="${productId}"></product-metadata-editor>`;
+		metadataEditor!.classList.remove('hidden');
+		searchResults!.classList.add('hidden');
+	}
+
+	searchButton?.addEventListener('click', handleSearch);
+	searchInput?.addEventListener('keypress', e => {
+		const input = document.getElementById('searchInput') as HTMLInputElement;
+		if (e.key === 'Enter' || input.value.length > 2) {
+			handleSearch();
+		}
+	});
+</script>

@@ -1,13 +1,10 @@
 ---
-import {
-	APP_NAME,
-	APP_DESC,
-	APP_SHORT_VERSION,
-	BASE_URL,
-	APP_AUTHOR,
-	APP_FULL_NAME,
-} from "../configs/constants.ts";
-// import { ClientRouter } from "astro:transitions";
+import { APP_NAME, APP_DESC, APP_SHORT_VERSION, BASE_URL, APP_AUTHOR, APP_FULL_NAME } from '../configs/constants.ts';
+import { isAuthenticated } from '@Middleware/auth';
+
+if (!isAuthenticated(Astro)) {
+	return Astro.redirect('/auth/login');
+}
 
 export interface Props {
 	title: string;
@@ -43,23 +40,22 @@ const { title } = Astro.props;
 	<meta property="og:title" content={APP_NAME} />
 	<meta property="og:type" content="website" />
 	<meta property="og:url" content={BASE_URL} />
-	<meta property="og:image" content={BASE_URL + "/logo.png"} />
+	<meta property="og:image" content={BASE_URL + '/logo.png'} />
 	<meta property="og:description" content={APP_DESC} />
 	<meta property="og:site_name" content={APP_NAME} />
 
 	<meta name="twitter:card" content="summary_large_image" />
 	<meta name="twitter:site" content={APP_NAME} />
+	<!-- <meta name="csrf-token" content={csrfToken} /> -->
 	<title>{title} | {APP_NAME} v{APP_SHORT_VERSION}</title>
 	<script is:inline>
 		if (
-			localStorage.getItem("color-theme") === "dark" ||
-			(!("color-theme" in localStorage) &&
-				window.matchMedia("(prefers-color-scheme: dark)").matches)
+			localStorage.getItem('color-theme') === 'dark' ||
+			(!('color-theme' in localStorage) && window.matchMedia('(prefers-color-scheme: dark)').matches)
 		) {
-			document.documentElement.classList.add("dark");
+			document.documentElement.classList.add('dark');
 		} else {
-			document.documentElement.classList.remove("dark");
+			document.documentElement.classList.remove('dark');
 		}
 	</script>
-	{/*<ClientRouter />*/}
 </head>

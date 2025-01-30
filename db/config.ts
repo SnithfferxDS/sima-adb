@@ -40,6 +40,7 @@ const User = defineTable({
     email_verified: column.boolean({ optional: true, default: false }),
     reset_token: column.text({ optional: true }),
     token_expiry: column.date({ optional: true }),
+    apiToken: column.text({ optional: true }),
     person: column.number({ references: () => Person.columns.id }),
     level: column.number({ references: () => User_Level.columns.id }),
     created_at: column.date({ default: NOW }),

@@ -1,0 +1,33 @@
+---
+import BaseLayout from '@Layouts/app.layout.astro';
+import BreadCrumbs from '@Components/BreadCrumbs.astro';
+const breadcrumbs = [
+	{
+		label: 'e-Commerce',
+		path: '/shopingui'
+	},
+	{
+		label: 'Ordenes',
+		path: '/shopingui/orders'
+	}
+];
+---
+
+<BaseLayout title="Orders">
+	<div class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg">
+		<div class="p-4 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5">
+			<div class="w-full mb-1">
+				<BreadCrumbs
+					routes={breadcrumbs}
+					currentRoute={Astro.url.pathname}
+					headerTitle="Tienda Shopify | Ordenes"
+				/>
+			</div>
+			<div class="w-1/2 mb-1">
+				<div class="flex justify-end">
+					<a href="/shopingui/orders/create" class="btn btn-primary">Crear Orden</a>
+				</div>
+			</div>
+		</div>
+	</div>
+</BaseLayout>

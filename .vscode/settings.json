@@ -19,7 +19,15 @@
             "name": "turso sima",
             "group": "turso",
             "database": "${workspaceFolder:sima-adb}/.astro/content.db"
+        },
+        {
+            "previewLimit": 50,
+            "driver": "SQLite",
+            "name": "shopify",
+            "group": "locals",
+            "database": "./db/shopify/database.db"
         }
     ],
-    "sqltools.useNodeRuntime": true
+    "sqltools.useNodeRuntime": true,
+    "task.allowAutomaticTasks": "on"
 }

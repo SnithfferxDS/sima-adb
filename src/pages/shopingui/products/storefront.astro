@@ -1,0 +1,28 @@
+---
+import BaseLayout from '@Layouts/app.layout.astro';
+import BreadCrumbs from '@Components/BreadCrumbs.astro';
+const breadcrumbs = [
+	{
+		label: 'e-Commerce',
+		path: '/shopingui'
+	},
+	{
+		label: 'Sincronizados',
+		path: '/shopingui/storefront'
+	}
+];
+---
+
+<BaseLayout title="Storefront">
+	<div class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg">
+		<div class="p-4 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5">
+			<div class="w-full mb-1">
+				<BreadCrumbs
+					routes={breadcrumbs}
+					currentRoute={Astro.url.pathname}
+					headerTitle="Tienda | Sincronizados"
+				/>
+			</div>
+		</div>
+	</div></BaseLayout
+>

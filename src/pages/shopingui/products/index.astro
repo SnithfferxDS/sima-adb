@@ -1,0 +1,213 @@
+---
+import BaseLayout from '@Layouts/app.layout.astro';
+import BreadCrumbs from '@Components/BreadCrumbs.astro';
+import ProductSearch from '@Components/shopingui/SearchResults.astro';
+import CsrfToken from '@Components/CsrfToken.astro';
+import { isAuthenticated } from '@Middleware/auth';
+import { generateCsrfToken } from '@Lib/session';
+
+let csrfToken = '';
+
+if (!isAuthenticated(Astro)) {
+	return Astro.redirect('/auth/login');
+} else {
+	csrfToken = generateCsrfToken();
+}
+
+const breadcrumbs = [
+	{
+		label: 'e-Commerce',
+		path: '/shopingui'
+	},
+	{
+		label: 'Productos',
+		path: '/shopingui/products'
+	}
+];
+---
+
+<BaseLayout title="Shoping UI">
+	<div class="shadow-md rounded-lg overflow-hidden transition-shadow hover:shadow-lg">
+		<div class="p-4 block sm:flex items-center justify-between border-b border-gray-200 lg:mt-1.5">
+			<div class="w-full mb-1">
+				<BreadCrumbs routes={breadcrumbs} currentRoute={Astro.url.pathname} headerTitle="Tienda Shopify DSIN" />
+				<div class="items-center justify-between flex">
+					<CsrfToken token={csrfToken} />
+					<div class="flex items-center mb-4 sm:mb-0">
+						<input
+							type="text"
+							id="searchInput"
+							placeholder="Digite UPC o Nombre de producto"
+							class="bg-gray-50 border border-gray-300 text-gray-900 sm:text-sm rounded-lg focus:ring-primary-500 focus:border-primary-500 block w-full p-2.5 dark:bg-gray-700 dark:border-gray-600 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+						/>
+						<button
+							id="searchButton"
+							class="px-4 py-2 bg-primary text-white rounded-md hover:bg-primary-600 transition-colors"
+						>
+							<span class="material-symbols-outlined"> search </span>
+							<span class="sr-only">Search</span>
+						</button>
+					</div>
+
+					<div class="flex items-center mb-4 sm:mb-0 ml-auto space-x-1 sm:space-x-2">
+						<button
+							type="button"
+							class="inline-flex
+							items-center
+							justify-center
+							w-1/2
+							px-3
+							py-2
+							text-sm
+							font-medium
+							text-center
+							rounded-lg
+							focus:ring-4
+							sm:w-auto
+							text-white
+							bg-purple-700
+							hover:bg-purple-800
+							focus:ring-purple-300
+							dark:bg-purple-600
+							dark:hover:bg-purple-700
+							dark:focus:ring-purple-800"
+							data-modal-target="modal-create-default"
+							data-modal-show="modal-create-default"
+							aria-controls="modal-create-default"
+						>
+							<svg
+								class="w-5 h-5 sm:mr-2 sm:-ml-1"
+								fill="currentColor"
+								viewBox="0 0 20 20"
+								xmlns="http://www.w3.org/2000/svg"
+								><path
+									fill-rule="evenodd"
+									d="M10 5a1 1 0 011 1v3h3a1 1 0 110 2h-3v3a1 1 0 11-2 0v-3H6a1 1 0 110-2h3V6a1 1 0 011-1z"
+									clip-rule="evenodd"></path></svg
+							>
+							<span class="hidden md:block">Migrar</span>
+						</button>
+					</div>
+				</div>
+			</div>
+		</div>
+	</div>
+	<div class="flex flex-col">
+		<div class="overflow-x-auto">
+			<div class="inline-block min-w-full align-middle">
+				<ProductSearch />
+			</div>
+		</div>
+	</div>
+</BaseLayout>
+<!-- Create new product -->
+<div
+	id="modal-create-default"
+	class="fixed
+	left-0
+	right-0
+	z-50
+	items-center
+	justify-center
+	hidden
+	overflow-x-hidden
+	overflow-y-auto
+	top-4 md:inset-0
+	h-modal
+	sm:h-full"
+	tabindex="-1"
+	aria-labelledby="modal-label"
+	aria-hidden="true"
+>
+	<div class="relative w-full h-full max-w-2xl px-4 md:h-auto">
+		<!-- Modal content -->
+		<div class="relative shadow bg-primary-800/50 dark:bg-primary-700/50 shadow-purple-500/50 rounded-lg">
+			<!-- Modal header -->
+			<div class="flex items-start justify-between p-5 border-b rounded-t dark:border-gray-700">
+				<h5
+					id="modal-label"
+					class="inline-flex items-center mb-6 text-sm font-semibold text-gray-500 uppercase dark:text-gray-400"
+				>
+					Migración de producto
+				</h5>
+				<button
+					type="button"
+					class="text-gray-400 bg-transparent hover:bg-gray-200 hover:text-gray-900 rounded-lg text-sm p-1.5 ml-auto inline-flex items-center dark:hover:bg-gray-700 dark:hover:text-white"
+					data-modal-toggle="modal-create-default"
+				>
+					<svg class="w-5 h-5" fill="currentColor" viewBox="0 0 20 20" xmlns="http://www.w3.org/2000/svg"
+						><path
+							fill-rule="evenodd"
+							d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+							clip-rule="evenodd"></path></svg
+					>
+				</button>
+			</div>
+			<!-- Modal body -->
+			<div class="p-6 space-y-6">
+				<form id="migrateProductForm" class="max-w-lg rounded-lg shadow p-6">
+					<div class="mb-4">
+						<label
+							for="product"
+							class="block text-sm font-medium text-primary-100 dark:text-primary-900 mb-2"
+							>UPC de Producto</label
+						>
+						<input
+							type="text"
+							id="product"
+							name="product"
+							class="shadow-sm bg-gray-50 border border-gray-300 text-gray-900 text-sm rounded-lg focus:ring-primary-600 focus:border-primary-600 block w-full p-2.5 dark:bg-gray-600 dark:border-gray-500 dark:placeholder-gray-400 dark:text-white dark:focus:ring-primary-500 dark:focus:border-primary-500"
+							placeholder="Digite el UPC del producto"
+							required
+						/>
+					</div>
+
+					<button type="submit" class="px-4 py-2 text-white bg-primary-500 rounded-md hover:bg-primary-600">
+						Create
+					</button>
+				</form>
+				<!-- Modal footer -->
+				<div class="items-center p-6 border-t border-gray-200 rounded-b dark:border-gray-700">
+					<button
+						type="button"
+						data-modal-toggle="modal-create-default"
+						aria-controls="modal-create-default"
+						class="px-4 py-2 text-gray-200 bg-danger-400 rounded-md hover:bg-danger-500"
+					>
+						Cancel
+					</button>
+				</div>
+			</div>
+		</div>
+	</div>
+</div>
+
+<script>
+	import { showSuccess, showError } from '@Lib/utils/notifications';
+	const form = document.getElementById('migrateProductForm') as HTMLFormElement;
+
+	form?.addEventListener('submit', async e => {
+		e.preventDefault();
+		const formData = new FormData(form as HTMLFormElement);
+		// console.log(formData);
+		try {
+			const csrfToken = document.querySelector("meta[name='csrf-token']") as HTMLMetaElement;
+			const response = await fetch('/api/shopingui/new', {
+				method: 'POST',
+				headers: {
+					'Content-Type': 'application/json'
+				},
+				body: JSON.stringify({
+					product: formData.get('product'),
+					csrf_token: csrfToken.content
+				})
+			});
+
+			if (response.ok) {
+				showSuccess('Producto migrado correctamente');
+			}
+		} catch (error) {
+			showError('Error al migrar producto');
+		}
+	});
+</script>

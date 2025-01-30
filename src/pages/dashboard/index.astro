@@ -1,11 +1,18 @@
 ---
 import Layout from "../../layouts/app.layout.astro";
+import CsrfToken from "@Components/CsrfToken.astro";
 import StatsCard from "@Components/dashboard/StatsCard.astro";
 import TrendChart from "@Components/dashboard/TrendChart.astro";
 import SalesDonut from "@Components/dashboard/SalesDonut.astro";
 import TransactionsList from "@Components/dashboard/TransactionsList.astro";
 import SupportTickets from "@Components/dashboard/SupportTickets.astro";
 import DemographicMap from "@Components/dashboard/DemographicMap.astro";
+import { generateCsrfToken, setCsrfCookie } from "@Lib/session";
+
+// Generate CSRF token
+const csrfToken = generateCsrfToken();
+
+Astro.response.headers.append("Set-Cookie", setCsrfCookie(csrfToken));
 
 const stats = {
 	mrr: 12400,
@@ -16,6 +23,7 @@ const stats = {
 ---
 
 <Layout title="Dashboard">
+	<CsrfToken token={csrfToken} />
 	<div class="px-4 py-6 mx-auto max-w-7xl sm:px-6 lg:px-8">
 		<div class="sm:flex sm:items-center">
 			<div class="sm:flex-auto">

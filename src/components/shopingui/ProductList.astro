@@ -1,0 +1,48 @@
+---
+import { ShopinguiService } from 'src/services/shopingui.service';
+import ProductCard from './ProductCard.astro';
+import type { ProductCardSchema, ProductCardSchemas } from '@Types/shopingui/products/ProductCardSchema';
+
+// if (!isAuthenticated(Astro)) {
+// 	return Astro.redirect('/auth/login');
+// }
+
+const products: ProductCardSchemas = [];
+
+if (Astro.request.method !== 'GET') {
+	const shopinguiService = new ShopinguiService();
+	try {
+		const data = await Astro.request.json();
+		const page = data.page ? data.page : 1;
+		const limit = data.limit ? data.limit : 100;
+		const result = await shopinguiService.getAllProducts(page, limit);
+		if (result) {
+			result.map(product => {
+				products.push({
+					id: product.id,
+					name: product.name,
+					dsin: product.dsin,
+					description: product.short_desc,
+					image: product.image_url,
+					price: product.price,
+					brand: product.brand,
+					category: product.category,
+					productType: product.product_type,
+					store: {
+						id: product.store.id,
+						price: product.store.price,
+						offer: product.store.offer,
+						status: product.store.status
+					}
+				});
+			});
+		}
+	} catch (error) {
+		console.log(error);
+	}
+}
+---
+
+<div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+	{products.map(product => <ProductCard product={product} />)}
+</div>

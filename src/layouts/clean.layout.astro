@@ -13,19 +13,38 @@ const { title } = Astro.props;
 ---
 
 <MainLayout title={title}>
-	<Navbar />
 	<div
-		class="flex pt-16 overflow-hidden text-gray-800
+		class="flex
+		overflow-hidden
+        bg-gradient-to-b
+		text-gray-800
         dark:text-white
-        bg-gradient-to-b from-secondary-600 to-primary-600
-        dark:from-secondary-300 dark:to-primary-300"
+		from-primary-900
+		to-primary-600
+        dark:from-primary-600
+		dark:to-primary-200"
 	>
 		<div
 			id="main-content"
-			class="relative w-full h-full min-h-screen max-w-screen-2xl mx-auto overflow-y-auto shadow-md"
+			class="relative
+			w-full
+			h-full
+			min-h-screen
+			max-w-screen-2xl
+			mx-auto
+			overflow-y-auto
+			shadow-md"
 		>
 			<!-- BREADCRUMBS -->
-			<div class="px-4 pt-2 2x1:px-0 rounded-md">
+			<div
+				class="flex
+				flex-col
+				pt-16
+				items-center
+				justify-center
+				align-middle
+				rounded-md"
+			>
 				<slot />
 			</div>
 			<Footer />
