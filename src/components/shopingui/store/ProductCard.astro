@@ -1,0 +1,95 @@
+---
+import type { ProductCardSchema } from '@Types/shopingui/products/ProductCardSchema';
+
+interface Props {
+	product: ProductCardSchema;
+}
+
+const { product } = Astro.props;
+
+const formatPrice = (price: number | null) => {
+	if (!price) return '$0.00';
+	return new Intl.NumberFormat('en-US', {
+		style: 'currency',
+		currency: 'USD'
+	}).format(price);
+};
+---
+
+<div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+	<div class="relative aspect-square">
+		{
+			product.image ? (
+				<img src={product.image} alt={product.name || 'Product image'} class="w-full h-full object-cover" />
+			) : (
+				<div class="w-full h-full bg-gray-200 flex items-center justify-center">
+					<span class="text-gray-400 text-4xl material-symbols-outlined">image_not_available</span>
+				</div>
+			)
+		}
+		{
+			product.store?.offer && (
+				<span class="absolute top-2 right-2 bg-danger text-white px-2 py-1 rounded-full text-xs font-semibold">
+					Offer
+				</span>
+			)
+		}
+	</div>
+
+	<div class="p-4 space-y-2">
+		<div class="flex justify-between items-start">
+			<div>
+				<h3 class="text-lg font-semibold text-gray-900 line-clamp-2">{product.name}</h3>
+				{product.brand && <p class="text-sm text-gray-600">{product.brand}</p>}
+			</div>
+			<div class="text-right">
+				<p class="text-lg font-bold text-primary">
+					{formatPrice(product.store?.price)}
+				</p>
+				{
+					product.store?.offer && product.price && (
+						<p class="text-sm text-gray-500 line-through">{formatPrice(product.price)}</p>
+					)
+				}
+			</div>
+		</div>
+
+		{product.description && <p class="text-sm text-gray-600 line-clamp-2">{product.description}</p>}
+
+		<div class="flex items-center justify-between pt-2">
+			<div class="space-x-2">
+				{
+					product.category && (
+						<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+							{product.category}
+						</span>
+					)
+				}
+				{
+					product.productType && (
+						<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+							{product.productType}
+						</span>
+					)
+				}
+			</div>
+			<span
+				class={`inline-flex items-center px-2 py-1 rounded-full text-xs font-medium ${
+					product.store?.status === 'available' ? 'bg-green-100 text-green-800' : 'bg-red-100 text-red-800'
+				}`}
+			>
+				{product.store?.status || 'Unavailable'}
+			</span>
+		</div>
+
+		{
+			product.stocks && (
+				<div class="pt-2 border-t">
+					<p class="text-sm text-gray-600">
+						Total Stock: {Object.values(product.stocks.total).reduce((a, b) => a + b, 0)}
+					</p>
+				</div>
+			)
+		}
+	</div>
+</div>

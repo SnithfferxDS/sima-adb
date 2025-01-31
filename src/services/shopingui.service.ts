@@ -12,7 +12,10 @@ import {
     TMetadataProductAsociations,
     TTagsProducts,
     ProductImages,
-    Status
+    Status,
+    Wharehouses,
+    CommonNames,
+    TSucursals
 } from '@DB/shopify/db/schema';
 import type { ShopinguiBrand } from '@Types/shopingui/brands/schema';
 import type { ShopinguiCategory } from '@Types/shopingui/categories/schema';
@@ -20,7 +23,7 @@ import type { ShopinguiCommonName } from '@Types/shopingui/common_name';
 import type { ShopinguiMetadata, ShopinguiMetadatas } from '@Types/shopingui/metadata/MetadataSchema';
 import type { ShopinguiProductPrice } from '@Types/shopingui/product_price/schema';
 import type { ShopinguiProductType } from '@Types/shopingui/product_types/shcema';
-import type { ShopinguiProduct } from '@Types/shopingui/products/ProductSchema';
+import type { ShopinguiProduct, ShopinguiProductStocks } from '@Types/shopingui/products/ProductSchema';
 import { like, or, eq, and } from 'drizzle-orm';
 import slugify from 'slugify';
 
@@ -49,9 +52,10 @@ export class ShopinguiService {
         if (!product.upc) {
             return null;
         }
+        let productId = null;
         const productExists = await db.select().from(Products).where(eq(Products.upc, product.upc as string));
         if (productExists.length > 0) {
-            return productExists;
+            productId = productExists[0].id;
         }
         // const productWeight = this.extractWeight(product.weight);
         // let wUnit = productWeight.unit, weight = isNaN(productWeight.weight) ? 0 : productWeight.weight;
@@ -81,109 +85,99 @@ export class ShopinguiService {
             warranty: product.defaultWarranty as number
         }).returning();
 
-        if (productDb) {
-
-            let brandId = 0;
-            let categoryId = 0;
-            let productTypeId = 0;
-            let productPriceId = 0;
-            // check if brand
-            if (product.brand) {
-                const brandDb = await this.saveBrand({
-                    id: null,
-                    name: product.brand.name as string,
-                    description: null, logo: null, active: true, createdAt: null, updatedAt: null
-                });
-                if (brandDb) {
-                    brandId = brandDb.id;
-                }
-            }
-            // Check if Category exists
-            if (product.category) {
-                const category = await this.saveCategory({
-                    name: product.category.name,
-                    client: product.category.client || 4,
-                    id: null, slug: null, description: null, parents: null,
-                    active: true, createdAt: null, updatedAt: null
-                });
-                if (category) {
-                    categoryId = category.id;
-                }
-            }
-            // Check if ProductType exists
-            if (product.productType && product.productType.name) {
-                const productType = await this.saveProductType({
-                    name: product.productType.name,
-                    category: categoryId,
-                    id: null, createdAt: null, updatedAt: null
-                });
-                if (productType) {
-                    productTypeId = productType.id;
-                }
-            }
-            // Adding product price
-            if (product.price !== null) {
-                const productPriceExists = await this.saveProductPrice(
-                    productDb[0].id, {
-                    cost: product.price.cost,
-                    added: {
-                        value: product.price.added?.value ?? 0,
-                        asignedBy: product.price.added?.asignedBy ?? 'Sin Información'
-                    },
-                    value: product.price.value,
-                    category: product.priceCategory ?? 4,
-                    store: {
-                        regular_price: product.store.price.value,
-                        sale_price: product.store.price.value,
-                        offer: product.store.price.offer,
-                        price_category: product.priceCategory ?? 4
-                    },
-                    active: true
-                });
-                if (productPriceExists) {
-                    productPriceId = productPriceExists.id;
-                }
-            }
-            // Adding product stocks
-            if (product.stocks) {
-                // product.stocks.sucursals.map(sucursalStock => {
-                //     const productStocks = await db.insert(Stocks).values({
-                //         product_id: productDb[0].id,
-                //         min: product.min ?? 0,
-                //         max: product.max ?? 0,
-                //         qnt: sucursalStock.stocks[0].qnt,
-                //         sucursal: sucursalStock.name,
-                //     })
-                // });
-                // const productStocks = await db.insert(Stocks).values({
-                //     product_id: productDb[0].id,
-                //     min: product.stocks?.min ?? 0,
-                //     max: product.stocks?.max ?? 0,
-                //     qnt: product.stocks?.total.HQ ?? 0,
-                //     sucursal: product.stocks?.total["Santa Ana"] ?? 0,
-                // }).returning();
-            }
-            // Adding product metadata
-            if (product.metadata) {
-                await this.saveProductMetadata(productDb[0].id, product.metadata);
-            }
-            // saving tags if not exists
-            if (product.tags) {
-                await this.saveTags(product.id, product.tags);
-            }
-            // Product Relations
-            const productRelations = await this.saveProductRelations(productDb[0].id, {
-                brand: brandId,
-                category: categoryId,
-                product_type: productTypeId,
-                price: productPriceId,
-                store: (product.store.id as unknown) as string,
-                dsin: product.id,
-            });
-            // Return Product
-            return productDb[0];
+        if (productDb.length > 0) {
+            productId = productDb[0].id;
         }
-        return null;
+        let brandId = 0;
+        let categoryId = 0;
+        let productTypeId = 0;
+        let productPriceId = 0;
+        let productStocks: number[] = [];
+        let productCommonName: number[] = [];
+        // check if brand
+        if (product.brand) {
+            const brandDb = await this.saveBrand({
+                id: null,
+                name: product.brand.name as string,
+                description: null, logo: null, active: true, createdAt: null, updatedAt: null
+            });
+            if (brandDb) {
+                brandId = brandDb.id;
+            }
+        }
+        // Check if Category exists
+        if (product.category) {
+            const category = await this.saveCategory({
+                name: product.category.name,
+                client: product.category.client || 4,
+                id: null, slug: null, description: null, parents: null,
+                active: true, createdAt: null, updatedAt: null
+            });
+            if (category) {
+                categoryId = category.id;
+            }
+        }
+        // Check if ProductType exists
+        if (product.productType && product.productType.name) {
+            const productType = await this.saveProductType({
+                name: product.productType.name,
+                category: categoryId,
+                id: null, createdAt: null, updatedAt: null
+            });
+            if (productType) {
+                productTypeId = productType.id;
+            }
+        }
+        // Adding product price
+        if (product.price !== null) {
+            const productPriceExists = await this.saveProductPrice(
+                productId as number, {
+                cost: product.price.cost,
+                added: {
+                    value: product.price.added?.value ?? 0,
+                    asignedBy: product.price.added?.asignedBy ?? 'Sin Información'
+                },
+                value: product.price.value,
+                category: product.priceCategory ?? 4,
+                store: {
+                    regular_price: product.store.price.value,
+                    sale_price: product.store.price.value,
+                    offer: product.store.price.offer,
+                    price_category: product.priceCategory ?? 4
+                },
+                active: true
+            });
+            if (productPriceExists) {
+                productPriceId = productPriceExists.id;
+            }
+        }
+        // Adding product stocks
+        if (product.stocks) {
+            productStocks = await this.saveProductStocks(productId as number, product.stocks);
+        }
+        // Adding product common names
+        if (product.commonName) {
+            productCommonName = await this.saveProductCommonName(product.commonName);
+        }
+        // Adding product metadata
+        if (product.metadata) {
+            await this.saveProductMetadata(productId as number, product.metadata);
+        }
+        // saving tags if not exists
+        if (product.tags) {
+            await this.saveTags(product.id, product.tags);
+        }
+        // Product Relations
+        const productRelations = await this.saveProductRelations(productId as number, {
+            brand: brandId,
+            category: categoryId,
+            product_type: productTypeId,
+            price: productPriceId,
+            store: (product.store.id as unknown) as string,
+            dsin: product.id,
+            commonNames: productCommonName,
+            stocks: productStocks,
+        });
     }
 
     async getAllProducts(page: number = 1, limit: number = 100) {
@@ -525,6 +519,8 @@ export class ShopinguiService {
         price: number,
         store: string,
         dsin: number,
+        commonNames: number[],
+        stocks: number[],
     }) {
         console.log("relations", relations);
         const productRelationsExists = await db.select().from(TProductRelations).where(eq(TProductRelations.product_id, product));
@@ -538,6 +534,8 @@ export class ShopinguiService {
                 dsin: relations.dsin,
                 status_id: 1,
                 category_id: relations.category,
+                commonNames: JSON.stringify(relations.commonNames),
+                stocks: JSON.stringify(relations.stocks),
             }).returning();
             return productRelations[0];
         }
@@ -620,5 +618,104 @@ export class ShopinguiService {
                 });
             }
         }
+    }
+
+    async saveProductCommonName(commonNames: ShopinguiCommonName[]) {
+        const commonNamesProduct: number[] = [];
+        commonNames.map(async commonName => {
+            const productCommonNameExists = await db.select()
+                .from(CommonNames)
+                .where(eq(CommonNames.name, commonName.name as string));
+            if (productCommonNameExists.length === 0) {
+                const productCommonName = await db.insert(CommonNames).values({
+                    name: commonName.name as string,
+                    position: commonName.position as number,
+                    storeId: commonName.storeCategory?.storeId as string,
+                    storeName: commonName.storeCategory?.name as string,
+                    handle: commonName.storeCategory?.handle as string,
+                    isLinea: commonName.storeCategory?.isLinea as number > 0 ? true : false,
+                }).returning({
+                    id: CommonNames.id
+                });
+                if (productCommonName.length > 0) {
+                    commonNamesProduct.push(productCommonName[0].id);
+                }
+            } else {
+                commonNamesProduct.push(productCommonNameExists[0].id);
+            }
+        });
+        return commonNamesProduct;
+    }
+
+    async saveProductStocks(product: number, stocks: ShopinguiProductStocks) {
+        const stocksDb: number[] = [];
+        stocks.sucursals.map(async sucursal => {
+            sucursal.stocks.map(async stock => {
+                const warehouse = await this.saveWarehouse(stock.name, sucursal.id);
+                const sucursalDb = await this.saveSucursal(sucursal.name);
+                const productStocksExists = await db.select()
+                    .from(ProductStocks)
+                    .where(
+                        and(
+                            eq(ProductStocks.product_id, product),
+                            eq(ProductStocks.sucursal, sucursalDb.id),
+                            eq(ProductStocks.warehouse, warehouse.id),
+                        ));
+                if (productStocksExists.length === 0) {
+                    const productStocks = await db.insert(ProductStocks).values({
+                        product_id: product,
+                        min: 1,
+                        max: stock.qnt * 10,
+                        current: stock.qnt,
+                        last: 0,
+                        sucursal: sucursalDb.id,
+                        warehouse: warehouse.id
+                    }).returning({ id: ProductStocks.id });
+                    if (productStocks.length > 0) {
+                        stocksDb.push(productStocks[0].id);
+                    }
+                } else {
+                    const productStoctUpdated = await db.update(ProductStocks).set({
+                        current: stock.qnt,
+                        last: productStocksExists[0].current
+                    }).where(eq(ProductStocks.id, productStocksExists[0].id)).returning({ id: ProductStocks.id });
+                    if (productStoctUpdated.length > 0) {
+                        stocksDb.push(productStoctUpdated[0].id);
+                    }
+                }
+            });
+        });
+        return stocksDb;
+    }
+
+    async saveWarehouse(name: string, sucursal: number) {
+        const warehouseExists = await db.select()
+            .from(Wharehouses)
+            .where(eq(Wharehouses.name, name));
+        if (warehouseExists.length === 0) {
+            const warehouse = await db.insert(Wharehouses).values({
+                name: name as string,
+                sucursal: sucursal
+            }).returning();
+            if (warehouse.length > 0) {
+                return warehouse[0];
+            }
+        }
+        return warehouseExists[0];
+    }
+
+    async saveSucursal(name: string) {
+        const sucursalExists = await db.select()
+            .from(TSucursals)
+            .where(eq(TSucursals.name, name));
+        if (sucursalExists.length === 0) {
+            const sucursal = await db.insert(TSucursals).values({
+                name: name,
+            }).returning();
+            if (sucursal.length > 0) {
+                return sucursal[0];
+            }
+        }
+        return sucursalExists[0];
     }
 }

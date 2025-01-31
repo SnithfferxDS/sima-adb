@@ -1,6 +1,93 @@
 ---
 import BaseLayout from '@Layouts/app.layout.astro';
 import BreadCrumbs from '@Components/BreadCrumbs.astro';
+import ProductCard from '@Components/shopingui/store/ProductCard.astro';
+import ProductCardList from '@Components/shopingui/store/ProductCardList.astro';
+import ViewSelector from '@Components/shopingui/store/ViewSelector.astro';
+import { db } from '@DB/shopify/db';
+import { eq } from 'drizzle-orm';
+import {
+	Products,
+	TProductRelations,
+	CommonNames,
+	ProductCategories,
+	ProductTypes,
+	Brands,
+	TPrices,
+	Status
+} from '@DB/shopify/db/schema';
+import type { ProductCardSchema } from '@Types/shopingui/products/ProductCardSchema';
+
+// Fetch all categories and product types for filters
+const [categories, productTypes] = await Promise.all([
+	db.select().from(ProductCategories).orderBy(ProductCategories.name),
+	db.select().from(ProductTypes).orderBy(ProductTypes.name)
+]);
+
+// Get filter values from URL
+const searchParams = Astro.url.searchParams;
+const selectedCategory = searchParams.get('category');
+const selectedType = searchParams.get('type');
+const selectedView = searchParams.get('view') || 'grid';
+
+// Build query
+let query = db
+	.select({
+		id: Products.id,
+		dsin: TProductRelations.dsin,
+		name: Products.name,
+		description: Products.shortDescription,
+		brand: Brands.name,
+		category: ProductCategories.name,
+		productType: ProductTypes.name,
+		price: TPrices.value,
+		store: {
+			id: TProductRelations.store,
+			price: TPrices.value,
+			offer: TPrices.offer,
+			status: Status.name
+		},
+		stocks: {}
+	})
+	.from(Products)
+	.leftJoin(TProductRelations, eq(TProductRelations.product_id, Products.id))
+	.leftJoin(ProductCategories, eq(ProductCategories.id, TProductRelations.category_id))
+	.leftJoin(ProductTypes, eq(ProductTypes.id, TProductRelations.product_type_id))
+	.leftJoin(Brands, eq(Brands.id, TProductRelations.brand_id))
+	// .leftJoin(CommonNames, eq(CommonNames.id, TProductRelations.commonNames))
+	.leftJoin(TPrices, eq(TPrices.id, TProductRelations.price))
+	.leftJoin(Status, eq(Status.id, TProductRelations.status_id));
+
+// Apply filters
+if (selectedCategory) {
+	query = query.where(eq(ProductCategories.id, parseInt(selectedCategory)));
+}
+if (selectedType) {
+	query = query.where(eq(ProductTypes.id, parseInt(selectedType)));
+}
+
+const products = await query.orderBy(Products.createdAt);
+
+// Transform to StoreProductSchema
+const storeProducts: ProductCardSchema[] = products.map(product => ({
+	id: product.id,
+	dsin: product.dsin,
+	name: product.name,
+	description: product.description,
+	image: null,
+	price: product.price,
+	brand: product.brand,
+	category: product.category,
+	productType: product.productType,
+	store: {
+		id: product.store.id,
+		price: product.store.price,
+		offer: product.store.offer,
+		status: product.store.status
+	},
+	stocks: null
+}));
+
 const breadcrumbs = [
 	{
 		label: 'e-Commerce',
@@ -24,5 +111,129 @@ const breadcrumbs = [
 				/>
 			</div>
 		</div>
+		<div class="flex flex-wrap gap-4 items-center">
+			<!-- Filters -->
+			<form id="filters-form" class="flex gap-4">
+				<select
+					name="category"
+					class="rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+				>
+					<option value="">All Categories</option>
+					{
+						categories.map(category => (
+							<option value={category.id} selected={selectedCategory === category.id.toString()}>
+								{category.name}
+							</option>
+						))
+					}
+				</select>
+
+				<select
+					name="type"
+					class="rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+				>
+					<option value="">All Types</option>
+					{
+						productTypes.map(type => (
+							<option value={type.id} selected={selectedType === type.id.toString()}>
+								{type.name}
+							</option>
+						))
+					}
+				</select>
+			</form>
+
+			<!-- View Selector -->
+			<ViewSelector currentView={selectedView as 'grid' | 'list'} />
+		</div>
+		<!-- Active Filters -->
+		{
+			(selectedCategory || selectedType) && (
+				<div class="flex gap-2 mb-6">
+					{selectedCategory && (
+						<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-primary text-white">
+							{categories.find(c => c.id.toString() === selectedCategory)?.name}
+							<button onclick="removeFilter('category')" class="hover:text-gray-200">
+								×
+							</button>
+						</span>
+					)}
+					{selectedType && (
+						<span class="inline-flex items-center gap-1 px-3 py-1 rounded-full text-sm bg-primary text-white">
+							{productTypes.find(t => t.id.toString() === selectedType)?.name}
+							<button onclick="removeFilter('type')" class="hover:text-gray-200">
+								×
+							</button>
+						</span>
+					)}
+					{(selectedCategory || selectedType) && (
+						<button onclick="clearFilters()" class="text-sm text-gray-600 hover:text-gray-900">
+							Clear all
+						</button>
+					)}
+				</div>
+			)
+		}
+
+		<div
+			id="products-container"
+			class={selectedView === 'grid'
+				? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
+				: 'space-y-4'}
+		>
+			{
+				storeProducts.map(product =>
+					selectedView === 'grid' ? <ProductCard product={product} /> : <ProductCardList product={product} />
+				)
+			}
+		</div>
+
+		{
+			storeProducts.length === 0 && (
+				<div class="text-center py-12">
+					<p class="text-gray-500">No products found</p>
+				</div>
+			)
+		}
 	</div></BaseLayout
 >
+
+<script>
+	// Handle filter changes
+	document.querySelectorAll('#filters-form select').forEach(select => {
+		select.addEventListener('change', () => {
+			const form = document.getElementById('filters-form') as HTMLFormElement;
+			const formData = new FormData(form);
+			const params = new URLSearchParams(formData as any);
+
+			// Add current view to params
+			const currentView = localStorage.getItem('store-view') || 'grid';
+			params.set('view', currentView);
+
+			window.location.href = `${window.location.pathname}?${params.toString()}`;
+		});
+	});
+
+	// Handle filter removal
+	function removeFilter(name: string) {
+		const params = new URLSearchParams(window.location.search);
+		params.delete(name);
+		window.location.href = `${window.location.pathname}?${params.toString()}`;
+	}
+
+	function clearFilters() {
+		const params = new URLSearchParams();
+		const currentView = localStorage.getItem('store-view') || 'grid';
+		params.set('view', currentView);
+		window.location.href = `${window.location.pathname}?${params.toString()}`;
+	}
+
+	// Initialize view from localStorage
+	document.addEventListener('DOMContentLoaded', () => {
+		const savedView = localStorage.getItem('store-view');
+		if (savedView) {
+			const button = document.querySelector(`[data-view="${savedView}"]`) as HTMLButtonElement;
+			button?.click();
+		}
+	});
+</script>
