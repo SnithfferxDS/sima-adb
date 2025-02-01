@@ -79,7 +79,7 @@ const isActive = menuItem.children.some((child) =>
                             duration-75 
                             group 
                             text-gray-300 
-                            ${isCurrentPath(submenuItem.url || "", currentPath) ? "bg-secondary-600" : ""}
+                            ${isCurrentPath(submenuItem.url, currentPath) ? "bg-secondary-600" : ""}
                             hover:bg-secondary-600
                             focus:outline-secondary-700
                             dark:hover:bg-secondary-500`}

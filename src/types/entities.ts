@@ -244,6 +244,7 @@ export interface MenuItem {
 	icon: string | null;
 	parent_id: number | null;
 	position: number;
+	children: MenuItem[];
 }
 
 export type MenuItems = MenuItem[];
