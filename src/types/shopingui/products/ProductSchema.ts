@@ -1,7 +1,7 @@
 export interface ShopinguiProductStockByWarehouse {
     id: number;
     name: string;
-    qnt: number;
+    stock: number;
 }
 
 export interface ShopinguiStocksBySucursal {

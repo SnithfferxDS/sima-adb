@@ -16,15 +16,15 @@ const formatPrice = (price: number | null) => {
 };
 ---
 
-<div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
+<div
+	class="bg-blue-100/25 dark:bg-gray-800/25 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+>
 	<div class="relative aspect-square">
 		{
 			product.image ? (
 				<img src={product.image} alt={product.name || 'Product image'} class="w-full h-full object-cover" />
 			) : (
-				<div class="w-full h-full bg-gray-200 flex items-center justify-center">
-					<span class="text-gray-400 text-4xl material-symbols-outlined">image_not_available</span>
-				</div>
+				<img src="/assets/img/no_photo.png" alt="Product Image" class="w-full h-full object-cover" />
 			)
 		}
 		{
@@ -39,11 +39,11 @@ const formatPrice = (price: number | null) => {
 	<div class="p-4 space-y-2">
 		<div class="flex justify-between items-start">
 			<div>
-				<h3 class="text-lg font-semibold text-gray-900 line-clamp-2">{product.name}</h3>
+				<h3 class="text-lg font-semibold text-gray-900 dark:text-gray-100 line-clamp-2">{product.name}</h3>
 				{product.brand && <p class="text-sm text-gray-600">{product.brand}</p>}
 			</div>
 			<div class="text-right">
-				<p class="text-lg font-bold text-primary">
+				<p class="text-lg font-bold text-primary dark:text-primary-700">
 					{formatPrice(product.store?.price)}
 				</p>
 				{
@@ -54,20 +54,18 @@ const formatPrice = (price: number | null) => {
 			</div>
 		</div>
 
-		{product.description && <p class="text-sm text-gray-600 line-clamp-2">{product.description}</p>}
-
 		<div class="flex items-center justify-between pt-2">
 			<div class="space-x-2">
 				{
 					product.category && (
-						<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+						<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium text-primary-400 dark:text-secondary-800">
 							{product.category}
 						</span>
 					)
 				}
 				{
 					product.productType && (
-						<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+						<span class="inline-flex items-center px-2 py-1 rounded-md text-xs font-medium text-primary-400 dark:text-secondary-800">
 							{product.productType}
 						</span>
 					)
@@ -80,6 +78,10 @@ const formatPrice = (price: number | null) => {
 			>
 				{product.store?.status || 'Unavailable'}
 			</span>
+		</div>
+
+		<div class="text-sm text-primary-600 dark:text-secondary-600 line-clamp-4">
+			<div set:html={product.description} />
 		</div>
 
 		{

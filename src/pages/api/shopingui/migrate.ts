@@ -54,7 +54,7 @@ export const GET: APIRoute = async ({ request }) => {
                     max = parseInt(productsData.max);
                 }
                 console.info("Initiating migration of page: ", currentPage, " of ", totalPages);
-                console.info("Total pages: ", totalPages);
+                // console.info("Total pages: ", totalPages);
                 currentPage += limit;
                 try {
                     const products = await Promise.all(
@@ -73,11 +73,11 @@ export const GET: APIRoute = async ({ request }) => {
                     throw new Error("Error: " + error);
                 }
             } else {
-                if (currentPage < totalPages) {
+                if (currentPage < 100) {
                     throw new Error("Failed to create product");
                 }
             }
-        } while (currentPage <= totalPages);
+        } while (currentPage <= 100);
         return new Response(JSON.stringify({ success: true }), { status: 201 });
     } catch (error) {
         return new Response(JSON.stringify({ error: 'Failed to create product' }), { status: 500 });

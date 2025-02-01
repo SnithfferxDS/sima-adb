@@ -14,41 +14,46 @@ const formatPrice = (price: number | null) => {
 		currency: 'USD'
 	}).format(price);
 };
+/* pt-6 md:p-8 text-center md:text-left space-y-4 */
 ---
 
-<div class="bg-white rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300">
-	<div class="flex">
-		<div class="w-48 h-48 flex-shrink-0">
+<div
+	class="bg-blue-100/25 dark:bg-gray-800/25 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+>
+	<div class="md:flex rounded-xl p-8 md:p-0">
+		<div class="w-24 h-24 md:w-48 md:h-auto md:rounded-none rounded-full flex justify-left">
 			{
 				product.image ? (
-					<img src={product.image} alt={product.name || 'Product image'} class="w-full h-full object-cover" />
+					<img
+						src={product.image}
+						alt={product.name || 'No Product image'}
+						class="w-full h-full object-cover"
+					/>
 				) : (
-					<div class="w-full h-full bg-gray-200 flex items-center justify-center">
-						<span class="text-gray-400 text-4xl material-symbols-outlined">image_not_available</span>
-					</div>
+					<img src="/assets/img/no_photo.png" alt="No Product Image" class="w-full h-full object-cover" />
 				)
 			}
 		</div>
 
-		<div class="flex-1 p-6">
+		<div class="pt-6 md:p-8 text-center md:text-left space-y-4">
 			<div class="flex justify-between items-start">
 				<div>
-					<h3 class="text-xl font-semibold text-gray-900">{product.name}</h3>
+					<h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">{product.name}</h3>
 					{product.brand && <p class="text-sm text-gray-600 mt-1">{product.brand}</p>}
 				</div>
+			</div>
+			<div class="flex justify-between items-start">
 				<div class="text-right">
-					<p class="text-xl font-bold text-primary">
+					<p class="text-xl font-bold text-primary dark:text-primary-700">
 						{formatPrice(product.store?.price)}
 					</p>
 					{
 						product.store?.offer && product.price && (
-							<p class="text-sm text-gray-500 line-through">{formatPrice(product.price)}</p>
+							<p class="text-sm text-orange-500 line-through">{formatPrice(product.price)}</p>
 						)
 					}
 				</div>
 			</div>
-
-			{product.description && <p class="text-gray-600 mt-4">{product.description}</p>}
 
 			<div class="flex items-center justify-between mt-6">
 				<div class="space-x-2">
@@ -85,6 +90,10 @@ const formatPrice = (price: number | null) => {
 						{product.store?.status || 'Unavailable'}
 					</span>
 				</div>
+			</div>
+
+			<div class="text-sm text-primary-600 dark:text-secondary-600 line-clamp-4">
+				<div set:html={product.description} />
 			</div>
 
 			{

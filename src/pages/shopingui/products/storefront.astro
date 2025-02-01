@@ -5,7 +5,7 @@ import ProductCard from '@Components/shopingui/store/ProductCard.astro';
 import ProductCardList from '@Components/shopingui/store/ProductCardList.astro';
 import ViewSelector from '@Components/shopingui/store/ViewSelector.astro';
 import { db } from '@DB/shopify/db';
-import { eq } from 'drizzle-orm';
+import { eq, and } from 'drizzle-orm';
 import {
 	Products,
 	TProductRelations,
@@ -31,42 +31,133 @@ const selectedType = searchParams.get('type');
 const selectedView = searchParams.get('view') || 'grid';
 
 // Build query
-let query = db
-	.select({
-		id: Products.id,
-		dsin: TProductRelations.dsin,
-		name: Products.name,
-		description: Products.shortDescription,
-		brand: Brands.name,
-		category: ProductCategories.name,
-		productType: ProductTypes.name,
-		price: TPrices.value,
-		store: {
-			id: TProductRelations.store,
-			price: TPrices.value,
-			offer: TPrices.offer,
-			status: Status.name
-		},
-		stocks: {}
-	})
-	.from(Products)
-	.leftJoin(TProductRelations, eq(TProductRelations.product_id, Products.id))
-	.leftJoin(ProductCategories, eq(ProductCategories.id, TProductRelations.category_id))
-	.leftJoin(ProductTypes, eq(ProductTypes.id, TProductRelations.product_type_id))
-	.leftJoin(Brands, eq(Brands.id, TProductRelations.brand_id))
-	// .leftJoin(CommonNames, eq(CommonNames.id, TProductRelations.commonNames))
-	.leftJoin(TPrices, eq(TPrices.id, TProductRelations.price))
-	.leftJoin(Status, eq(Status.id, TProductRelations.status_id));
+let query;
 
 // Apply filters
 if (selectedCategory) {
-	query = query.where(eq(ProductCategories.id, parseInt(selectedCategory)));
-}
-if (selectedType) {
-	query = query.where(eq(ProductTypes.id, parseInt(selectedType)));
+	if (!selectedType) {
+		query = await db
+			.select({
+				id: Products.id,
+				dsin: TProductRelations.dsin,
+				name: Products.name,
+				description: Products.shortDescription,
+				brand: Brands.name,
+				category: ProductCategories.name,
+				productType: ProductTypes.name,
+				price: TPrices.value,
+				store: {
+					id: TProductRelations.store,
+					price: TPrices.value,
+					offer: TPrices.offer,
+					status: Status.name
+				},
+				stocks: {}
+			})
+			.from(Products)
+			.leftJoin(TProductRelations, eq(TProductRelations.product_id, Products.id))
+			.leftJoin(ProductCategories, eq(ProductCategories.id, TProductRelations.category_id))
+			.leftJoin(ProductTypes, eq(ProductTypes.id, TProductRelations.product_type_id))
+			.leftJoin(Brands, eq(Brands.id, TProductRelations.brand_id))
+			// .leftJoin(CommonNames, eq(CommonNames.id, TProductRelations.commonNames))
+			.leftJoin(TPrices, eq(TPrices.id, TProductRelations.price))
+			.leftJoin(Status, eq(Status.id, TProductRelations.status_id))
+			.where(eq(ProductCategories.id, parseInt(selectedCategory)))
+			.orderBy(Products.createdAt);
+	} else {
+		query = await db
+			.select({
+				id: Products.id,
+				dsin: TProductRelations.dsin,
+				name: Products.name,
+				description: Products.shortDescription,
+				brand: Brands.name,
+				category: ProductCategories.name,
+				productType: ProductTypes.name,
+				price: TPrices.value,
+				store: {
+					id: TProductRelations.store,
+					price: TPrices.value,
+					offer: TPrices.offer,
+					status: Status.name
+				},
+				stocks: {}
+			})
+			.from(Products)
+			.leftJoin(TProductRelations, eq(TProductRelations.product_id, Products.id))
+			.leftJoin(ProductCategories, eq(ProductCategories.id, TProductRelations.category_id))
+			.leftJoin(ProductTypes, eq(ProductTypes.id, TProductRelations.product_type_id))
+			.leftJoin(Brands, eq(Brands.id, TProductRelations.brand_id))
+			// .leftJoin(CommonNames, eq(CommonNames.id, TProductRelations.commonNames))
+			.leftJoin(TPrices, eq(TPrices.id, TProductRelations.price))
+			.leftJoin(Status, eq(Status.id, TProductRelations.status_id))
+			.where(
+				and(eq(ProductCategories.id, parseInt(selectedCategory)), eq(ProductTypes.id, parseInt(selectedType)))
+			)
+			.orderBy(Products.createdAt);
+	}
+} else {
+	if (selectedType) {
+		query = await db
+			.select({
+				id: Products.id,
+				dsin: TProductRelations.dsin,
+				name: Products.name,
+				description: Products.shortDescription,
+				brand: Brands.name,
+				category: ProductCategories.name,
+				productType: ProductTypes.name,
+				price: TPrices.value,
+				store: {
+					id: TProductRelations.store,
+					price: TPrices.value,
+					offer: TPrices.offer,
+					status: Status.name
+				},
+				stocks: {}
+			})
+			.from(Products)
+			.leftJoin(TProductRelations, eq(TProductRelations.product_id, Products.id))
+			.leftJoin(ProductCategories, eq(ProductCategories.id, TProductRelations.category_id))
+			.leftJoin(ProductTypes, eq(ProductTypes.id, TProductRelations.product_type_id))
+			.leftJoin(Brands, eq(Brands.id, TProductRelations.brand_id))
+			// .leftJoin(CommonNames, eq(CommonNames.id, TProductRelations.commonNames))
+			.leftJoin(TPrices, eq(TPrices.id, TProductRelations.price))
+			.leftJoin(Status, eq(Status.id, TProductRelations.status_id))
+			.where(eq(ProductTypes.id, parseInt(selectedType)))
+			.orderBy(Products.createdAt);
+	} else {
+		query = await db
+			.select({
+				id: Products.id,
+				dsin: TProductRelations.dsin,
+				name: Products.name,
+				description: Products.shortDescription,
+				brand: Brands.name,
+				category: ProductCategories.name,
+				productType: ProductTypes.name,
+				price: TPrices.value,
+				store: {
+					id: TProductRelations.store,
+					price: TPrices.value,
+					offer: TPrices.offer,
+					status: Status.name
+				},
+				stocks: {}
+			})
+			.from(Products)
+			.leftJoin(TProductRelations, eq(TProductRelations.product_id, Products.id))
+			.leftJoin(ProductCategories, eq(ProductCategories.id, TProductRelations.category_id))
+			.leftJoin(ProductTypes, eq(ProductTypes.id, TProductRelations.product_type_id))
+			.leftJoin(Brands, eq(Brands.id, TProductRelations.brand_id))
+			// .leftJoin(CommonNames, eq(CommonNames.id, TProductRelations.commonNames))
+			.leftJoin(TPrices, eq(TPrices.id, TProductRelations.price))
+			.leftJoin(Status, eq(Status.id, TProductRelations.status_id))
+			.orderBy(Products.createdAt);
+	}
 }
 
-const products = await query.orderBy(Products.createdAt);
+const products = query ?? [];
 
 // Transform to StoreProductSchema
 const storeProducts: ProductCardSchema[] = products.map(product => ({
@@ -116,7 +207,20 @@ const breadcrumbs = [
 			<form id="filters-form" class="flex gap-4">
 				<select
 					name="category"
-					class="rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+					class="border sm:text-sm
+					rounded-lg p-2.5
+					shadow-sm
+					bg-gray-50
+					border-gray-300
+					text-gray-900
+					focus:ring-primary-500
+					focus:border-primary-500
+					dark:bg-gray-700
+					dark:border-gray-600
+					dark:placeholder-gray-400
+					dark:text-white
+					dark:focus:ring-primary-500
+					dark:focus:border-primary-500"
 				>
 					<option value="">All Categories</option>
 					{
@@ -130,7 +234,20 @@ const breadcrumbs = [
 
 				<select
 					name="type"
-					class="rounded-md border-gray-300 shadow-sm focus:border-primary-500 focus:ring-primary-500"
+					class="border sm:text-sm
+					rounded-lg p-2.5
+					shadow-sm
+					bg-gray-50
+					border-gray-300
+					text-gray-900
+					focus:ring-primary-500
+					focus:border-primary-500
+					dark:bg-gray-700
+					dark:border-gray-600
+					dark:placeholder-gray-400
+					dark:text-white
+					dark:focus:ring-primary-500
+					dark:focus:border-primary-500"
 				>
 					<option value="">All Types</option>
 					{
@@ -178,8 +295,8 @@ const breadcrumbs = [
 		<div
 			id="products-container"
 			class={selectedView === 'grid'
-				? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6'
-				: 'space-y-4'}
+				? 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6 mt-4 bg-gray-300 dark:bg-gray-500'
+				: 'space-y-4 mt-6 bg-gray-300 dark:bg-gray-500'}
 		>
 			{
 				storeProducts.map(product =>
