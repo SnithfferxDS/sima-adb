@@ -7,13 +7,11 @@ const shopinguiServices = new ShopinguiService();
 export const GET: APIRoute = async ({ request, url }) => {
     try {
         const terms = url.searchParams.get('terms');
-        // console.log("terms: ", terms);
         if (!terms) return new Response(JSON.stringify({ error: 'No search terms provided' }), { status: 400 });
         const localRequest = await shopinguiServices.search(terms);
         if (!localRequest || localRequest.length === 0) {
             // Authenticate before request
             let token = API_TOKEN;
-            // console.log("start: ", token);
             if (token == '') {
                 const apiToken = request.headers.get(API_TOKEN_NAME);
                 if (apiToken) {
@@ -25,7 +23,6 @@ export const GET: APIRoute = async ({ request, url }) => {
                     //         });
                 }
             }
-            console.log("Token: ", token);
             const authResponse = await fetch(`${API_URL}/auth/login`, {
                 method: "POST",
                 body: JSON.stringify({
@@ -42,9 +39,6 @@ export const GET: APIRoute = async ({ request, url }) => {
             if (authResponse && authResponse.token) {
                 token = authResponse.token;
             }
-            //         setSessionCookie(token);
-            //     }
-            // }
             // Get api response
             const response = await fetch(`${API_URL}/products/search?terms=${terms}`, {
                 headers: {
@@ -54,14 +48,12 @@ export const GET: APIRoute = async ({ request, url }) => {
                 mode: 'cors',
                 credentials: 'include',
             });
-            // console.log("API Request: ", response);
             if (!response.ok) {
-                console.log(response);
                 throw new Error("Search failed");
             }
-            const results = await response.json();
-            // console.log("Products: ", results);
-            return new Response(JSON.stringify({ success: true, products: results }), { status: 201 });
+            return response;
+            // const results = await response.json();
+            // return new Response(JSON.stringify({ success: true, products: results }), { status: 201 });
         }
         return new Response(JSON.stringify({ success: true, products: localRequest }), { status: 201 });
     } catch (error) {

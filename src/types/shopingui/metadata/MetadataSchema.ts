@@ -16,7 +16,7 @@ export interface ShopinguiMetadata {
 }
 
 export interface ShopinguiGroup {
-    id: number;
+    id: string;
     name: string;
     order: number;
 }

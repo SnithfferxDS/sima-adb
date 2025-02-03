@@ -1,14 +1,30 @@
 export interface SearchableProduct {
-    id: string;
+    id: number;
+    image: string;
     name: string;
-    image?: string;
-    sku?: string;
-    mpn?: string;
-    upc?: string;
-    description?: string;
-    active: boolean;
-    product_type?: ProductType;
-    store?: Store;
+    upc: string;
+    sku: string;
+    mpn: string;
+    productType: {
+        id: number;
+        name: string;
+    },
+    brand: {
+        id: number;
+        name: string;
+    },
+    category: {
+        id: number;
+        name: string;
+        client: number;
+    },
+    store: string;
+    variant: {
+        id: string;
+        main: string;
+        value: string;
+    },
+    disabled: number;
 }
 
 export interface ProductType {

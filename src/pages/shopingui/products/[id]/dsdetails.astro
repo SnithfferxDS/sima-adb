@@ -50,8 +50,8 @@ const product = await fetch(`${API_URL}/products/${id}`, {
 })
 	.then((res) => res.json())
 	.catch((err) => console.log("Error: ", err));
-
-if (!product || product.length === 0)
+console.log("product: ", product);
+if (product == undefined || product === null)
 	return Astro.redirect("/shopingui/products/notFound");
 
 // metadata
@@ -84,7 +84,10 @@ groupIds.forEach((id) => {
 	product.metadata.forEach((m: ShopinguiMetadata) => {
 		if (m.group.id === id) {
 			if (!groups.find((g) => g.id === m.group.id)) {
-				groups.push(m.group);
+				groups.push({
+					id : m.group.id as string,
+					name: m.group.name as string,
+					order: m.group.order ?? 0,});
 			}
 		}
 	});
@@ -103,7 +106,7 @@ const ungroupedMetadata = product.metadata.filter(
 ) as ShopinguiMetadata[];
 if (ungroupedMetadata.length > 0) {
 	groupedMetadata.push({
-		id: 0,
+		id: '0',
 		name: "Other",
 		order: 0,
 		metadata: ungroupedMetadata,
