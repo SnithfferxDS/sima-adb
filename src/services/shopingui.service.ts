@@ -12,7 +12,11 @@ import {
     TMetadataProductAsociations,
     TTagsProducts,
     ProductImages,
-    Status
+    Status,
+    Wharehouses,
+    CommonNames,
+    TSucursals,
+    Groups
 } from '@DB/shopify/db/schema';
 import type { ShopinguiBrand } from '@Types/shopingui/brands/schema';
 import type { ShopinguiCategory } from '@Types/shopingui/categories/schema';
@@ -20,7 +24,7 @@ import type { ShopinguiCommonName } from '@Types/shopingui/common_name';
 import type { ShopinguiMetadata, ShopinguiMetadatas } from '@Types/shopingui/metadata/MetadataSchema';
 import type { ShopinguiProductPrice } from '@Types/shopingui/product_price/schema';
 import type { ShopinguiProductType } from '@Types/shopingui/product_types/shcema';
-import type { ShopinguiProduct } from '@Types/shopingui/products/ProductSchema';
+import type { ShopinguiProduct, ShopinguiProductStocks } from '@Types/shopingui/products/ProductSchema';
 import { like, or, eq, and } from 'drizzle-orm';
 import slugify from 'slugify';
 
@@ -45,25 +49,26 @@ export class ShopinguiService {
     }
 
     async addProductFromDS(product: ShopinguiProduct) {
-        console.log("product", product.id);
         if (!product.upc) {
             return null;
         }
+        let productId = null;
         const productExists = await db.select().from(Products).where(eq(Products.upc, product.upc as string));
         if (productExists.length > 0) {
-            return productExists;
+            productId = productExists[0].id;
         }
-        // const productWeight = this.extractWeight(product.weight);
-        // let wUnit = productWeight.unit, weight = isNaN(productWeight.weight) ? 0 : productWeight.weight;
-        // if (wUnit === 'kg') {
-        //     weight = Number(weight) * 1000;
-        // } else if (wUnit === 'lb') {
-        //     weight = Number(weight) * 2.20462;
-        // } else if (wUnit === 'oz') {
-        //     weight = Number(weight) * 28.3495;
-        // } else {
-        //     weight = Number(weight);
-        // }
+        const productWeight = this.extractWeight(product.weight);
+        // console.log("Product Weight: ", productWeight);
+        let wUnit = productWeight.unit, weight = isNaN(productWeight.weight) ? 0 : productWeight.weight;
+        if (wUnit === 'kg') {
+            weight = Number(weight) * 1000;
+        } else if (wUnit === 'lb') {
+            weight = Number(weight) * 2.20462;
+        } else if (wUnit === 'oz') {
+            weight = Number(weight) * 28.3495;
+        } else {
+            weight = Number(weight);
+        }
         // console.log("weight", weight);
         // Insert product information
         const productDb = await db.insert(Products).values({
@@ -81,111 +86,109 @@ export class ShopinguiService {
             warranty: product.defaultWarranty as number
         }).returning();
 
-        if (productDb) {
-
-            let brandId = 0;
-            let categoryId = 0;
-            let productTypeId = 0;
-            let productPriceId = 0;
-            // check if brand
-            if (product.brand) {
-                const brandDb = await this.saveBrand({
-                    id: null,
-                    name: product.brand.name as string,
-                    description: null, logo: null, active: true, createdAt: null, updatedAt: null
-                });
-                if (brandDb) {
-                    brandId = brandDb.id;
-                }
-            }
-            // Check if Category exists
-            if (product.category) {
-                const category = await this.saveCategory({
-                    name: product.category.name,
-                    client: product.category.client || 4,
-                    id: null, slug: null, description: null, parents: null,
-                    active: true, createdAt: null, updatedAt: null
-                });
-                if (category) {
-                    categoryId = category.id;
-                }
-            }
-            // Check if ProductType exists
-            if (product.productType && product.productType.name) {
-                const productType = await this.saveProductType({
-                    name: product.productType.name,
-                    category: categoryId,
-                    id: null, createdAt: null, updatedAt: null
-                });
-                if (productType) {
-                    productTypeId = productType.id;
-                }
-            }
-            // Adding product price
-            if (product.price !== null) {
-                const productPriceExists = await this.saveProductPrice(
-                    productDb[0].id, {
-                    cost: product.price.cost,
-                    added: {
-                        value: product.price.added?.value ?? 0,
-                        asignedBy: product.price.added?.asignedBy ?? 'Sin Información'
-                    },
-                    value: product.price.value,
-                    category: product.priceCategory ?? 4,
-                    store: {
-                        regular_price: product.store.price.value,
-                        sale_price: product.store.price.value,
-                        offer: product.store.price.offer,
-                        price_category: product.priceCategory ?? 4
-                    },
-                    active: true
-                });
-                if (productPriceExists) {
-                    productPriceId = productPriceExists.id;
-                }
-            }
-            // Adding product stocks
-            if (product.stocks) {
-                // product.stocks.sucursals.map(sucursalStock => {
-                //     const productStocks = await db.insert(Stocks).values({
-                //         product_id: productDb[0].id,
-                //         min: product.min ?? 0,
-                //         max: product.max ?? 0,
-                //         qnt: sucursalStock.stocks[0].qnt,
-                //         sucursal: sucursalStock.name,
-                //     })
-                // });
-                // const productStocks = await db.insert(Stocks).values({
-                //     product_id: productDb[0].id,
-                //     min: product.stocks?.min ?? 0,
-                //     max: product.stocks?.max ?? 0,
-                //     qnt: product.stocks?.total.HQ ?? 0,
-                //     sucursal: product.stocks?.total["Santa Ana"] ?? 0,
-                // }).returning();
-            }
-            // Adding product metadata
-            if (product.metadata) {
-                await this.saveProductMetadata(productDb[0].id, product.metadata);
-            }
-            // saving tags if not exists
-            if (product.tags) {
-                await this.saveTags(product.id, product.tags);
-            }
-            // Product Relations
-            const productRelations = await this.saveProductRelations(productDb[0].id, {
-                brand: brandId,
-                category: categoryId,
-                product_type: productTypeId,
-                price: productPriceId,
-                store: (product.store.id as unknown) as string,
-                dsin: product.id,
-            });
-            // Return Product
-            return productDb[0];
+        if (productDb.length > 0) {
+            productId = productDb[0].id;
         }
-        return null;
+        let brandId = 0;
+        let categoryId = 0;
+        let productTypeId = 0;
+        let productPriceId = 0;
+        let productStocks: number[] = [];
+        let productCommonName: number[] = [];
+        // check if brand
+        if (product.brand) {
+            const brandDb = await this.saveBrand({
+                id: null,
+                name: product.brand.name as string,
+                description: null, logo: null, active: true, createdAt: null, updatedAt: null
+            });
+            if (brandDb) {
+                brandId = brandDb.id;
+            }
+        }
+        // Check if Category exists
+        if (product.category) {
+            const category = await this.saveCategory({
+                name: product.category.name,
+                client: product.category.client || 4,
+                id: null, slug: null, description: null, parents: null,
+                active: true, createdAt: null, updatedAt: null
+            });
+            if (category) {
+                categoryId = category.id;
+            }
+        }
+        // Check if ProductType exists
+        if (product.productType && product.productType.name) {
+            const productType = await this.saveProductType({
+                name: product.productType.name,
+                category: categoryId,
+                id: null, createdAt: null, updatedAt: null
+            });
+            if (productType) {
+                productTypeId = productType.id;
+            }
+        }
+        // Adding product price
+        if (product.price !== null) {
+            const productPriceExists = await this.saveProductPrice(
+                productId as number, {
+                cost: product.price.cost,
+                added: {
+                    value: product.price.added?.value ?? 0,
+                    asignedBy: product.price.added?.asignedBy ?? 'Sin Información'
+                },
+                value: product.price.value,
+                category: product.priceCategory ?? 4,
+                store: {
+                    regular_price: product.store.price.value,
+                    sale_price: product.store.price.value,
+                    offer: product.store.price.offer,
+                    price_category: product.priceCategory ?? 4
+                },
+                active: true
+            });
+            if (productPriceExists) {
+                productPriceId = productPriceExists.id;
+            }
+        }
+        // Adding product stocks
+        if (product.stocks) {
+            productStocks = await this.saveProductStocks(productId as number, product.stocks);
+        }
+        
+        // Adding product common names
+        if (product.commonName) {
+            productCommonName = await this.saveProductCommonName(product.commonName);
+        }
+        // Adding product metadata
+        if (product.metadata) {
+            await this.saveProductMetadata(productId as number, product.metadata);
+        }
+        // saving tags if not exists
+        if (product.tags) {
+            await this.saveTags(product.id, product.tags);
+        }
+        // Product Relations
+        const productRelations = await this.saveProductRelations(productId as number, {
+            brand: brandId,
+            category: categoryId,
+            product_type: productTypeId,
+            price: productPriceId,
+            store: (product.store.id as unknown) as string,
+            dsin: product.id,
+            commonNames: productCommonName,
+            stocks: productStocks
+        });
     }
 
+    /**
+     * Retrieves a list of products with their respective information, including their short description, image URL, price, brand, category, product type, and store information.
+     * 
+     * @param page - The page number to retrieve. Defaults to 1.
+     * @param limit - The number of products to retrieve per page. Defaults to 100.
+     * @returns A list of products with the specified information.
+     */
     async getAllProducts(page: number = 1, limit: number = 100) {
         return await db.select({
             id: Products.id,
@@ -335,13 +338,6 @@ export class ShopinguiService {
     }
 
     generateShortDescription(product: ShopinguiProduct) {
-        /* 
-        <p>
-            <strong>Almacenamiento</strong>
-            <br>&nbsp;&nbsp;&nbsp;&nbsp;&bull;&nbsp;&nbsp;<em>256GB SATA</em>
-            <br><br>
-        </p>
-        */
         let metadataString = '';
         let featureString = '';
         let htmlString = '<p>';
@@ -442,7 +438,6 @@ export class ShopinguiService {
     }
 
     async saveProductPrice(product: number, price: ShopinguiProductPrice) {
-        console.log("price", price);
         const productPriceExists = await db.select({
             id: TProductRelations.price
         })
@@ -468,7 +463,6 @@ export class ShopinguiService {
     }
 
     async updateProductPrice(price: number, data: ShopinguiProductPrice) {
-        console.log("price updated", price, data);
         const productPriceUpdated = await db.update(TPrices)
             .set({
                 cost: data.cost,
@@ -525,8 +519,9 @@ export class ShopinguiService {
         price: number,
         store: string,
         dsin: number,
+        commonNames: number[],
+        stocks: number[],
     }) {
-        console.log("relations", relations);
         const productRelationsExists = await db.select().from(TProductRelations).where(eq(TProductRelations.product_id, product));
         if (productRelationsExists.length === 0) {
             const productRelations = await db.insert(TProductRelations).values({
@@ -536,64 +531,84 @@ export class ShopinguiService {
                 price: relations.price,
                 store: relations.store,
                 dsin: relations.dsin,
-                status_id: 1,
+                status_id: 5,
                 category_id: relations.category,
+                commonNames: JSON.stringify(relations.commonNames),
+                stocks: JSON.stringify(relations.stocks),
             }).returning();
             return productRelations[0];
         }
         return productRelationsExists[0];
     }
 
-    // async saveProductStocks(product: number, stocks: ShopinguiProductStocks) {
-    //     const productStocksExists = await db.select().from(Stocks).where(eq(Stocks.product_id, product));
-    //     if (productStocksExists.length === 0) {
-    //         const productStocks = await db.insert(Stocks).values({
-    //             product_id: product,
-    //             min: stocks.min,
-    //             max: stocks.max,
-    //             qnt: stocks.qnt,
-    //             sucursal: stocks.sucursal,
-    //         }).returning();
-    //         return productStocks[0];
-    //     }
-    //     return productStocksExists[0];
-    // }
-
     async saveProductMetadata(product: number, metadatas: ShopinguiMetadatas) {
         const result = await Promise.all(metadatas.map(async metadata => {
+            /* {
+                "id": 361,
+                "name": "Serie",
+                "value": "TM-U",
+                "position": 2,
+                "active": 1,
+                "isFeature": 0,
+                "format": null,
+                "tooltip": null,
+                "allowDescription": 1,
+                "group": {
+                    "id": "22",
+                    "name": "Información del Producto",
+                    "order": 1
+                }
+            }
+                
+            id: integer().primaryKey(),
+            name: text().notNull(),
+            position: integer({ mode: 'number' }).default(1),
+            active: integer({ mode: 'boolean' }).default(true),
+            allow_description: integer({ mode: 'boolean' }).default(true),
+            is_feature: integer({ mode: 'boolean' }).default(false),
+            format: text(),
+            tooltip: text(),*/
+            console.log("Metadata: ", metadata);
             const metadataExists = await db
                 .select()
                 .from(TMetadatas)
                 .where(eq(TMetadatas.name, metadata.name as string));
             if (metadataExists.length === 0) {
-                const productMetadata = await db
-                    .insert(TMetadatas).values({
-                        name: metadata.name as string,
-                        position: metadata.position as number,
-                        active: metadata.active == 1 ? true : false,
-                        is_feature: metadata.isFeature == 1 ? true : false,
-                        tooltip: metadata.tooltip as string,
-                        format: metadata.format as string,
-                        id_group: parseInt(metadata.group?.id as string),
-                    }).returning();
-
-                if (productMetadata) {
-                    if (metadata.value !== '') {
-                        await this.saveProductMetadataRelations(
-                            productMetadata[0].id as number,
-                            product,
-                            metadata.value as string,
-                            metadata.active == 1 ? true : false,
-                            metadata.allowDescription == 1 ? true : false);
+                const groupDb = await this.saveGroup({
+                    name: metadata.group?.name as string,
+                    position: metadata.group?.order ?? 1
+                });
+                if (metadata.name !== null) {
+                    const productMetadata = await db
+                        .insert(TMetadatas).values({
+                            name: metadata.name,
+                            id_group: groupDb.id,
+                            position: metadata.position ?? 1,
+                            active: metadata.active == 1 ? true : false,
+                            allow_description: metadata.allowDescription == 1 ? true : false,
+                            is_feature: metadata.isFeature == 1 ? true : false,
+                            format: metadata.format,
+                            tooltip: metadata.tooltip
+                        }).returning();
+                    if (productMetadata) {
+                        if (metadata.value !== '') {
+                            await this.saveProductMetadataRelations(
+                                productMetadata[0].id as number,
+                                product,
+                                metadata.value as string,
+                                metadata.active == 1 ? true : false,
+                                metadata.allowDescription == 1 ? true : false);
+                        }
                     }
+                    return productMetadata[0];
                 }
-                return productMetadata[0];
+
             } else {
                 if (metadata.value !== '') {
                     await this.saveProductMetadataRelations(
                         metadataExists[0].id as number,
                         product,
-                        metadata.value as string,
+                        metadata.value,
                         metadata.active == 1 ? true : false,
                         metadata.allowDescription == 1 ? true : false);
                 }
@@ -620,5 +635,134 @@ export class ShopinguiService {
                 });
             }
         }
+    }
+
+    async saveProductCommonName(commonNames: ShopinguiCommonName[]) {
+        const commonNamesProduct: number[] = [];
+        commonNames.map(async commonName => {
+            const productCommonNameExists = await db.select()
+                .from(CommonNames)
+                .where(eq(CommonNames.name, commonName.name as string));
+            if (productCommonNameExists.length === 0) {
+                const productCommonName = await db.insert(CommonNames).values({
+                    name: commonName.name as string,
+                    position: commonName.position as number,
+                    storeId: commonName.storeCategory?.storeId as string,
+                    storeName: commonName.storeCategory?.name as string,
+                    handle: commonName.storeCategory?.handle as string,
+                    isLinea: commonName.storeCategory?.isLinea as number > 0 ? true : false,
+                }).returning({
+                    id: CommonNames.id
+                });
+                if (productCommonName.length > 0) {
+                    commonNamesProduct.push(productCommonName[0].id);
+                }
+            } else {
+                commonNamesProduct.push(productCommonNameExists[0].id);
+            }
+        });
+        return commonNamesProduct;
+    }
+
+    async saveProductStocks(product: number, stocks: ShopinguiProductStocks) {
+        const stocksDb: number[] = [];
+        stocks.sucursals.map(async sucursal => {
+            // console.log("Sucursal: ", sucursal.name);
+            // console.log("Stocks: ", sucursal.stocks);
+            sucursal.stocks.map(async warehouseStock => {
+                const sucursalDb = await this.saveSucursal(sucursal.name);
+                const warehouse = await this.saveWarehouse(warehouseStock.name, sucursal.name);
+                const productStocksExists = await db.select()
+                    .from(ProductStocks)
+                    .where(
+                        and(
+                            eq(ProductStocks.product_id, product),
+                            eq(ProductStocks.sucursal, sucursalDb.id),
+                            eq(ProductStocks.warehouse, warehouse.id),
+                        ));
+                if (productStocksExists.length === 0) {
+                    // console.log("Product Stocks Insert: ", warehouseStock);
+                    const productStocks = await db.insert(ProductStocks).values({
+                        product_id: product,
+                        min: 1,
+                        max: warehouseStock.stock * 10,
+                        current: warehouseStock.stock,
+                        last: 0,
+                        sucursal: sucursalDb.id,
+                        warehouse: warehouse.id
+                    }).returning({ id: ProductStocks.id });
+                    if (productStocks.length > 0) {
+                        stocksDb.push(productStocks[0].id);
+                    }
+                } else {
+                    //         console.log("Product Stocks: ", productStocksExists);
+                    //         console.log("Product Stock updated: ", warehouseStock);
+                    const productStoctUpdated = await db.update(ProductStocks).set({
+                        current: warehouseStock.stock,
+                        last: productStocksExists[0].current
+                    }).where(eq(ProductStocks.id, productStocksExists[0].id)).returning({ id: ProductStocks.id });
+                    if (productStoctUpdated.length > 0) {
+                        stocksDb.push(productStoctUpdated[0].id);
+                    }
+                }
+            });
+        });
+        return stocksDb;
+    }
+
+    async saveWarehouse(name: string, sucursal: string) {
+        const sucursalDb = await db.select({ id: TSucursals.id }).from(TSucursals).where(eq(TSucursals.name, sucursal));
+        let sucursalId = sucursalDb[0].id;
+
+        if (sucursalDb.length === 0) {
+            sucursalId = (await this.saveSucursal(sucursal)).id;
+        }
+        const warehouseExists = await db.select()
+            .from(Wharehouses)
+            .where(eq(Wharehouses.name, name));
+        if (warehouseExists.length === 0) {
+            const warehouse = await db.insert(Wharehouses).values({
+                name: name as string,
+                sucursal: sucursalId
+            }).returning();
+            if (warehouse.length > 0) {
+                return warehouse[0];
+            }
+        }
+        return warehouseExists[0];
+    }
+
+    async saveSucursal(name: string) {
+        const sucursalExists = await db.select()
+            .from(TSucursals)
+            .where(eq(TSucursals.name, name));
+        if (sucursalExists.length === 0) {
+            const sucursal = await db.insert(TSucursals).values({
+                name: name,
+            }).returning();
+            if (sucursal.length > 0) {
+                return sucursal[0];
+            }
+        }
+        return sucursalExists[0];
+    }
+
+    async saveGroup(group: {
+        name: string;
+        position: number;
+    }) {
+        const groupExists = await db.select()
+            .from(Groups)
+            .where(eq(Groups.name, group.name as string));
+        if (groupExists.length === 0) {
+            const groupDb = await db.insert(Groups).values({
+                name: group.name,
+                position: group.position
+            }).returning();
+            if (groupDb.length > 0) {
+                return groupDb[0];
+            }
+        }
+        return groupExists[0];
     }
 }

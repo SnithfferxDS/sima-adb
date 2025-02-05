@@ -1,0 +1,110 @@
+---
+import type { ProductCardSchema } from '@Types/shopingui/products/ProductCardSchema';
+
+interface Props {
+	product: ProductCardSchema;
+}
+
+const { product } = Astro.props;
+
+const formatPrice = (price: number | null) => {
+	if (!price) return '$0.00';
+	return new Intl.NumberFormat('en-US', {
+		style: 'currency',
+		currency: 'USD'
+	}).format(price);
+};
+/* pt-6 md:p-8 text-center md:text-left space-y-4 */
+---
+
+<div
+	class="bg-blue-100/25 dark:bg-gray-800/25 rounded-lg shadow-md overflow-hidden hover:shadow-lg transition-shadow duration-300"
+>
+	<div class="md:flex rounded-xl p-8 md:p-0">
+		<div class="w-24 h-24 md:w-48 md:h-auto md:rounded-none rounded-full flex justify-left">
+			{
+				product.image ? (
+					<img
+						src={product.image}
+						alt={product.name || 'No Product image'}
+						class="w-full h-full object-cover"
+					/>
+				) : (
+					<img src="/assets/img/no_photo.png" alt="No Product Image" class="w-full h-full object-cover" />
+				)
+			}
+		</div>
+
+		<div class="pt-6 md:p-8 text-center md:text-left space-y-4">
+			<div class="flex justify-between items-start">
+				<div>
+					<h3 class="text-xl font-semibold text-gray-900 dark:text-gray-100">{product.name}</h3>
+					{product.brand && <p class="text-sm text-gray-600 mt-1">{product.brand}</p>}
+				</div>
+			</div>
+			<div class="flex justify-between items-start">
+				<div class="text-right">
+					<p class="text-xl font-bold text-primary dark:text-primary-700">
+						{formatPrice(product.store?.price)}
+					</p>
+					{
+						product.store?.offer && product.price && (
+							<p class="text-sm text-orange-500 line-through">{formatPrice(product.price)}</p>
+						)
+					}
+				</div>
+			</div>
+
+			<div class="flex items-center justify-between mt-6">
+				<div class="space-x-2">
+					{
+						product.category && (
+							<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+								{product.category}
+							</span>
+						)
+					}
+					{
+						product.productType && (
+							<span class="inline-flex items-center px-2 py-1 rounded-full text-xs font-medium bg-gray-100 text-gray-800">
+								{product.productType}
+							</span>
+						)
+					}
+				</div>
+				<div class="flex items-center gap-4">
+					{
+						product.store?.offer && (
+							<span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-danger text-white">
+								Offer
+							</span>
+						)
+					}
+					<span
+						class={`inline-flex items-center px-3 py-1 rounded-full text-xs font-medium ${
+							product.store?.status === 'available'
+								? 'bg-green-100 text-green-800'
+								: 'bg-red-100 text-red-800'
+						}`}
+					>
+						{product.store?.status || 'Unavailable'}
+					</span>
+				</div>
+			</div>
+
+			<div class="text-sm text-primary-600 dark:text-secondary-600 line-clamp-4">
+				<div set:html={product.description} />
+			</div>
+
+			{
+				product.stocks && (
+					<div class="mt-4 pt-4 border-t">
+						<p class="text-sm text-gray-600">
+							Total Stock: {Object.values(product.stocks.total).reduce((a, b) => a + b, 0)}
+						</p>
+					</div>
+				)
+			}
+		</div>
+	</div>
+</div>

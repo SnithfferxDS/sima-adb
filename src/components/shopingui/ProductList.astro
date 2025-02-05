@@ -33,7 +33,8 @@ if (Astro.request.method !== 'GET') {
 						price: product.store.price,
 						offer: product.store.offer,
 						status: product.store.status
-					}
+					},
+					stocks: null
 				});
 			});
 		}

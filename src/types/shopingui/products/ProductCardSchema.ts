@@ -1,3 +1,4 @@
+import type { ShopinguiProductStocks } from "./ProductSchema";
 export interface ProductCardSchema {
     id: number | null,
     dsin: number | null,
@@ -13,6 +14,7 @@ export interface ProductCardSchema {
         price: number | null,
         offer: boolean | null,
         status: string | null,
-    }
+    },
+    stocks: ShopinguiProductStocks | null,
 }
 export type ProductCardSchemas = ProductCardSchema[];

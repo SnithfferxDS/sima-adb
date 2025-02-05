@@ -44,18 +44,18 @@ export const GET: APIRoute = async ({ request }) => {
             token = authResponse.token;
         }
         // Loop through all products
-        let currentProduct = 0, currentPage = 1, totalPages = 0, max = 0;
+        let currentProduct = 0, currentPage = 1, limit = 10, totalPages = 0, max = 0;
         do {
-            const response = await getProducts(token, currentProduct);
-            // console.log(response);
+            const response = await getProducts(token, currentPage, limit);
             if (response.ok) {
                 const productsData = await response.json();
                 if (currentProduct == 0) {
-                    totalPages = parseInt(productsData.max) / 10;
+                    totalPages = productsData.max;
                     max = parseInt(productsData.max);
                 }
                 console.info("Initiating migration of page: ", currentPage, " of ", totalPages);
-                console.info("Total pages: ", totalPages);
+                // console.info("Total pages: ", totalPages);
+                currentPage += limit;
                 try {
                     const products = await Promise.all(
                         productsData.data.map(async (product: ShopinguiProduct) => {
@@ -72,13 +72,12 @@ export const GET: APIRoute = async ({ request }) => {
                 } catch (error) {
                     throw new Error("Error: " + error);
                 }
-                currentPage += 1;
             } else {
-                if (currentProduct < max) {
+                if (currentPage < 100) {
                     throw new Error("Failed to create product");
                 }
             }
-        } while (currentProduct <= max);
+        } while (currentPage <= 100);
         return new Response(JSON.stringify({ success: true }), { status: 201 });
     } catch (error) {
         return new Response(JSON.stringify({ error: 'Failed to create product' }), { status: 500 });
@@ -87,8 +86,8 @@ export const GET: APIRoute = async ({ request }) => {
     }
 }
 
-async function getProducts(token: string, currentPage: number) {
-    return await fetch(`${API_URL}/products/migrate?page=${currentPage}`, {
+async function getProducts(token: string, current: number, limit: number) {
+    return await fetch(`${API_URL}/products/migrate?page=${current}&limit=${limit}`, {
         headers: {
             Authorization: "Bearer " + token,
         },

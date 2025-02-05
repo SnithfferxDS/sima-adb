@@ -1,0 +1,56 @@
+---
+interface Props {
+	currentView: 'grid' | 'list';
+}
+
+const { currentView } = Astro.props;
+---
+
+<div class="flex gap-2">
+	<button
+		class={`p-2 rounded-md transition-colors ${
+			currentView === 'grid' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+		}`}
+		data-view="grid"
+	>
+		<span class="material-symbols-outlined">grid_view</span>
+	</button>
+	<button
+		class={`p-2 rounded-md transition-colors ${
+			currentView === 'list' ? 'bg-primary text-white' : 'bg-gray-100 text-gray-600 hover:bg-gray-200'
+		}`}
+		data-view="list"
+	>
+		<span class="material-symbols-outlined">view_list</span>
+	</button>
+</div>
+
+<script>
+	const buttons = document.querySelectorAll('[data-view]');
+	buttons.forEach(button => {
+		button.addEventListener('click', () => {
+			const view = button.getAttribute('data-view') ?? 'grid';
+			const productsContainer = document.getElementById('products-container');
+
+			// Update buttons
+			buttons.forEach(btn => {
+				btn.className =
+					btn.getAttribute('data-view') === view
+						? 'p-2 rounded-md transition-colors bg-primary text-white'
+						: 'p-2 rounded-md transition-colors bg-gray-100 text-gray-600 hover:bg-gray-200';
+			});
+
+			// Update grid classes
+			if (productsContainer) {
+				if (view === 'grid') {
+					productsContainer.className = 'grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6';
+				} else {
+					productsContainer.className = 'space-y-4';
+				}
+			}
+
+			// Save preference
+			localStorage.setItem('store-view', view);
+		});
+	});
+</script>

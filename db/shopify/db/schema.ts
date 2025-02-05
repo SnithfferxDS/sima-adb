@@ -1,4 +1,3 @@
-import { categorySchema } from '@Lib/utils/validation';
 import { sql } from 'drizzle-orm';
 import { sqliteTable, text, integer, real } from 'drizzle-orm/sqlite-core';
 
@@ -78,6 +77,11 @@ export const CommonNames = sqliteTable('common_names', {
     desc_active: integer({ mode: 'boolean' }).default(true),
     parent_id: integer(),
     categories: text(),
+    productTypes: text(),
+    storeId: text(),
+    storeName: text(),
+    handle: text(),
+    isLinea: integer({ mode: 'boolean' }),
     created_at: text('created_at').default(sql`(CURRENT_TIME)`),
     updated_at: text('updated_at').default(sql`(CURRENT_TIME)`),
 });
@@ -174,8 +178,10 @@ export const Stocks = sqliteTable('tmp_stocks', {
     product_id: integer({ mode: 'number' }).notNull(),
     min: integer({ mode: 'number' }).notNull(),
     max: integer({ mode: 'number' }).notNull(),
-    qnt: integer({ mode: 'number' }).notNull(),
+    current: integer({ mode: 'number' }).notNull(),
+    last: integer({ mode: 'number' }).notNull(),
     sucursal: integer({ mode: 'number' }).notNull(),
+    warehouse: integer({ mode: 'number' }).notNull(),
     created_at: text('created_at').default(sql`(CURRENT_TIME)`),
     updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
 });
@@ -202,15 +208,18 @@ export const ProductStocks = sqliteTable('tmp_stocks', {
     product_id: integer({ mode: 'number' }).notNull(),
     min: integer({ mode: 'number' }).notNull(),
     max: integer({ mode: 'number' }).notNull(),
-    qnt: integer({ mode: 'number' }).notNull(),
+    current: integer({ mode: 'number' }).notNull(),
+    last: integer({ mode: 'number' }).notNull(),
     sucursal: integer({ mode: 'number' }).notNull(),
+    warehouse: integer({ mode: 'number' }).notNull(),
     created_at: text('created_at').default(sql`(CURRENT_TIME)`),
     updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
 });
 
-export const WharehouseSucursals = sqliteTable('tmp_sucursales', {
+export const Wharehouses = sqliteTable('tmp_warehouses', {
     id: integer({ mode: 'number' }).primaryKey(),
     name: text('name').notNull(),
+    sucursal: integer({ mode: 'number' }).notNull(),
     created_at: text('created_at').default(sql`(CURRENT_TIME)`),
     updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
 });
@@ -236,6 +245,8 @@ export const TProductRelations = sqliteTable('tmp_product_relations', {
     dsin: integer({ mode: 'number' }).notNull(),
     product_type_id: integer({ mode: 'number' }).notNull(),
     category_id: integer({ mode: 'number' }).notNull(),
+    commonNames: text('common_name').default('[]'),
+    stocks: text('stocks').default('[]'),
     created_at: text('created_at').default(sql`(CURRENT_TIME)`),
     updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
 });
@@ -324,4 +335,11 @@ export const TOffers = sqliteTable('tmp_offers', {
     deletedAt: integer().notNull(),
     createdAt: text('created_at').default(sql`(CURRENT_TIME)`),
     updatedAt: text('updated_at').default(sql`(CURRENT_TIME)`)
+});
+
+export const TSucursals = sqliteTable('tmp_sucursals', {
+    id: integer({ mode: 'number' }).primaryKey(),
+    name: text('name').notNull(),
+    created_at: text('created_at').default(sql`(CURRENT_TIME)`),
+    updated_at: text('updated_at').default(sql`(CURRENT_TIME)`)
 });

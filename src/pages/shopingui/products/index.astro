@@ -189,7 +189,6 @@ const breadcrumbs = [
 	form?.addEventListener('submit', async e => {
 		e.preventDefault();
 		const formData = new FormData(form as HTMLFormElement);
-		// console.log(formData);
 		try {
 			const csrfToken = document.querySelector("meta[name='csrf-token']") as HTMLMetaElement;
 			const response = await fetch('/api/shopingui/new', {

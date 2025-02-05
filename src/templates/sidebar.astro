@@ -7,31 +7,9 @@ interface Props {
 	items: MenuItems;
 }
 
-const currentPath = Astro.url.pathname;
+let currentURL = Astro.url.pathname.split('?');
+const currentPath = currentURL[0];
 const { items } = Astro.props;
-
-/* sidebarMenu.map((item) => {
-	if (item.submenu && typeof item.submenu === "string") {
-		item.submenu = JSON.parse(item.submenu);
-	} else {
-		item.submenu = item.submenu;
-	}
-});
-
-interface SubmenuItem {
-	url: string;
-	title: string;
-}
-
-interface Submenu {
-	submenu: SubmenuItem[];
-	id: number;
-	name: string;
-	icon: string;
-	url: string;
-	created_at: Date;
-	updated_at: Date | null;
-} */
 
 // Organize items into a hierarchy
 function buildMenuHierarchy(menuItems: MenuItem[]) {
